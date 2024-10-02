@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import { AuthProvider } from '@/hooks/useAuth'
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import NavigatorController from '@/components/navigation/NavigatorController';
@@ -32,38 +33,40 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <NavigatorController />
-      <Toast position='bottom'
-        config={
-          {
-            success: (props) => (
-              <BaseToast
-                {...props}
-                style={{ borderLeftColor: 'pink' }}
-                contentContainerStyle={{ paddingHorizontal: 15 }}
-                text1Style={{
-                  fontSize: 15,
-                  fontWeight: '400',
-                  fontFamily: 'NotoSans_Regular'
-                }}
-              />
-            ),
-            error: (props) => (
-              <ErrorToast
-                {...props}
-                text1Style={{
-                  fontSize: 15,
-                  fontFamily: 'NotoSans_SemiBold'
-                }}
-                text2Style={{
-                  fontSize: 13,
-                  fontFamily: 'NotoSans_Regular'
-                }}
-              />
-            ),
+      <AuthProvider>
+        <NavigatorController />
+        <Toast position='bottom'
+          config={
+            {
+              success: (props) => (
+                <BaseToast
+                  {...props}
+                  style={{ borderLeftColor: 'pink' }}
+                  contentContainerStyle={{ paddingHorizontal: 15 }}
+                  text1Style={{
+                    fontSize: 15,
+                    fontWeight: '400',
+                    fontFamily: 'NotoSans_Regular'
+                  }}
+                />
+              ),
+              error: (props) => (
+                <ErrorToast
+                  {...props}
+                  text1Style={{
+                    fontSize: 15,
+                    fontFamily: 'NotoSans_SemiBold'
+                  }}
+                  text2Style={{
+                    fontSize: 13,
+                    fontFamily: 'NotoSans_Regular'
+                  }}
+                />
+              ),
+            }
           }
-        }
-      />
+        />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

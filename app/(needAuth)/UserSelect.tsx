@@ -94,7 +94,12 @@ export default function HomeScreen() {
           finalStatus = status;
         }
         if (finalStatus !== 'granted') {
-          alert('Failed to get push token for push notification!');
+          Toast.show({
+            type: 'error',
+            text1: 'Oops!',
+            text2: 'Failed to get push token for push notification!',
+          });
+          // alert('');
           return;
         }
         const projectId =

@@ -1,3 +1,4 @@
+import { Image, Pressable, TouchableOpacity, View } from 'react-native';
 import { Href, Redirect, router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -5,7 +6,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAuth } from '@/hooks/useAuth';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import Color from '@/utils/Color';
-import { Image, Pressable, TouchableOpacity, View } from 'react-native';
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 
@@ -14,10 +14,9 @@ export default function Layout() {
     const { isAuthenticated, authUserData } = useAuth();
 
     if (!isAuthenticated) {
-        console.log('Unauthenticated');
         return <Redirect href="/UserSelect" />;
     }
-
+    
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <Drawer

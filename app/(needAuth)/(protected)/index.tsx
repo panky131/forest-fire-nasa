@@ -143,7 +143,7 @@ const Dashboard = () => {
     GetAlertsData();
 
     return () => { }
-  }, [isFocused, authUserData])
+  }, [authUserData])
 
   useEffect(() => {
     setTimeout(async () => {

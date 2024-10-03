@@ -1,4 +1,5 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { ThemeProvider as RapidThemeProvider } from "react-native-rapi-ui";
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -32,41 +33,44 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AuthProvider>
-        <NavigatorController />
-        <Toast position='bottom'
-          config={
-            {
-              success: (props) => (
-                <BaseToast
-                  {...props}
-                  style={{ borderLeftColor: 'pink' }}
-                  contentContainerStyle={{ paddingHorizontal: 15 }}
-                  text1Style={{
-                    fontSize: 15,
-                    fontWeight: '400',
-                    fontFamily: 'NotoSans_Regular'
-                  }}
-                />
-              ),
-              error: (props) => (
-                <ErrorToast
-                  {...props}
-                  text1Style={{
-                    fontSize: 15,
-                    fontFamily: 'NotoSans_SemiBold'
-                  }}
-                  text2Style={{
-                    fontSize: 13,
-                    fontFamily: 'NotoSans_Regular'
-                  }}
-                />
-              ),
+    <RapidThemeProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <AuthProvider>
+          <NavigatorController />
+          <Toast position='bottom'
+            config={
+              {
+                success: (props) => (
+                  <BaseToast
+                    {...props}
+                    style={{ borderLeftColor: 'pink' }}
+                    contentContainerStyle={{ paddingHorizontal: 15 }}
+                    text1Style={{
+                      fontSize: 15,
+                      fontWeight: '400',
+                      fontFamily: 'NotoSans_Regular'
+                    }}
+                  />
+                ),
+                error: (props) => (
+                  <ErrorToast
+                    {...props}
+                    text1Style={{
+                      fontSize: 15,
+                      fontFamily: 'NotoSans_SemiBold'
+                    }}
+                    text2Style={{
+                      fontSize: 13,
+                      fontFamily: 'NotoSans_Regular'
+                    }}
+                  />
+                ),
+              }
             }
-          }
-        />
-      </AuthProvider>
-    </ThemeProvider>
+          />
+        </AuthProvider>
+      </ThemeProvider>
+    </RapidThemeProvider>
+
   );
 }

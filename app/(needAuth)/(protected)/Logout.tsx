@@ -1,12 +1,12 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import React, { useEffect } from 'react'
 import { useIsFocused } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 import { useAuth } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ThemedText';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import Color from '@/utils/Color';
-import Toast from 'react-native-toast-message';
 
 const Logout = () => {
 

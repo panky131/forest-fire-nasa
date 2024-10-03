@@ -48,6 +48,11 @@ export default function RootLayout() {
             headerTitle: 'Office Staff Login',
           }}
         />
+        <Stack.Screen name="NewFireIncidentPublic"
+          options={{
+            headerTitle: 'New Fire Incident',
+          }}
+        />
       </Stack>
       <StatusBar style='light' />
     </>

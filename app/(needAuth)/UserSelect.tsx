@@ -213,7 +213,7 @@ export default function HomeScreen() {
       <TouchableOpacity>
         <Link style={[styles.reportBtn, {
           backgroundColor: themeColor.warning600
-        }]} href={'./NewFireIncidentPublic'}>
+        }]} href={'/(needAuth)/Warning'}>
           <View style={styles.ButtonTextHolder}>
             <MaterialCommunityIcons name="fire" size={moderateScale(24)} color="#fff" />
             <ThemedText style={styles.linkBtnText} type='link'>

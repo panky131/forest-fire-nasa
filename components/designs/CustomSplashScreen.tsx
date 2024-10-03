@@ -24,7 +24,7 @@ const CustomSplashScreen = () => {
                 </ThemedText>
                 <Image
                     style={styles.tree_fire_image}
-                    source={require('../../assets/images/icon.png')}
+                    source={require('../../assets/images/icon_without_bg.png')}
                 />
             </View>
             <View style={styles.bottomContainer}>

@@ -11,12 +11,12 @@ import { ThemedText } from '@/components/ThemedText';
 
 export default function Layout() {
 
-    const { isAuthenticated, authUserData } = useAuth();
+    const { authUserData } = useAuth();
 
-    if (!isAuthenticated) {
-        return <Redirect href="/UserSelect" />;
-    }
-    
+    // if (!isAuthenticated) {
+    //     return <Redirect href="/CustomSplashScreen" />;
+    // }
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <Drawer
@@ -68,7 +68,7 @@ export default function Layout() {
                             </View>
                             <View style={{ flex: 1 }}>
                                 <Pressable
-                                    onPress={() => router.push('/')}
+                                    onPress={() => router.push('/Dashboard')}
                                     style={{
                                         paddingHorizontal: horizontalScale(10),
                                         marginTop: verticalScale(15)

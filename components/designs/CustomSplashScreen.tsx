@@ -1,13 +1,110 @@
 import { Image, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import React from 'react'
+import React, { useState } from 'react'
+import NetInfo, { NetInfoState } from "@react-native-community/netinfo"
+import { useFocusEffect, useRouter } from 'expo-router'
+import { themeColor } from 'react-native-rapi-ui'
 
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 import Color from '@/utils/Color'
-import { themeColor } from 'react-native-rapi-ui'
 import { ThemedText } from '@/components/ThemedText'
+import { _delete_item_securestore, _get_item_securestore } from '@/utils/SecureStore'
+import { checkIfDbExists, initializeDatabase } from '@/utils/sqlite/SQLiteDBLocals'
+import URLs from '@/utils/URLs'
 
 const CustomSplashScreen = () => {
+
+    /* 
+     1. Check for auth key in expo secure store.
+     2. If not available then redirect to user select screen
+     3. If available then check for internet connection 
+     4. If internet connection is available validate the user session | 
+        - If user session is valid then navigate to user select screen
+     5. If no interet connection then redirect to dashboard sceeen
+    */
+
+    const router = useRouter();
+    const [internetStatus, setInternetStatus] = useState<boolean | null>(false);
+
+    const ValidateUser = async (): Promise<boolean> => {
+
+
+        try {
+            let auth_key: string | null = await _get_item_securestore('auth_key');
+
+            const requestBody = new FormData();
+            requestBody.append('auth_key', auth_key as string);
+
+            const response = await fetch(`${URLs.api_base_url}validate_user`, {
+                method: 'POST',
+                body: requestBody
+            });
+
+            const responseJson = await response.json();
+            if (responseJson.status !== "success") {
+                await _delete_item_securestore('auth_key');
+                return false;
+            }
+
+            return true;
+
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    }
+
+    const CheckForAuth = async (): Promise<void> => {
+        try {
+            let result = await _get_item_securestore('auth_key');
+            if (!result || result === null) {
+                router.push('/UserSelect');
+                return;
+            }
+
+            if (!await checkIfDbExists()) {
+                if (internetStatus) {
+                    if (await initializeDatabase()) {
+                        // DB Initialized
+                    } else {
+                        // Navigate to Error Screen
+                        return;
+                    }
+                } else {
+                    // Navigate to no Internet Screen
+                }
+            }
+
+            if (internetStatus) {
+                if (await ValidateUser()) {
+                    router.push("/Dashboard");
+                } else {
+                    router.push("/UserSelect");
+                }
+            }
+
+            return;
+        } catch (error) {
+            console.log(error)
+            // Move to error screen
+            return;
+        }
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const removeNetInfoSubscription = NetInfo.addEventListener((state: NetInfoState) => {
+                const status = (state.isConnected && state.isInternetReachable)
+                setInternetStatus(status);
+            });
+
+            // check for user authentication and initializing database (for first time user)
+            CheckForAuth();
+
+            return () => removeNetInfoSubscription()
+        }, [])
+    );
+
     return (
         <SafeAreaView style={styles.container}>
             <Image

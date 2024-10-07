@@ -2,18 +2,22 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { ThemeProvider as RapidThemeProvider } from "react-native-rapi-ui";
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import 'react-native-reanimated';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import { AuthProvider } from '@/hooks/useAuth'
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import NavigatorController from '@/components/navigation/NavigatorController';
+import { AppState } from 'react-native';
+import { checkAndUploadData, registerBackgroundFetchAsync, unregisterBackgroundFetchAsync } from '@/tasks/BackgroundTaskHandler';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+
+  // const appState = useRef(AppState.currentState);
+
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     NotoSans_Regular: require('../assets/fonts/Noto_Sans/static/NotoSans-Regular.ttf'),
@@ -21,6 +25,32 @@ export default function RootLayout() {
     NotoSans_Bold: require('../assets/fonts/Noto_Sans/static/NotoSans-Bold.ttf'),
     NotoSans_ExtraBold: require('../assets/fonts/Noto_Sans/static/NotoSans-ExtraBold.ttf'),
   });
+
+  // useEffect(() => {
+  //   const subscription = AppState.addEventListener('change', nextAppState => {
+  //     if (
+  //       appState.current.match(/inactive|background/) &&
+  //       nextAppState === 'active'
+  //     ) {
+  //       console.log('App has come to the foreground!');
+  //       checkAndUploadData();
+  //     }
+
+  //     appState.current = nextAppState;
+  //     console.log('AppState', appState.current);
+  //   });
+
+  //   if (appState.current === 'active') {
+  //     checkAndUploadData();
+  //   } else {
+  //     registerBackgroundFetchAsync();
+  //   }
+
+  //   return () => {
+  //     subscription.remove();
+  //     unregisterBackgroundFetchAsync();
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (loaded) {
@@ -31,6 +61,7 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+
 
   return (
     <RapidThemeProvider>

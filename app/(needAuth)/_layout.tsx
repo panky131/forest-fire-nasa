@@ -30,6 +30,12 @@ export default function RootLayout() {
         headerBackVisible: true,
         headerTintColor: '#fff'
       }}>
+        <Stack.Screen name="index"
+          options={{
+            headerTitle: 'Loading',
+            headerShown: false
+          }}
+        />
         <Stack.Screen options={{
           headerShown: false
         }} name="(protected)" />
@@ -54,7 +60,7 @@ export default function RootLayout() {
           }}
         />
       </Stack>
-      <StatusBar style='light' />
+      <StatusBar style='dark' />
     </>
   );
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "735615447660",
+    "project_id": "forest-fire-uttarakhand-946b3",
+    "storage_bucket": "forest-fire-uttarakhand-946b3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:735615447660:android:875fc40c3ff23151395e49",
+        "android_client_info": {
+          "package_name": "com.trihari.pranavi.forest_fire_uttarakhand"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDV1yqY_oL3Lq_mMg2DgTTx5f4npe3iedE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

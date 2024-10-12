@@ -1,10 +1,11 @@
 import { StyleSheet, Image, View, Dimensions, Modal, TouchableOpacity, Text } from 'react-native'
 import React, { useEffect, useReducer, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { Button, TextInput, themeColor } from 'react-native-rapi-ui';
 import { Camera, CameraView } from 'expo-camera'
 import * as Location from 'expo-location';
+import Toast from 'react-native-toast-message';
+import * as FileSystem from 'expo-file-system';
 
 import { useIsFocused } from '@react-navigation/native'
 
@@ -13,7 +14,8 @@ import LoadingIndicator from '@/components/designs/LoadingIndicator'
 import { useAuth } from '@/hooks/useAuth'
 import URLs from '@/utils/URLs'
 import { ThemedText } from '@/components/ThemedText';
-import Toast from 'react-native-toast-message';
+import { tbl_fire_incidents } from '@/utils/sqlite/SQLiteDBSchema';
+import { executeSQLiteOperation, FireIncidentsType, insertRow } from '@/utils/sqlite/SQLiteFunctions';
 
 const path = require('path');
 const mimetype = require('mimetype');
@@ -29,19 +31,22 @@ const NewFireIncidentPublic = () => {
     const [Phone, SetPhone] = useState<string>("");
     const [OTP, SetOTP] = useState<string | null>(null);
 
-    const [cameraPermission, setCameraPermission] = useState<boolean | null>(null);
-    const [camera, setCamera] = useState(null);
-    const [imageUri, setImageUri] = useState(null);
-    const { height, width } = Dimensions.get('window');
-    const [location, setLocation] = useState<Location.LocationObject | null>(null);
-    const [otpModal, setOTPModal] = useState(false);
-    const [otpSent, setOTPsent] = useState(false);
-    const [systemOTP, setSystemOTP] = useState("");
 
-    const [modalVisible, setModalVisible] = useState(false);
-    const [loading, SetPageLoading] = useState(false);
-    const [PageError, SetPageError] = useState(false);
+    const [camera, setCamera] = useState(null);
+    const [otpSent, setOTPsent] = useState<boolean>(false);
+    const [systemOTP, setSystemOTP] = useState<string>("");
+    const [otpModal, setOTPModal] = useState<boolean>(false);
+    const [imageUri, setImageUri] = useState<string | null>(null);
+    const [storedImagePath, setstoredImagePath] = useState<string | null>(null);
+    const [location, setLocation] = useState<Location.LocationObject | null>(null);
+    const [cameraPermission, setCameraPermission] = useState<boolean | null>(null);
+
+
+    const [loading, SetPageLoading] = useState<boolean>(false);
+    const [PageError, SetPageError] = useState<boolean>(false);
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [phoneNumberVerified, SetPhoneNumberVerified] = useState(false);
+
 
     const permisionFunction = async () => {
         const cameraPermission = await Camera.requestCameraPermissionsAsync();
@@ -59,11 +64,34 @@ const NewFireIncidentPublic = () => {
         setLocation(location);
     };
 
-    const captureImage = async () => {
-        // @ts-ignore
-        const data = await camera?.takePictureAsync(null);
-        setImageUri(data.uri);
-        setModalVisible(false);
+    const captureAndStoreImage = async () => {
+        try {
+            // @ts-ignore
+            const data = await camera?.takePictureAsync(null);
+            setImageUri(data.uri);
+
+            const documentDirectory = FileSystem.documentDirectory || '';
+            const inspectImgDirectory = documentDirectory + 'incidents_images/';
+            await FileSystem.makeDirectoryAsync(inspectImgDirectory, { intermediates: true });
+
+            const filename: string = `incident_photo_${Date.now()}.jpg`;
+            const photoPath: string = inspectImgDirectory + filename;
+            await FileSystem.moveAsync({
+                from: data.uri,
+                to: photoPath,
+            });
+
+            setstoredImagePath(photoPath);
+            setModalVisible(false);
+
+        } catch (error) {
+            console.log(error);
+            Toast.show({
+                type: 'error',
+                text1: 'Oops!',
+                text2: 'Some problems ocured while processing your Image. Please try again later'
+            })
+        }
     }
 
     const takePicture = async () => {
@@ -94,8 +122,10 @@ const NewFireIncidentPublic = () => {
         }
     }
 
-    const SubmitIncident = async () => {
+    const storeIncidentInSqliteStorage = async () => {
         try {
+            setLoadingText('Uploading');
+            SetPageLoading(true);
 
             if (!Phone || !Name || !Remark || !imageUri) {
                 Toast.show({
@@ -105,66 +135,124 @@ const NewFireIncidentPublic = () => {
                 });
                 return;
             }
-            setLoadingText('Uploading');
-            SetPageLoading(true);
 
-            let capturedImage = {
-                uri: imageUri,
-                name: getFileName(imageUri),
-                type: getFileMIME(imageUri)
-            };
-
-            const _finalData = new FormData();
-            _finalData.append('message', Remark);
-            _finalData.append('image', capturedImage as any);
+            let lat, long;
             if (location?.coords.latitude && location?.coords.longitude) {
-                _finalData.append('lat', location?.coords.latitude as never);
-                _finalData.append('lng', location?.coords.longitude as never);
+                lat = location?.coords.latitude;
+                long = location?.coords.longitude
+
             } else {
-                _finalData.append('lat', 0 as never);
-                _finalData.append('lng', 0 as never);
+                lat = 0;
+                long = 0
             }
-            _finalData.append('mobile', authUserData.mobile_number);
-            _finalData.append('type', 'Fire');
-            _finalData.append('name', authUserData.user_name);
-            _finalData.append('division_id', 'PUBLIC_USER');
 
-            const response = await fetch(URLs.api_base_url + "submit_incident.php", {
-                method: "POST",
-                body: _finalData,
-            });
+            const insertIncidentQuery = `INSERT INTO ${tbl_fire_incidents.tbl_name} (${[...tbl_fire_incidents.tbl_struct]}) VALUES (${Array(tbl_fire_incidents.tbl_struct.length).fill('?').join(', ')})`;
+            const insertIncidentValues: any[] = [null, storedImagePath, Remark, lat, long, Phone, 'Fire', Name, 'PUBLIC_USER'];
 
-            const resData = await response.json();
-            if (resData.status != "success") {
-                SetPageError(true);
-                return;
-            }
+            await insertRow({ query: insertIncidentQuery, values: insertIncidentValues });
 
             Toast.show({
                 type: 'success',
                 text1: 'Done!',
-                text2: 'Report Submitted Succesfully'
+                text2: 'Report is processed successfully and will be uploaded shortly'
             });
+
             setImageUri(null);
             SetRemark("");
             SetName("");
             SetPhone("");
             SetOTP("");
+            setstoredImagePath("");
+
+            return;
 
         } catch (error) {
 
             console.log(error);
-            SetPageError(true);
+            Toast.show({
+                type: 'error',
+                text1: 'Oops!',
+                text2: 'Some problems occured while processing your request. Please try again later'
+            });
 
         } finally {
             SetPageLoading(false);
             setLoadingText('Loading');
+
         }
     }
 
+    // const SubmitIncident = async () => {
+    //     try {
+
+    //         if (!Phone || !Name || !Remark || !imageUri) {
+    //             Toast.show({
+    //                 type: 'error',
+    //                 text1: 'Oops!',
+    //                 text2: 'All input fields must be filled out'
+    //             });
+    //             return;
+    //         }
+    //         setLoadingText('Uploading');
+    //         SetPageLoading(true);
+
+    //         let capturedImage = {
+    //             uri: imageUri,
+    //             name: getFileName(imageUri),
+    //             type: getFileMIME(imageUri)
+    //         };
+
+    //         const _finalData = new FormData();
+    //         _finalData.append('message', Remark);
+    //         _finalData.append('image', capturedImage as any);
+    //         if (location?.coords.latitude && location?.coords.longitude) {
+    //             _finalData.append('lat', location?.coords.latitude as never);
+    //             _finalData.append('lng', location?.coords.longitude as never);
+    //         } else {
+    //             _finalData.append('lat', 0 as never);
+    //             _finalData.append('lng', 0 as never);
+    //         }
+    //         _finalData.append('mobile', authUserData.mobile_number);
+    //         _finalData.append('type', 'Fire');
+    //         _finalData.append('name', authUserData.user_name);
+    //         _finalData.append('division_id', 'PUBLIC_USER');
+
+    //         const response = await fetch(URLs.api_base_url + "submit_incident.php", {
+    //             method: "POST",
+    //             body: _finalData,
+    //         });
+
+    //         const resData = await response.json();
+    //         if (resData.status != "success") {
+    //             SetPageError(true);
+    //             return;
+    //         }
+
+    //         Toast.show({
+    //             type: 'success',
+    //             text1: 'Done!',
+    //             text2: 'Report is processed successfully. Will uploaded shortly.'
+    //         });
+    //         setImageUri(null);
+    //         SetRemark("");
+    //         SetName("");
+    //         SetPhone("");
+    //         SetOTP("");
+
+    //     } catch (error) {
+
+    //         console.log(error);
+    //         SetPageError(true);
+
+    //     } finally {
+    //         SetPageLoading(false);
+    //         setLoadingText('Loading');
+    //     }
+    // }
+
     const sendOTP = async () => {
         if (phoneNumberVerified) {
-            SubmitIncident();
+            storeIncidentInSqliteStorage();
             return;
         }
         if (!Phone) {
@@ -267,13 +355,12 @@ const NewFireIncidentPublic = () => {
                             borderRadius: moderateScale(10),
 
                         }}
-                        // ratio={ratio}
                         // @ts-ignore
                         autoFocus={'on'}
                     />
                     <View style={styles.clickBtnOuterContainer}>
                         <TouchableOpacity style={styles.clickBtn}>
-                            <TouchableOpacity onPress={() => captureImage()} style={styles.clickBtnInner}></TouchableOpacity>
+                            <TouchableOpacity onPress={() => captureAndStoreImage()} style={styles.clickBtnInner}></TouchableOpacity>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -375,7 +462,7 @@ const NewFireIncidentPublic = () => {
                             </ThemedText>
                             <Image
                                 // @ts-ignore
-                                source={{ uri: imageUri }}
+                                source={{ uri: storedImagePath ? storedImagePath: null }}
                                 style={styles.captureImage}
                             />
                         </View>

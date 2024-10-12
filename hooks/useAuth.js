@@ -5,7 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(true);
+    // const [isAuthenticated, setIsAuthenticated] = useState(true);
     const [authUserData, setAuthUserData] = useState({
         auth_key: null,
         mobile_number: null,
@@ -62,13 +62,14 @@ export const AuthProvider = ({ children }) => {
     }
 
     const CheckForUserAuth = async () => {
-        if (!await CheckSecureStoreCred()) setIsAuthenticated(false); // unable to find all items in secure store
-        else setIsAuthenticated(true); // all items are set in authUserData
+        // if (!await CheckSecureStoreCred()) setIsAuthenticated(false); // unable to find all items in secure store
+        // else setIsAuthenticated(true); // all items are set in authUserData
+        CheckSecureStoreCred();
     }
 
     const login = async () => {
         await CheckSecureStoreCred();
-        setIsAuthenticated(true);
+        // setIsAuthenticated(true);
     };
 
     const logout = async () => {
@@ -91,7 +92,7 @@ export const AuthProvider = ({ children }) => {
             division_id: null
         };
         setAuthUserData(tempObj);
-        setIsAuthenticated(false)
+        // setIsAuthenticated(false)
     }
 
     useEffect(() => {
@@ -104,7 +105,7 @@ export const AuthProvider = ({ children }) => {
 
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout, authUserData, setIsAuthenticated }}>
+        <AuthContext.Provider value={{ login, logout, authUserData }}>
             {children}
         </AuthContext.Provider>
     );

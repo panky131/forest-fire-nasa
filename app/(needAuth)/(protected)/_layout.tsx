@@ -11,7 +11,7 @@ import { ThemedText } from '@/components/ThemedText';
 
 export default function Layout() {
 
-    const { authUserData } = useAuth();
+    // const { authUserData } = useAuth();
 
     // if (!isAuthenticated) {
     //     return <Redirect href="/CustomSplashScreen" />;
@@ -68,7 +68,7 @@ export default function Layout() {
                             </View>
                             <View style={{ flex: 1 }}>
                                 <Pressable
-                                    onPress={() => router.push('/Dashboard')}
+                                    onPress={() => router.push('/Dashboard' as Href)}
                                     style={{
                                         paddingHorizontal: horizontalScale(10),
                                         marginTop: verticalScale(15)
@@ -223,7 +223,7 @@ export default function Layout() {
                     options={{
                         title: "Dashboard / डैशबोर्ड"
                     }}
-                    name="index" />
+                    name="Dashboard" />
                 <Drawer.Screen
                     options={{
                         title: "संयुक्त पहल"
@@ -239,11 +239,11 @@ export default function Layout() {
                         title: "Contact / कंट्रोल रूम से संपर्क करे"
                     }}
                     name="ControllRoomInformation" />
-                {authUserData && authUserData.user_type && authUserData.user_type == "gov" && <Drawer.Screen
+                {/* {authUserData && authUserData.user_type && authUserData.user_type == "gov" && <Drawer.Screen
                     options={{
                         title: "गाँव की लिस्ट"
                     }}
-                    name="VilagesList" />}
+                    name="VilagesList" />} */}
                 <Drawer.Screen
                     options={{
                         title: "लॉगआउट करे"

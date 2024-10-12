@@ -1,6 +1,6 @@
 import { Image, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import NetInfo, { NetInfoState } from "@react-native-community/netinfo"
 import { useFocusEffect, useRouter } from 'expo-router'
 import { themeColor } from 'react-native-rapi-ui'
@@ -11,6 +11,7 @@ import { ThemedText } from '@/components/ThemedText'
 import { _delete_item_securestore, _get_item_securestore } from '@/utils/SecureStore'
 import { checkIfDbExists, initializeDatabase } from '@/utils/sqlite/SQLiteDBLocals'
 import URLs from '@/utils/URLs'
+import { useIsFocused } from '@react-navigation/native'
 
 const CustomSplashScreen = () => {
 
@@ -24,10 +25,8 @@ const CustomSplashScreen = () => {
     */
 
     const router = useRouter();
-    const [internetStatus, setInternetStatus] = useState<boolean | null>(false);
 
     const ValidateUser = async (): Promise<boolean> => {
-
 
         try {
             let auth_key: string | null = await _get_item_securestore('auth_key');
@@ -35,7 +34,7 @@ const CustomSplashScreen = () => {
             const requestBody = new FormData();
             requestBody.append('auth_key', auth_key as string);
 
-            const response = await fetch(`${URLs.api_base_url}validate_user`, {
+            const response = await fetch(`${URLs.api_base_url}validate_user.php`, {
                 method: 'POST',
                 body: requestBody
             });
@@ -50,60 +49,86 @@ const CustomSplashScreen = () => {
 
         } catch (error) {
             console.log(error);
+            router.replace("/(needAuth)/ErrorScreen" as any);
             return false;
         }
     }
 
     const CheckForAuth = async (): Promise<void> => {
         try {
-            let result = await _get_item_securestore('auth_key');
-            if (!result || result === null) {
-                router.push('/UserSelect');
-                return;
-            }
+            console.log('====================================');
+            console.log(`Started Auth`);
+            console.log('====================================');
+
+            const state = await NetInfo.fetch();
+            const internetStatus = state.isConnected && state.isInternetReachable;
+
+            console.log('====================================');
+            console.log(`Internet Status ${internetStatus}`);
+            console.log('====================================');
 
             if (!await checkIfDbExists()) {
                 if (internetStatus) {
-                    if (await initializeDatabase()) {
-                        // DB Initialized
-                    } else {
+                    if (!await initializeDatabase()) {
                         // Navigate to Error Screen
+                        router.replace("/(needAuth)/ErrorScreen");
                         return;
                     }
                 } else {
                     // Navigate to no Internet Screen
+                    router.replace("/(needAuth)/NoInternetScreen");
                 }
             }
 
+            let result = await _get_item_securestore('auth_key');
+            if (!result || result === null) {
+                console.log('====================================');
+                console.log(`Checking for auth key`);
+                console.log('====================================');
+                router.replace("/(needAuth)/UserSelect");
+                return;
+            }
+
             if (internetStatus) {
+                console.log(`On the final check`);
                 if (await ValidateUser()) {
-                    router.push("/Dashboard");
+                    router.replace("/(needAuth)/(protected)/Dashboard");
+                    return;
                 } else {
-                    router.push("/UserSelect");
+                    console.log('====================================');
+                    console.log(`this is the final wala`);
+                    console.log('====================================');
+                    router.replace("/(needAuth)/UserSelect");
+                    return;
                 }
             }
 
             return;
         } catch (error) {
             console.log(error)
-            // Move to error screen
+            router.replace("/(needAuth)/ErrorScreen" as any);
             return;
         }
     }
 
-    useFocusEffect(
-        React.useCallback(() => {
-            const removeNetInfoSubscription = NetInfo.addEventListener((state: NetInfoState) => {
-                const status = (state.isConnected && state.isInternetReachable)
-                setInternetStatus(status);
-            });
+    // useEffect(
+    //     React.useCallback(() => {
+    //         const removeNetInfoSubscription = NetInfo.addEventListener((state: NetInfoState) => {
+    //             const status = (state.isConnected && state.isInternetReachable)
+    //             setInternetStatus(status);
 
-            // check for user authentication and initializing database (for first time user)
-            CheckForAuth();
+    //         });
 
-            return () => removeNetInfoSubscription()
-        }, [])
-    );
+    //         return () => removeNetInfoSubscription()
+    //     }, [])
+    // ), [isFocused];
+
+    useEffect(() => {
+        CheckForAuth();
+
+        return () => { }
+    }, [])
+
 
     return (
         <SafeAreaView style={styles.container}>

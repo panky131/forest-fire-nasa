@@ -10,7 +10,6 @@ import Toast from 'react-native-toast-message';
 // @ts-ignore
 import RadioButtonRN from 'radio-buttons-react-native-expo';
 
-import { useIsFocused } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -22,7 +21,6 @@ import URLs from '@/utils/URLs';
 
 export default function HomeScreen() {
 
-  const isFocused = useIsFocused();
   const Navigation = useNavigation();
 
   const notificationListener = useRef<any>();
@@ -136,38 +134,38 @@ export default function HomeScreen() {
       setIsLoading(false);
     }
   }
-
-  useEffect(() => {
-    const checkFirstLaunch = async () => {
-      try {
-        setIsLoading(true);
-        const isFirstLaunch = await SecureStore.getItemAsync('isFirstLaunch');
-        if (isFirstLaunch === null || !isFirstLaunch) {
-          console.log(`This is first launch of app`);
-          const token = await registerForPushNotificationsAsync();
-          console.log(`Token returned is :- ${token}`)
-          if (token) {
-            setExpoPushToken(token);
-            await storeTokenInDatabase(token);
-            await SecureStore.setItemAsync("isFirstLaunch", "true");
-          } else {
-            Toast.show({
-              type: 'error',
-              text1: 'Oops!',
-              text2: 'Unable to register for push notifications'
-            });
-            console.log("Unable to register for push notifications | Outer reach");
-          }
+  
+  const checkFirstLaunch = async () => {
+    try {
+      setIsLoading(true);
+      const isFirstLaunch = await SecureStore.getItemAsync('isFirstLaunch');
+      if (isFirstLaunch === null || !isFirstLaunch) {
+        console.log(`This is first launch of app`);
+        const token = await registerForPushNotificationsAsync();
+        console.log(`Token returned is :- ${token}`)
+        if (token) {
+          setExpoPushToken(token);
+          await storeTokenInDatabase(token);
+          await SecureStore.setItemAsync("isFirstLaunch", "true");
         } else {
-          console.log(`This is not first launch of app`);
+          Toast.show({
+            type: 'error',
+            text1: 'Oops!',
+            text2: 'Unable to register for push notifications'
+          });
+          console.log("Unable to register for push notifications | Outer reach");
         }
-      } catch (error) {
-        console.log(error);
-        console.log(`Error while processing first launch`);
-      } finally {
-        setIsLoading(false);
+      } else {
+        console.log(`This is not first launch of app`);
       }
-    };
+    } catch (error) {
+      console.log(error);
+      console.log(`Error while processing first launch`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
 
     checkFirstLaunch();
 

@@ -1,22 +1,25 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { ThemeProvider as RapidThemeProvider } from "react-native-rapi-ui";
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useRef } from 'react';
 import 'react-native-reanimated';
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+
+
+import { useFonts } from 'expo-font';
+import { AppState } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
 import { AuthProvider } from '@/hooks/useAuth'
+import * as SplashScreen from 'expo-splash-screen';
+import { ThemeProvider as RapidThemeProvider } from "react-native-rapi-ui";
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import NavigatorController from '@/components/navigation/NavigatorController';
-import { AppState } from 'react-native';
 import { checkAndUploadData, registerBackgroundFetchAsync, unregisterBackgroundFetchAsync } from '@/tasks/BackgroundTaskHandler';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
 
-  // const appState = useRef(AppState.currentState);
+  const appState = useRef(AppState.currentState);
 
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
@@ -26,31 +29,33 @@ export default function RootLayout() {
     NotoSans_ExtraBold: require('../assets/fonts/Noto_Sans/static/NotoSans-ExtraBold.ttf'),
   });
 
-  // useEffect(() => {
-  //   const subscription = AppState.addEventListener('change', nextAppState => {
-  //     if (
-  //       appState.current.match(/inactive|background/) &&
-  //       nextAppState === 'active'
-  //     ) {
-  //       console.log('App has come to the foreground!');
-  //       checkAndUploadData();
-  //     }
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        console.log('App has come to the foreground!');
+        checkAndUploadData();
+      }
 
-  //     appState.current = nextAppState;
-  //     console.log('AppState', appState.current);
-  //   });
+      appState.current = nextAppState;
+      console.log('AppState', appState.current);
+    });
 
-  //   if (appState.current === 'active') {
-  //     checkAndUploadData();
-  //   } else {
-  //     registerBackgroundFetchAsync();
-  //   }
+    if (appState.current === 'active') {
+      checkAndUploadData();
+    } else {
+      registerBackgroundFetchAsync();
+    }
 
-  //   return () => {
-  //     subscription.remove();
-  //     unregisterBackgroundFetchAsync();
-  //   };
-  // }, []);
+
+
+    return () => {
+      subscription.remove();
+      unregisterBackgroundFetchAsync();
+    };
+  }, []);
 
   useEffect(() => {
     if (loaded) {

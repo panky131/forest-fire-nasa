@@ -19,7 +19,22 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE"
+      ],
+      "package": "com.trihari.pranavi.forest_fire_uttarakhand",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCquAQrTzOxN6FV_YIQ1qARtdSxVXTym5Y"
+        }
+      },
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 22
     },
     "web": {
       "bundler": "metro",
@@ -35,12 +50,21 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow 'Forest Fire Reporting And Monitoring' to use your location."
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
+      "router": {
+        "origin": false
+      },
       "eas": {
         "projectId": "37bc4098-0e8b-4fb5-b002-9d7bdc088ba8"
       }

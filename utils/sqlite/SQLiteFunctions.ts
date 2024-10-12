@@ -20,9 +20,9 @@ interface newRowParamsType {
 
 const executeSQLiteOperation = async ({ table_name, query = "" }: { table_name?: string, query?: string }): Promise<SQLiteExecuteAsyncResult<FireIncidentsType> | any> => {
 
-    try {
+    try {  
         const db = await useDatabase();
-        const data = await db.getAllAsync(query ? query : `SELECT * FROM ${table_name}`);
+        const data = await db.getAllAsync(query ? query : `SELECT * FROM ${table_name}`);        
 
         return data;
     } catch (error) {

@@ -1,18 +1,22 @@
-import { StyleSheet, Image, View, Dimensions, Modal, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import { Camera, CameraView } from 'expo-camera'
 import * as Location from 'expo-location';
-import { Button, TextInput, themeColor } from 'react-native-rapi-ui'
-
+import * as FileSystem from 'expo-file-system';
+import { Camera, CameraView } from 'expo-camera';
+import React, { useEffect, useState } from 'react'
 import { useIsFocused } from '@react-navigation/native'
+import { Button, TextInput, themeColor } from 'react-native-rapi-ui';
+import { StyleSheet, Image, View, Modal, TouchableOpacity } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
+
+import URLs from '@/utils/URLs'
+import { useAuth } from '@/hooks/useAuth'
+import { ThemedText } from '@/components/ThemedText'
 import LoadingIndicator from '@/components/designs/LoadingIndicator'
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
-import { useAuth } from '@/hooks/useAuth'
-import URLs from '@/utils/URLs'
-import { ThemedText } from '@/components/ThemedText'
+import Toast from 'react-native-toast-message';
+import { tbl_fire_incidents } from '@/utils/sqlite/SQLiteDBSchema';
+import { executeSQLiteOperation, insertRow } from '@/utils/sqlite/SQLiteFunctions';
+
 
 const path = require('path');
 const mimetype = require('mimetype');
@@ -23,35 +27,28 @@ const NewFireIncident = () => {
   // for input fields
   const [Remark, SetRemark] = useState("");
 
-  // camera | permission | captured image
+  const [loadingText, setLoadingText] = useState<string>("");
   const [cameraPermission, setCameraPermission] = useState<boolean | null>(null);
-  const [camera, setCamera] = useState(null);
-  const [imageUri, setImageUri] = useState(null);
-  // @ts-ignore
-  // const [type, setType] = useState(Camera.Constants.Type.back)
-  const [imagePadding, setImagePadding] = useState(0);
-  const [ratio, setRatio] = useState('4:3');  // default is 4:3
-  const { height, width } = Dimensions.get('window');
-  const screenRatio = height / width;
-  const [isRatioSet, setIsRatioSet] = useState(false);
+  const [camera, setCamera] = useState<any | null>(null);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [storedImagePath, setStoredImagePath] = useState<string | null>(null);
+
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [loading, SetPageLoading] = useState(false);
-  const [PageError, SetPageError] = useState(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [loading, SetPageLoading] = useState<boolean>(false);
 
   const permisionFunction = async () => {
-    // here is how you can get the camera permission
     // @ts-ignore
     const cameraPermission = await Camera.requestCameraPermissionsAsync();
     setCameraPermission(cameraPermission.status === 'granted');
     let { status } = await Location.requestForegroundPermissionsAsync();
 
-    if (
-      cameraPermission.status !== 'granted' || status !== 'granted'
-    ) {
+    if (cameraPermission.status !== 'granted' || status !== 'granted') {
+
       alert('Permission for Camera And Location access needed.');
       return;
+
     }
 
     let location = await Location.getCurrentPositionAsync({});
@@ -59,10 +56,34 @@ const NewFireIncident = () => {
   };
 
   const captureImage = async () => {
-    // @ts-ignore
-    const data = await camera?.takePictureAsync(null);
-    setImageUri(data.uri);
-    setModalVisible(false);
+    try {
+      // @ts-ignore
+      const data = await camera?.takePictureAsync(null);
+      setImageUri(data.uri);
+
+      const documentDirectory = FileSystem.documentDirectory || '';
+      const inspectImgDirectory = documentDirectory + 'incidents_images/';
+      await FileSystem.makeDirectoryAsync(inspectImgDirectory, { intermediates: true });
+
+      const filename: string = `incident_photo_${Date.now()}.jpg`;
+      const photoPath: string = inspectImgDirectory + filename;
+      await FileSystem.moveAsync({
+        from: data.uri,
+        to: photoPath,
+      });
+
+      setStoredImagePath(photoPath)
+      setModalVisible(false);
+
+    } catch (error) {
+      console.log(error);
+      Toast.show({
+        type: 'error',
+        text1: 'Oops!',
+        text2: 'Some problems occured while capturing Image. Please try again later..'
+      })
+
+    }
   }
 
   const takePicture = async () => {
@@ -76,88 +97,136 @@ const NewFireIncident = () => {
     return mimetype.lookup(uri);
   }
 
-  const SubmitIncident = async () => {
+  const storeIncidentSqliteStorage = async () => {
     try {
-
-      if (!Remark || !imageUri) {
-        alert("Image must be clicked and remark must be filled out");
-        return;
-      }
-
+      setLoadingText('Uploading');
       SetPageLoading(true);
 
-      let capturedImage = {
-        uri: imageUri,
-        name: getFileName(imageUri),
-        type: getFileMIME(imageUri)
-      };
-
-      const _finalData = new FormData();
-      _finalData.append('message', Remark);
-      _finalData.append('image', capturedImage as any);
-      // Conditionally append latitude and longitude if available
-      if (location?.coords.latitude && location?.coords.longitude) {
-        _finalData.append('lat', location?.coords.latitude as never);
-        _finalData.append('lng', location?.coords.longitude as never);
-      } else {
-        // If either latitude or longitude is not available, pass 0
-        _finalData.append('lat', 0 as never);
-        _finalData.append('lng', 0 as never);
-      }
-      _finalData.append('mobile', authUserData.mobile_number);
-      _finalData.append('type', 'Fire');
-      _finalData.append('name', authUserData.user_name);
-      _finalData.append('division_id', authUserData.division_id);
-
-      const response = await fetch(URLs.api_base_url + "submit_incident.php", {
-        method: "POST",
-        body: _finalData,
-        headers: {
-          // Accept: "application/json", 
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      const resData = await response.json();
-      console.log(resData);
-      if (resData.status != "success") {
-        // SetPageError(true);
+      if (!Remark || !storedImagePath) {
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: 'All input fields must be filled out'
+        });
         return;
       }
 
-      alert("Report Submitted Succesfully");
+      let lat, long;
+      if (location?.coords.latitude && location?.coords.longitude) {
+        lat = location?.coords.latitude;
+        long = location?.coords.longitude
+
+      } else {
+        lat = 0;
+        long = 0;
+
+      }
+
+      const name: string = authUserData.user_name;
+      const phone: string = authUserData.mobile_number;
+      const divisionId: string = authUserData.division_id;
+
+      const insertIncidentQuery = `INSERT INTO ${tbl_fire_incidents.tbl_name} (${[...tbl_fire_incidents.tbl_struct]}) VALUES (${Array(tbl_fire_incidents.tbl_struct.length).fill('?').join(', ')})`;
+      const insertIncidentValues: any[] = [null, storedImagePath, Remark, lat, long, phone, 'Fire', name, divisionId];
+
+      await insertRow({ query: insertIncidentQuery, values: insertIncidentValues });
+
+      Toast.show({
+        type: 'success',
+        text1: 'Done!',
+        text2: 'Report is processed successfully and will be uploaded shortly'
+      });
+
       setImageUri(null);
       SetRemark("");
+      setStoredImagePath("");
+
+      return;
 
     } catch (error) {
 
       console.log(error);
-      // SetPageError(true);
+      Toast.show({
+        type: 'error',
+        text1: 'Oops!',
+        text2: 'Some problems occured while processing your request. Please try again later'
+      });
 
     } finally {
       SetPageLoading(false);
+      setLoadingText('Loading');
+
     }
   }
+
+  // const SubmitIncident = async () => {
+  //   try {
+
+  //     if (!Remark || !imageUri) {
+  //       alert("Image must be clicked and remark must be filled out");
+  //       return;
+  //     }
+
+  //     SetPageLoading(true);
+
+  //     let capturedImage = {
+  //       uri: imageUri,
+  //       name: getFileName(imageUri),
+  //       type: getFileMIME(imageUri)
+  //     };
+
+  //     const _finalData = new FormData();
+  //     _finalData.append('message', Remark);
+  //     _finalData.append('image', capturedImage as any);
+  //     if (location?.coords.latitude && location?.coords.longitude) {
+  //       _finalData.append('lat', location?.coords.latitude as never);
+  //       _finalData.append('lng', location?.coords.longitude as never);
+  //     } else {
+  //       _finalData.append('lat', 0 as never);
+  //       _finalData.append('lng', 0 as never);
+  //     }
+  //     _finalData.append('mobile', authUserData.mobile_number);
+  //     _finalData.append('type', 'Fire');
+  //     _finalData.append('name', authUserData.user_name);
+  //     _finalData.append('division_id', authUserData.division_id);
+
+  //     const response = await fetch(URLs.api_base_url + "submit_incident.php", {
+  //       method: "POST",
+  //       body: _finalData,
+  //       headers: {
+  //         // Accept: "application/json", 
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     });
+
+  //     const resData = await response.json();
+  //     console.log(resData);
+  //     if (resData.status != "success") {
+  //       // SetPageError(true);
+  //       return;
+  //     }
+
+  //     alert("Report Submitted Succesfully");
+  //     setImageUri(null);
+  //     SetRemark("");
+
+  //   } catch (error) {
+
+  //     console.log(error);
+  //     // SetPageError(true);
+
+  //   } finally {
+  //     SetPageLoading(false);
+  //   }
+  // }
   useEffect(() => {
     permisionFunction();
     return () => { }
   }, [])
 
-
-  const isFocused = useIsFocused();
-
-  // useEffect(() => {
-  //   SetPageLoading(false);
-  //   SetPageError(false);
-
-  //   return () => { }
-  // }, [isFocused])
-
-
-
   return (
     <View>
-      <LoadingIndicator text={'Loading'} visible={loading} />
+      <LoadingIndicator text={loadingText} visible={loading} />
       <Modal
         style={{
           position: "relative",
@@ -179,16 +248,12 @@ const NewFireIncident = () => {
         }}>
           <CameraView
             ref={(ref: any) => setCamera(ref)}
-            // onCameraReady={setCameraReady}
             style={{
               width: '100%',
               height: '80%',
               borderRadius: moderateScale(10),
 
             }}
-            // @ts-ignore
-            // type={type}
-            // ratio={ratio}
             // @ts-ignore
             autoFocus={'on'}
           />
@@ -208,7 +273,7 @@ const NewFireIncident = () => {
               </ThemedText>
               <Image
                 // @ts-ignore
-                source={{ uri: imageUri }}
+                source={{ uri: storedImagePath ? storedImagePath : null }}
                 style={styles.captureImage}
               />
             </View>
@@ -230,7 +295,7 @@ const NewFireIncident = () => {
           </View>
           <View style={styles.submitBtnHolder}>
             <Button
-              onPress={() => SubmitIncident()}
+              onPress={() => storeIncidentSqliteStorage()}
               textStyle={styles.submitBtn} text='Report fire \ वनाग्नि की सूचना दें' status='info' />
           </View>
         </View>

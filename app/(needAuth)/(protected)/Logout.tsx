@@ -1,22 +1,35 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 import React, { useEffect } from 'react'
 import { useIsFocused } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
+import { Router, useRouter } from 'expo-router';
 
 import { useAuth } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ThemedText';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import Color from '@/utils/Color';
+import * as SecureStore from 'expo-secure-store';
 
 const Logout = () => {
 
+  const router: Router = useRouter();
   const isFocused = useIsFocused();
-  const { logout } = useAuth();
 
+  const logOut = async () => {
+    await SecureStore.deleteItemAsync('auth_key');
+    await SecureStore.deleteItemAsync('mobile_number');
+    await SecureStore.deleteItemAsync('user_type');
+    await SecureStore.deleteItemAsync('user_name');
+    await SecureStore.deleteItemAsync('latitude');
+    await SecureStore.deleteItemAsync('longitude');
+    await SecureStore.deleteItemAsync('division_id');
+
+    router.push("/");
+  }
 
   useEffect(() => {
 
-    logout();
+    logOut();
     Toast.show({
       type: 'success',
       text1: 'Done!',
@@ -58,5 +71,3 @@ const Logout = () => {
 }
 
 export default Logout
-
-const styles = StyleSheet.create({})

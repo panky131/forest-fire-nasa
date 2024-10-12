@@ -59,6 +59,16 @@ export default function RootLayout() {
             headerTitle: 'New Fire Incident',
           }}
         />
+        <Stack.Screen name="NoInternetScreen"
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen name="ErrorScreen"
+          options={{
+            headerShown: false
+          }}
+        />
       </Stack>
       <StatusBar style='dark' />
     </>

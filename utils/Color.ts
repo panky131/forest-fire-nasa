@@ -3,7 +3,7 @@ interface ColorType {
 }
 
 const Color: ColorType = {
-    SpashScreenText: '#335c67'
+    SpashScreenText: '#E4080A'
 };
 
 export default Color;

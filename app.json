@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "forest-fire-uttarakhand-offline",
-    "slug": "forest-fire-uttarakhand-offline",
+    "name": "Forest Fire Uttarakhand",
+    "slug": "forest-fire-reporting-and-monitoring-uttarakhand-state",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

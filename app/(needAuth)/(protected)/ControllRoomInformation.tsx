@@ -20,7 +20,7 @@ interface PageDataType {
 
 const ControlRoonInformation = () => {
 
-  const { authUserData } = useAuth();
+  const { authUserData }: any = useAuth();
 
   const NotificationBox = ({ linking, label, value, icon }: {
     linking: boolean,

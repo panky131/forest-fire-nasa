@@ -2,17 +2,28 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
+interface AuthContextType {
+    auth_key: string | null,
+    mobile_number: string | number | null,
+    user_type: string | null,
+    user_name: null,
+    latitude: number,
+    longitude: number,
+    division_id: number | string
+}
+
+// @ts-ignore
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-    // const [isAuthenticated, setIsAuthenticated] = useState(true);
-    const [authUserData, setAuthUserData] = useState({
+export const AuthProvider = ({ children }: any) => {
+    const [authUserData, setAuthUserData] = useState<AuthContextType>({
         auth_key: null,
         mobile_number: null,
         user_type: null,
         user_name: null,
         latitude: 30.3165,
-        longitude: 78.0322
+        longitude: 78.0322,
+        division_id: 0
     });
 
     const CheckSecureStoreCred = async () => {
@@ -45,12 +56,14 @@ export const AuthProvider = ({ children }) => {
             if (!division_id) return false;
 
             // setting item in context variable
-            let tempObj = {
+            let tempObj: AuthContextType = {
                 auth_key: _auth_key,
                 mobile_number: _mobile_number,
                 user_type: _user_type,
-                user_name: _user_name,
-                latitude, longitude, division_id
+                user_name: _user_name as any,
+                latitude: latitude as any,
+                longitude: longitude as any,
+                division_id
             };
             setAuthUserData(tempObj);
             return true;
@@ -91,6 +104,7 @@ export const AuthProvider = ({ children }) => {
             longitude: 78.0322,
             division_id: null
         };
+        // @ts-ignore
         setAuthUserData(tempObj);
         // setIsAuthenticated(false)
     }

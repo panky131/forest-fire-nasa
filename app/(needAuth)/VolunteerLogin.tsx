@@ -22,7 +22,7 @@ interface VillageType {
 
 const VolunteerLogin = () => {
 
-  const { login } = useAuth();
+  const { login }: any = useAuth();
 
   // page states
   const [isLoading, setIsLoading] = useState<boolean>(true);

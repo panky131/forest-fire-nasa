@@ -22,7 +22,7 @@ const mimetype = require('mimetype');
 
 const NewFireIncidentPublic = () => {
 
-    const { authUserData } = useAuth();
+    const { authUserData }: any = useAuth();
 
     const [loadingText, setLoadingText] = useState<string>("Loading");
 
@@ -462,7 +462,7 @@ const NewFireIncidentPublic = () => {
                             </ThemedText>
                             <Image
                                 // @ts-ignore
-                                source={{ uri: storedImagePath ? storedImagePath: null }}
+                                source={{ uri: storedImagePath ? storedImagePath : null }}
                                 style={styles.captureImage}
                             />
                         </View>

@@ -16,7 +16,7 @@ import { router } from 'expo-router';
 
 const OfficeStaffLogin = () => {
 
-  const { login } = useAuth();
+  const { login }: any = useAuth();
 
   // page states
   const [PageLoading, SetPageLoading] = useState(false);

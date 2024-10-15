@@ -20,7 +20,7 @@ const mimetype = require('mimetype');
 const SendVideo = () => {
 
   const Navigation = useNavigation();
-  const { authUserData } = useAuth();
+  const { authUserData }: any = useAuth();
 
   const params = useLocalSearchParams();
   const { alert_id } = params;

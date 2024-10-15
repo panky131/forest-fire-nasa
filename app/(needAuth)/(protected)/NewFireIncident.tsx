@@ -23,7 +23,7 @@ const mimetype = require('mimetype');
 
 const NewFireIncident = () => {
 
-  const { authUserData } = useAuth();
+  const { authUserData }: any = useAuth();
   // for input fields
   const [Remark, SetRemark] = useState("");
 

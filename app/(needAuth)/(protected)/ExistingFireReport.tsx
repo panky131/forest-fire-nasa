@@ -1,6 +1,5 @@
-import { StyleSheet, Image, View, Dimensions, Modal, TouchableOpacity } from 'react-native'
-import React, { useEffect, useReducer, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { StyleSheet, Image, View, Modal, TouchableOpacity } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 import { Button, TextInput, themeColor } from 'react-native-rapi-ui';
@@ -20,20 +19,16 @@ const mimetype = require('mimetype');
 
 const NewFireIncident = () => {
 
-  const { authUserData } = useAuth();
-  
+  const { authUserData }: any = useAuth();
+
   const params = useLocalSearchParams();
   const { alert_id, lat, lng } = params;
 
-  // for input fields
   const [Remark, SetRemark] = useState("");
 
-  // camera | permission | captured image
   const [cameraPermission, setCameraPermission] = useState<boolean | null>(null);
   const [camera, setCamera] = useState(null);
   const [imageUri, setImageUri] = useState(null);
-  // const [type, setType] = useState(Camera.Constants.Type.back)
-  const [location, setLocation] = useState("");
   const [invalidLocation, setInvalidLocation] = useState<boolean | number>(false);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -44,11 +39,9 @@ const NewFireIncident = () => {
     try {
       SetPageLoading(true);
 
-      // Request camera permission
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
       setCameraPermission(cameraPermission.status === 'granted');
 
-      // Request location permission
       let { status } = await Location.requestForegroundPermissionsAsync();
 
       if (cameraPermission.status !== 'granted' || status !== 'granted') {
@@ -56,27 +49,21 @@ const NewFireIncident = () => {
         return;
       }
 
-      // Check if location services are enabled
       const isLocationEnabled = await Location.hasServicesEnabledAsync();
       if (!isLocationEnabled) {
         alert('Location services are disabled.');
         return;
       }
 
-      // Adding a delay to give time to acquire GPS signal
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Get current location with high accuracy and a timeout
       let location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Highest,
-        // timeout: 10000, // wait up to 10 seconds to get location
       });
 
-      // setLocation(location);
       checkDistance(location.coords.latitude, location.coords.longitude); // Pass the location to the checkDistance function
     } catch (error) {
       console.log(error);
-      // SetPageLoading(false);
     } finally {
       SetPageLoading(false);
     }

@@ -1,8 +1,10 @@
+import Toast from 'react-native-toast-message';
 import { themeColor } from 'react-native-rapi-ui';
 import { router, useNavigation } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react'
 import { Alert, Image, StyleSheet, View } from 'react-native'
 
+import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
 
 import URLs from '@/utils/URLs';
@@ -10,20 +12,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ThemedText';
 import DashboardModal from '@/components/models/DashboardModal';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
+import FilterBtnComponent from './_subComponents/FilterBtnComponent';
+import StatsBoxLabelValue from './_subComponents/StatsBoxLabelValue';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
-
-interface coordinatesType {
-    lat: string | number,
-    lng: string | number
-}
-
-interface MarkersType {
-    lat: string | number,
-    lng: string | number,
-    latitudeDelta: string | number,
-    longitudeDelta: string | number,
-}
+import { FilterMapAlertsFunctions } from './_subComponents/FilterMapAlertFunctions';
+import { AlertsResponseDataType, CoordinatesType, UserCoordsType } from '@/utils/Types';
 
 const MapComponent = () => {
 
@@ -32,23 +26,17 @@ const MapComponent = () => {
 
     const [status, setStatus] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [PageError, SetPageError] = useState<boolean>(false);
     const [ModalVisible, SetModalVisible] = useState<boolean>(false);
-    const [SelectedFire, SetSelectedFire] = useState<string | null>(null);
-    const [SelectedCoordinates, SetSelectedCoordinates] = useState<coordinatesType>({ lat: 0, lng: 0 });
+    const [whichActiveBtn, setWhichActiveBtn] = useState<string>('all');
+    const [SelectedFire, SetSelectedFire] = useState<number | null>(null);
+    const [pageData, setPageData] = useState<AlertsResponseDataType[]>([]);
+    const [loadingText, setLoadingText] = useState<string>("");
+    const [userCoordinates, setUserCoordinates] = useState<UserCoordsType>();
+    const [filteredAlertsData, setFilteredAlertsData] = useState<AlertsResponseDataType[]>([]);
+    const [selectedCoordinates, setSelectedCoordinates] = useState<CoordinatesType>({ lat: 0, lng: 0 });
 
     const mapRef = useRef<any>("");
-
-    const [PageError, SetPageError] = useState<boolean>(false);
-    const [PageData, SetPageData] = useState<MarkersType[]>(
-        [
-            {
-                lat: 0,
-                lng: 0,
-                latitudeDelta: 0.09,
-                longitudeDelta: 0.02,
-            }
-        ]
-    );
 
     const GetAlertsData = async (): Promise<void> => {
         try {
@@ -72,8 +60,14 @@ const MapComponent = () => {
                 SetPageError(true);
                 return;
             }
-            SetPageData(responseJson.alerts);
+            setPageData(responseJson.alerts);
 
+            FilterMapAlertsFunctions({
+                alertsDataSet: responseJson.alerts,
+                setAlertsData: setFilteredAlertsData,
+                rangeInKmToCheck: 3000,
+                userCoordinates: userCoordinates
+            });
 
         } catch (error) {
 
@@ -85,12 +79,12 @@ const MapComponent = () => {
         }
     }
 
-    const hanldeAlertClick = (alert_id: string, status: string | null, lat: string, lng: string): void => {
-        let temp: coordinatesType = {
+    const hanldeAlertClick = (alert_id: number, status: string | null, lat: string, lng: string): void => {
+        let temp: CoordinatesType = {
             lat: lat,
             lng: lng
         };
-        SetSelectedCoordinates(temp);
+        setSelectedCoordinates(temp);
         SetSelectedFire(alert_id);
         setStatus(status);
         SetModalVisible(true);
@@ -105,30 +99,58 @@ const MapComponent = () => {
             },
             {
                 text: 'OK', onPress: () => {
-                    router.push({ pathname: "/ExistingFireReport", params: { alert_id: alert_id, lat: SelectedCoordinates.lat, lng: SelectedCoordinates.lng } });
+                    router.push({ pathname: "/ExistingFireReport", params: { alert_id: alert_id, lat: selectedCoordinates.lat, lng: selectedCoordinates.lng } });
                 }
             },
         ]);
     }
 
-    const LabelValue = ({ label, value }: {
-        label: string,
-        value: string
-    }) => {
-        return (
-            <View style={styles.flex}>
-                <ThemedText type='default' style={styles.boxLabel}>
-                    {label}
-                </ThemedText>
-                <ThemedText type='default' style={styles.boxValue}>
-                    {value}
-                </ThemedText>
-            </View>
-        )
+    const getUserLocation = async () => {
+        try {
+
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Permission Required',
+                    text2: 'Please allow for location permission'
+                })
+                return;
+            }
+
+            const location: Location.LocationObject = await Location.getCurrentPositionAsync({
+                accuracy: 4
+            });
+
+            const userLocation: UserCoordsType = {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude
+            };
+
+            setUserCoordinates(userLocation);
+
+        } catch (error) {
+            console.log(error);
+            Toast.show({
+                type: 'error',
+                text1: 'Oops!',
+                text2: 'Unable to get your location. Please try again'
+            });
+        }
+    }
+
+    const initializeMapScreen = async (): Promise<void> => {
+        await getUserLocation();
     }
 
     useEffect(() => {
-        GetAlertsData();
+
+        if (userCoordinates) GetAlertsData();
+
+    }, [userCoordinates])
+
+    useEffect(() => {
+        initializeMapScreen();
 
         return () => { }
     }, [authUserData])
@@ -137,8 +159,6 @@ const MapComponent = () => {
         setTimeout(async () => {
             let latitude = await SecureStore.getItemAsync('latitude');
             let longitude = await SecureStore.getItemAsync('longitude');
-            console.log(latitude)
-            console.log(longitude)
             const region = {
                 latitudeDelta: 0.989999,
                 longitudeDelta: 0.989999,
@@ -149,9 +169,7 @@ const MapComponent = () => {
         }, 4000);
 
         return () => { }
-    }, [])
-
-
+    }, []);
 
     if (PageError) {
         return (
@@ -166,13 +184,12 @@ const MapComponent = () => {
 
     return (
         <View style={styles.mapHolderContainer}>
-            <LoadingIndicator text={'Getting alerts'} visible={isLoading} />
-
+            <LoadingIndicator text={loadingText} visible={isLoading} />
             <DashboardModal
                 // @ts-ignore
                 handleMarkerClickFun={handleMarkerClick}
                 SelectedFire={SelectedFire}
-                SelectedCoordinates={SelectedCoordinates}
+                SelectedCoordinates={selectedCoordinates}
                 SetModalVisible={SetModalVisible}
                 visible={ModalVisible}
                 Navigation={Navigation}
@@ -182,11 +199,44 @@ const MapComponent = () => {
                 SetPageError={SetPageError}
                 setIsLoading={setIsLoading}
             />
+
+            <View style={styles.mapHeaderComponent}>
+                <FilterBtnComponent
+                    alertsDataSet={pageData}
+                    setAlertsData={setFilteredAlertsData}
+                    userCoordinates={userCoordinates}
+                    isActive={whichActiveBtn === 'all' ? true : false}
+                    btnText='All Alerts'
+                    rangeInKMToShow={2000}
+                    setWhichActiveBtn={setWhichActiveBtn}
+                    isActiveText='all'
+                />
+                <FilterBtnComponent
+                    alertsDataSet={pageData}
+                    setAlertsData={setFilteredAlertsData}
+                    userCoordinates={userCoordinates}
+                    isActive={whichActiveBtn === '5KM' ? true : false}
+                    btnText='5 Kms'
+                    rangeInKMToShow={5}
+                    setWhichActiveBtn={setWhichActiveBtn}
+                    isActiveText='5KM'
+                />
+                <FilterBtnComponent
+                    alertsDataSet={pageData}
+                    setAlertsData={setFilteredAlertsData}
+                    userCoordinates={userCoordinates}
+                    isActive={whichActiveBtn === '10KM' ? true : false}
+                    btnText='10 Kms'
+                    rangeInKMToShow={10}
+                    setWhichActiveBtn={setWhichActiveBtn}
+                    isActiveText='10KM'
+                />
+            </View>
+
             <MapView
                 ref={mapRef}
                 provider={PROVIDER_GOOGLE}
                 mapType='standard'
-                // minZoomLevel={3}
                 initialRegion={{
                     latitude: parseFloat(authUserData.latitude),
                     longitude: parseFloat(authUserData.longitude),
@@ -195,7 +245,7 @@ const MapComponent = () => {
                 }}
                 style={styles.mapHolder}
             >
-                {PageData && PageData.map((props: any, index: number) => {
+                {filteredAlertsData && filteredAlertsData.map((props: AlertsResponseDataType, index: number) => {
                     return (
 
                         <Marker
@@ -203,7 +253,7 @@ const MapComponent = () => {
                             coordinate={{ latitude: props.lat ? parseFloat(props.lat as string) : 0, longitude: props.lng ? parseFloat(props.lng as string) : 0 }}
                             title={'Fire Station'}
                             description={'New Fire Alert'}
-                            onCalloutPress={() => hanldeAlertClick(props.alert_id, props.status, props.lat, props.lng)}
+                            onCalloutPress={() => hanldeAlertClick(props.alert_id, props.status, props.lat as string, props.lng as string)}
                         >
                             {
                                 props.status == "active" ? <Image source={require('../../../assets/images/active_alert_2.png')} style={{ height: 35, width: 35 }} /> : <Image source={require('../../../assets/images/being_held_alert.png')} style={{ height: 35, width: 35 }} />
@@ -214,12 +264,12 @@ const MapComponent = () => {
                                     Active Fire
                                 </ThemedText>
                                 <View style={styles.hr}></View>
-                                <LabelValue label={"Alert ID"} value={props.alert_id} />
-                                <LabelValue label={"Latitude"} value={props.lat} />
-                                <LabelValue label={"Longitude"} value={props.lng} />
-                                <LabelValue label={"Handler"} value={props.handler} />
-                                <LabelValue label={"Datetime"} value={props.datetime} />
-                                <LabelValue label={"Submitted By"} value={props.submitted_by} />
+                                <StatsBoxLabelValue label={"Alert ID"} value={props.alert_id} />
+                                <StatsBoxLabelValue label={"Latitude"} value={props.lat} />
+                                <StatsBoxLabelValue label={"Longitude"} value={props.lng} />
+                                <StatsBoxLabelValue label={"Handler"} value={props.handler} />
+                                <StatsBoxLabelValue label={"Datetime"} value={props.datetime} />
+                                <StatsBoxLabelValue label={"Submitted By"} value={props.submitted_by} />
                                 <View style={styles.hr}></View>
                                 <ThemedText type='default' style={styles.activefireText}>
                                     {
@@ -298,23 +348,15 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(14),
         color: themeColor.danger500,
     },
-    flex: {
-        display: 'flex',
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: horizontalScale(10),
-        marginVertical: verticalScale(2)
-    },
-    boxLabel: {
-        color: themeColor.gray400,
-        fontSize: moderateScale(12)
-    },
-    boxValue: {
-        fontSize: moderateScale(13),
-        color: themeColor.primary500
-    },
     clickLabel: {
         color: themeColor.gray500,
         fontSize: moderateScale(14)
-    }
+    },
+    mapHeaderComponent: {
+        width: '100%',
+        paddingVertical: verticalScale(10),
+        display: 'flex',
+        gap: horizontalScale(4),
+        flexDirection: 'row'
+    },
 })

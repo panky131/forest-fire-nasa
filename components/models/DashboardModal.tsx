@@ -63,9 +63,7 @@ const DashboardModal = ({
                 body: formData
             });
 
-            console.log(await response.text());
             const responseJson = await response.json();
-            console.log(responseJson)
             if (responseJson.status != "success") {
                 SetPageError(true);
                 return;

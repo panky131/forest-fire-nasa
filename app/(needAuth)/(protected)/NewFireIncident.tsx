@@ -1,21 +1,18 @@
 import * as Location from 'expo-location';
+import Toast from 'react-native-toast-message';
 import * as FileSystem from 'expo-file-system';
 import { Camera, CameraView } from 'expo-camera';
-import React, { useEffect, useState } from 'react'
-import { useIsFocused } from '@react-navigation/native'
+import React, { useEffect, useState } from 'react';
 import { Button, TextInput, themeColor } from 'react-native-rapi-ui';
 import { StyleSheet, Image, View, Modal, TouchableOpacity } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-
-import URLs from '@/utils/URLs'
 import { useAuth } from '@/hooks/useAuth'
 import { ThemedText } from '@/components/ThemedText'
+import { insertRow } from '@/utils/sqlite/SQLiteFunctions';
+import { tbl_fire_incidents } from '@/utils/sqlite/SQLiteDBSchema';
 import LoadingIndicator from '@/components/designs/LoadingIndicator'
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
-import Toast from 'react-native-toast-message';
-import { tbl_fire_incidents } from '@/utils/sqlite/SQLiteDBSchema';
-import { executeSQLiteOperation, insertRow } from '@/utils/sqlite/SQLiteFunctions';
 
 
 const path = require('path');

@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import { Button } from 'react-native-rapi-ui'
 import { router } from 'expo-router'
+import { Button } from 'react-native-rapi-ui'
+import { StyleSheet, View } from 'react-native'
 import { horizontalScale, verticalScale } from '@/utils/Metrics'
 
 const BottomButtonHolder = () => {

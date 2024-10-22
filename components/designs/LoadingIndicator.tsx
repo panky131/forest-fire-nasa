@@ -1,8 +1,9 @@
 import React from 'react';
-import { ActivityIndicator, View, Modal, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
+import { ActivityIndicator, View, Modal, StyleSheet } from 'react-native';
+
 import { ThemedText } from '../ThemedText';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
 interface PageProps {
     visible: boolean,

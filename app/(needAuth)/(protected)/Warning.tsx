@@ -1,12 +1,12 @@
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useNavigation, } from '@react-navigation/native';
 import { themeColor } from 'react-native-rapi-ui';
+import { useNavigation, } from '@react-navigation/native';
+import { Image, ScrollView, StyleSheet, View } from 'react-native'
 
-import LoadingIndicator from '@/components/designs/LoadingIndicator';
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import URLs from '@/utils/URLs';
 import { ThemedText } from '@/components/ThemedText';
+import LoadingIndicator from '@/components/designs/LoadingIndicator';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
 interface warningPropType {
   id: number,

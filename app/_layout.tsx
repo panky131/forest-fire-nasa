@@ -1,9 +1,8 @@
 import 'react-native-reanimated';
 
-
 import { useFonts } from 'expo-font';
 import { AppState } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { AuthProvider } from '@/hooks/useAuth'
 import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider as RapidThemeProvider } from "react-native-rapi-ui";

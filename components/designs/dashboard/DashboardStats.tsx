@@ -4,7 +4,6 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import * as SecureStore from 'expo-secure-store';
 
 import URLs from '@/utils/URLs'
-import { useAuth } from '@/hooks/useAuth'
 import { ThemedText } from '@/components/ThemedText'
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 

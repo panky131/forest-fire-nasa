@@ -1,21 +1,14 @@
-import { Image, Pressable, TouchableOpacity, View } from 'react-native';
-import { Href, Redirect, router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
+import { Href, router } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Image, Pressable, TouchableOpacity, View } from 'react-native';
 
-import { useAuth } from '@/hooks/useAuth';
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import Color from '@/utils/Color';
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
 export default function Layout() {
-
-    // const { authUserData } = useAuth();
-
-    // if (!isAuthenticated) {
-    //     return <Redirect href="/CustomSplashScreen" />;
-    // }
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>

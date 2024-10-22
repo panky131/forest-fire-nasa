@@ -1,18 +1,18 @@
-import { StyleSheet, Image, View, Modal, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
-import { Button, TextInput, themeColor } from 'react-native-rapi-ui';
-import { useLocalSearchParams } from 'expo-router'
-import { Camera, CameraView } from 'expo-camera'
 import * as Location from 'expo-location';
+import { Camera, CameraView } from 'expo-camera';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Button, TextInput, themeColor } from 'react-native-rapi-ui';
+import { StyleSheet, Image, View, Modal, TouchableOpacity } from 'react-native';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { useIsFocused, useRoute } from '@react-navigation/native'
+import { useIsFocused } from '@react-navigation/native';
 
-import LoadingIndicator from '@/components/designs/LoadingIndicator'
-import URLs from '@/utils/URLs'
-import { useAuth } from '@/hooks/useAuth'
-import { ThemedText } from '@/components/ThemedText'
+import URLs from '@/utils/URLs';
+import { useAuth } from '@/hooks/useAuth';
+import { ThemedText } from '@/components/ThemedText';
+import LoadingIndicator from '@/components/designs/LoadingIndicator';
 
 const path = require('path');
 const mimetype = require('mimetype');

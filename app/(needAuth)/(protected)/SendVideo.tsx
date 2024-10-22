@@ -1,18 +1,18 @@
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Video } from 'expo-av';
+import Toast from 'react-native-toast-message';
+import { Camera, CameraView } from 'expo-camera';
 import React, { useState, useEffect } from 'react';
 import { Button, themeColor } from 'react-native-rapi-ui';
-import { Camera, CameraView } from 'expo-camera';
-import { Video } from 'expo-av';
 import { router, useLocalSearchParams } from 'expo-router';
+import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 import { useNavigation, useIsFocused } from '@react-navigation/native'
 
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
-import LoadingIndicator from '@/components/designs/LoadingIndicator';
 import URLs from '@/utils/URLs';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ThemedText';
-import Toast from 'react-native-toast-message';
+import LoadingIndicator from '@/components/designs/LoadingIndicator';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
 const path = require('path');
 const mimetype = require('mimetype');
@@ -96,10 +96,6 @@ const SendVideo = () => {
       const response = await fetch(url, {
         method: "POST",
         body: _finalData,
-        // headers: {
-        //   Accept: "application/json",
-        //   "Content-Type": "multipart/form-data",
-        // },
       });
 
       const resData = await response.json();

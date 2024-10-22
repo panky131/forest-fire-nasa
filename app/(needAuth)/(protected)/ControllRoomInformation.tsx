@@ -1,16 +1,16 @@
-import { StyleSheet, Text, View, ScrollView, Image, Linking, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { themeColor } from 'react-native-rapi-ui';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { StyleSheet, View, ScrollView, Image, Linking, TouchableOpacity } from 'react-native'
 
-import { useIsFocused } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
-import LoadingIndicator from '@/components/designs/LoadingIndicator';
-import { useAuth } from '@/hooks/useAuth';
 import URLs from '@/utils/URLs';
+import { useAuth } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ThemedText';
+import LoadingIndicator from '@/components/designs/LoadingIndicator';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
 interface PageDataType {
   email: string,

@@ -1,17 +1,16 @@
+import { useRouter } from 'expo-router'
+import React, { useEffect } from 'react'
+import { themeColor } from 'react-native-rapi-ui'
+import NetInfo from "@react-native-community/netinfo"
 import { Image, StyleSheet, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import React, { useEffect, useState } from 'react'
-import NetInfo, { NetInfoState } from "@react-native-community/netinfo"
-import { useFocusEffect, useRouter } from 'expo-router'
-import { themeColor } from 'react-native-rapi-ui'
 
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
-import Color from '@/utils/Color'
+import URLs from '@/utils/URLs';
+import Color from '@/utils/Color';
 import { ThemedText } from '@/components/ThemedText'
-import { _delete_item_securestore, _get_item_securestore } from '@/utils/SecureStore'
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 import { checkIfDbExists, initializeDatabase } from '@/utils/sqlite/SQLiteDBLocals'
-import URLs from '@/utils/URLs'
-import { useIsFocused } from '@react-navigation/native'
+import { _delete_item_securestore, _get_item_securestore } from '@/utils/SecureStore'
 
 const CustomSplashScreen = () => {
 

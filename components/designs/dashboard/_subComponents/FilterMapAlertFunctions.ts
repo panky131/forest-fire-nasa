@@ -1,6 +1,7 @@
-import { AlertsResponseDataType, UserCoordsType } from "@/utils/Types";
 import { Dispatch, SetStateAction } from "react";
+
 import { haversine } from "./CommonUtilsFuntions";
+import { AlertsResponseDataType, UserCoordsType } from "@/utils/Types";
 
 
 interface FilterMapAlertsFnPropType {

@@ -1,5 +1,5 @@
-import { SQLiteExecuteAsyncResult } from "expo-sqlite";
 import { useDatabase } from "./SQLiteDBLocals";
+import { SQLiteExecuteAsyncResult } from "expo-sqlite";
 
 interface FireIncidentsType {
     id: number,

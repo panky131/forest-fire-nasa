@@ -1,13 +1,13 @@
+import Toast from 'react-native-toast-message';
 import * as FileSystem from 'expo-file-system';
 import * as TaskManager from 'expo-task-manager';
 import NetInfo from '@react-native-community/netinfo';
 import * as BackgroundFetch from 'expo-background-fetch';
 
+import URLs from '@/utils/URLs';
 import { checkIfDbExists } from '@/utils/sqlite/SQLiteDBLocals';
 import { tbl_fire_incidents } from '@/utils/sqlite/SQLiteDBSchema';
 import { deleteRow, executeSQLiteOperation, FireIncidentsType } from '@/utils/sqlite/SQLiteFunctions';
-import URLs from '@/utils/URLs';
-import Toast from 'react-native-toast-message';
 
 const path = require('path');
 const mimetype = require('mimetype');

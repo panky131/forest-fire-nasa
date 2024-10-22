@@ -1,10 +1,10 @@
 import React from "react";
-import { View, Modal, StyleSheet } from "react-native";
 import PropTypes from "prop-types";
 import { Button } from "react-native-rapi-ui";
+import { View, Modal, StyleSheet } from "react-native";
 
-import { horizontalScale, verticalScale } from "@/utils/Metrics";
 import URLs from "@/utils/URLs";
+import { horizontalScale, verticalScale } from "@/utils/Metrics";
 
 const styles = StyleSheet.create({
     container: {

@@ -1,24 +1,19 @@
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { TextInput, themeColor, Picker } from 'react-native-rapi-ui'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import * as SecureStore from 'expo-secure-store';
+import React, { useEffect, useState } from 'react';
+import { TextInput, Picker } from 'react-native-rapi-ui';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { useIsFocused } from '@react-navigation/native'
+import { useIsFocused } from '@react-navigation/native';
 
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
-import LoadingIndicator from '@/components/designs/LoadingIndicator'
-import URLs from '@/utils/URLs'
-import { useAuth } from '@/hooks/useAuth'
-import { ThemedText } from '@/components/ThemedText'
-import Toast from 'react-native-toast-message'
-import Color from '@/utils/Color'
-
-interface VillageType {
-  name: string,
-  label: string
-}
+import URLs from '@/utils/URLs';
+import Color from '@/utils/Color';
+import { useAuth } from '@/hooks/useAuth';
+import Toast from 'react-native-toast-message';
+import { ThemedText } from '@/components/ThemedText';
+import LoadingIndicator from '@/components/designs/LoadingIndicator';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
 const VolunteerLogin = () => {
 
@@ -35,14 +30,10 @@ const VolunteerLogin = () => {
   const [otp, setOTPCode] = useState("");
   const [divisonName, setDivisonName] = useState("");
 
-  // data states
-  const [VillageName, SetVillageName] = useState<VillageType[]>([]);
   const [DivisionList, SetDivisonList] = useState([]);
 
   const handleLogin = async () => {
 
-    // all inputs must be required
-    // if (!name || !number || !villageID || !otp) return;
     if (!name || !number || !otp) return;
     try {
       setIsLoading(true);
@@ -63,7 +54,6 @@ const VolunteerLogin = () => {
 
       const responseJson = await response.json();
       if (responseJson.status != "success") {
-        // SetPageError(true);
         Toast.show({
           type: 'error',
           text1: 'Oops!',
@@ -91,49 +81,6 @@ const VolunteerLogin = () => {
       await SecureStore.setItemAsync('division_id', tempDivision);
 
       login();
-
-    } catch (error) {
-
-      console.log(error);
-      SetPageError(true);
-
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // funtion to get villages list
-  const getVillageName = async () => {
-    try {
-      setIsLoading(true);
-
-      SetPageError(false);
-
-      const response = await fetch(URLs.api_base_url + "_get_villages_list.php", {
-        method: "POST",
-      });
-
-
-      const responseJson = await response.json();
-      if (responseJson.status != "success") {
-        SetPageError(true);
-        return;
-      }
-      const selectedRangeVillages = responseJson.villages;
-      const uniqueVillagesMap = selectedRangeVillages.reduce((acc: any, village: any) => {
-        if (!acc.has(village.label)) {
-          acc.set(village.label, village);
-        }
-        return acc;
-      }, new Map());
-
-      // Extract unique villages from the map
-      const uniqueVillages: VillageType[] = Array.from(uniqueVillagesMap.values()).map(village => ({
-        label: village.label,
-        value: village.label
-      }));
-      SetVillageName(uniqueVillages);
-
 
     } catch (error) {
 
@@ -176,7 +123,6 @@ const VolunteerLogin = () => {
 
   useEffect(() => {
 
-    getVillageName();
     getDivisions();
 
     return () => { }

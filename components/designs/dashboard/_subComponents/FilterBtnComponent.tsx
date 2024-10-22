@@ -2,9 +2,9 @@ import React, { Dispatch, SetStateAction } from 'react'
 import { StyleSheet, TouchableOpacity } from 'react-native'
 
 import { ThemedText } from '@/components/ThemedText'
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 import { FilterMapAlertsFunctions } from './FilterMapAlertFunctions'
 import { AlertsResponseDataType, UserCoordsType } from '@/utils/Types'
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 
 interface FilterBtnComponentPropType {
     btnText: string,

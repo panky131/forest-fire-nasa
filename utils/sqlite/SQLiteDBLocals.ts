@@ -1,5 +1,5 @@
-import * as FileSystem from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
+import * as FileSystem from 'expo-file-system';
 
 const LocalDBName: string = "ForestFireUttarakhand.db";
 const ExpectedDBStructure: string | undefined = process.env.EXPO_PUBLIC_SQLITE_STRUCT + `?q=${new Date().getTime()}`;

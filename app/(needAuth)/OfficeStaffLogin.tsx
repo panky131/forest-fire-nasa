@@ -65,22 +65,21 @@ const OfficeStaffLogin = () => {
       // a. inserting fetched credientials into secure store
       // b. navigating to dashboard screen and making useAuth = true
 
-      const _auth_key = responseJson.authKey.toString();
-      const _mobile = responseJson.mobile.toString();
-      const _user_name = responseJson.name.toString();
-      const _user_type = responseJson.user_type.toString();
-      const _lat = responseJson.latitude ? responseJson.latitude.toString() : "30.3165";
-      const _long = responseJson.longitude ? responseJson.longitude.toString() : "78.0322";
+      const divisonId: string = officeName.toString();
+      const _mobile: string = responseJson.mobile.toString();
+      const _user_name: string = responseJson.name.toString();
+      const _auth_key: string = responseJson.authKey.toString();
+      const _user_type: string = responseJson.user_type.toString();
+      const _lat: string = responseJson.latitude ? responseJson.latitude.toString() : "30.3165";
+      const _long: string = responseJson.longitude ? responseJson.longitude.toString() : "78.0322";
 
-      let tempOffice = officeName.toString();
-
-      await SecureStore.setItemAsync('auth_key', _auth_key);
-      await SecureStore.setItemAsync('mobile_number', _mobile);
-      await SecureStore.setItemAsync('user_type', _user_type);
-      await SecureStore.setItemAsync('user_name', _user_name);
       await SecureStore.setItemAsync('latitude', _lat);
       await SecureStore.setItemAsync('longitude', _long);
-      await SecureStore.setItemAsync('division_id', tempOffice);
+      await SecureStore.setItemAsync('auth_key', _auth_key);
+      await SecureStore.setItemAsync('user_type', _user_type);
+      await SecureStore.setItemAsync('user_name', _user_name);
+      await SecureStore.setItemAsync('mobile_number', _mobile);
+      await SecureStore.setItemAsync('division_id', divisonId);
 
       login(); // given by auth Context
       router.replace('/');
@@ -98,10 +97,13 @@ const OfficeStaffLogin = () => {
   // funtion to get villages list
   const getAllPositions = async () => {
     try {
+
       SetPageLoading(true);
       SetPageError(false);
 
-      const response = await fetch(URLs.api_base_url + "_get_positions_list.php", {
+      const apiUrl: string = URLs.api_base_url + "_get_positions_list.php";
+
+      const response = await fetch(apiUrl, {
         method: "POST",
       });
 

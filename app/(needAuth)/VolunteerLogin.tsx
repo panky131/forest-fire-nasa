@@ -74,14 +74,13 @@ const VolunteerLogin = () => {
         return;
       }
 
-      const _auth_key = responseJson.authKey.toString();
-      const _mobile = responseJson.mobile.toString();
-      const _user_name = responseJson.name.toString();
-      const _user_type = responseJson.user_type.toString();
-      const _lat = responseJson.latitude.toString();
-      const _long = responseJson.longitude.toString();
-
-      let tempDivision = divisonName.toString();
+      const _divisonId: string = divisonName.toString();
+      const _lat: string = responseJson.latitude.toString();
+      const _mobile: string = responseJson.mobile.toString();
+      const _user_name: string = responseJson.name.toString();
+      const _long: string = responseJson.longitude.toString();
+      const _auth_key: string = responseJson.authKey.toString();
+      const _user_type: string = responseJson.user_type.toString();
 
       await SecureStore.setItemAsync('auth_key', _auth_key);
       await SecureStore.setItemAsync('mobile_number', _mobile);
@@ -89,7 +88,7 @@ const VolunteerLogin = () => {
       await SecureStore.setItemAsync('user_name', _user_name);
       await SecureStore.setItemAsync('latitude', _lat);
       await SecureStore.setItemAsync('longitude', _long);
-      await SecureStore.setItemAsync('division_id', tempDivision);
+      await SecureStore.setItemAsync('division_id', _divisonId);
 
       login();
       router.replace('/');
@@ -109,7 +108,7 @@ const VolunteerLogin = () => {
       setIsLoading(true);
       setPageError(false);
 
-      const apiUrl = URLs.api_base_url + "_get_positions_list.php";
+      const apiUrl: string = URLs.api_base_url + "_get_positions_list.php";
 
       const response = await fetch(apiUrl, {
         method: "GET",

@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import { TextInput, Picker } from 'react-native-rapi-ui';
@@ -15,50 +16,60 @@ import { ThemedText } from '@/components/ThemedText';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
+interface PickerDataType {
+  value: string,
+  label: string
+}
+
 const VolunteerLogin = () => {
 
+  const router = useRouter();
   const { login }: any = useAuth();
 
-  // page states
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [PageError, SetPageError] = useState<boolean>(false);
+  const [pageError, setPageError] = useState<boolean>(false);
 
-  // input states
-  const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
-  const [villageID, setVillageID] = useState("");
-  const [otp, setOTPCode] = useState("");
-  const [divisonName, setDivisonName] = useState("");
-
-  const [DivisionList, SetDivisonList] = useState([]);
+  const [name, setName] = useState<string>("");
+  const [otp, setOTPCode] = useState<string>("");
+  const [number, setNumber] = useState<string>("");
+  const [divisonName, setDivisonName] = useState<string>("");
+  const [divisionList, setDivisonList] = useState<PickerDataType[]>([]);
+  const [selectedOrganization, setSelectedOrganization] = useState<string>("");
+  const [organizationsList, setOrganizationsList] = useState<PickerDataType[]>([]);
 
   const handleLogin = async () => {
 
     if (!name || !number || !otp) return;
+
     try {
       setIsLoading(true);
-      SetPageError(false);
+      setPageError(false);
 
       const formData = new FormData();
+
       formData.append('name', name);
+      formData.append('OTPCode', otp);
       formData.append('number', number);
       formData.append('villageID', '0'); // Do not remove this paramter. This required for auth
       formData.append('user_type', "volunteer");
-      formData.append('OTPCode', otp);
       formData.append('officeName', divisonName);
+      formData.append('organizationId', selectedOrganization);
+
       const response = await fetch(URLs.api_base_url + "_user_login.php", {
         method: "POST",
         body: formData,
       });
 
-
       const responseJson = await response.json();
+
       if (responseJson.status != "success") {
+
         Toast.show({
           type: 'error',
           text1: 'Oops!',
           text2: responseJson.message,
         });
+
         console.log(responseJson.message);
         return;
       }
@@ -81,38 +92,45 @@ const VolunteerLogin = () => {
       await SecureStore.setItemAsync('division_id', tempDivision);
 
       login();
+      router.replace('/');
 
     } catch (error) {
 
       console.log(error);
-      SetPageError(true);
+      setPageError(true);
 
     } finally {
       setIsLoading(false);
     }
   }
 
-  const getDivisions = async () => {
+  const getDivisonsOrganizations = async () => {
     try {
       setIsLoading(true);
-      SetPageError(false);
+      setPageError(false);
 
-      const response = await fetch(URLs.api_base_url + "_get_positions_list.php", {
+      const apiUrl = URLs.api_base_url + "_get_positions_list.php";
+
+      const response = await fetch(apiUrl, {
         method: "GET",
       });
 
       const responseJson = await response.json();
+
       if (responseJson.status != "success") {
-        SetPageError(true);
+        setPageError(true);
         return;
       }
-      SetDivisonList(responseJson.divisionList);
 
+      const { divisionList, oraganizationsList } = responseJson;
+
+      setDivisonList(divisionList);
+      setOrganizationsList(oraganizationsList);
 
     } catch (error) {
 
       console.log("err" + error);
-      SetPageError(true);
+      setPageError(true);
 
     } finally {
       setIsLoading(false);
@@ -123,7 +141,7 @@ const VolunteerLogin = () => {
 
   useEffect(() => {
 
-    getDivisions();
+    getDivisonsOrganizations();
 
     return () => { }
   }, [isFocused])
@@ -131,23 +149,39 @@ const VolunteerLogin = () => {
 
   return (
     <SafeAreaView>
+
       <LoadingIndicator
         text={'Loading'}
         visible={isLoading}
       />
+
       <KeyboardAwareScrollView>
         <View style={styles.detailsHolder}>
+
           <View style={styles.inputBox}>
             <ThemedText type='default' style={styles.inputLabel}>
               प्रभाग का नाम / Division Name
             </ThemedText>
             <Picker
-              items={DivisionList}
+              items={divisionList}
               value={divisonName}
               placeholder="Choose your division"
               onValueChange={(val) => setDivisonName(val)}
             />
           </View>
+
+          <View style={styles.inputBox}>
+            <ThemedText type='default' style={styles.inputLabel}>
+              संगठन का नाम / Organization Name
+            </ThemedText>
+            <Picker
+              items={organizationsList}
+              value={selectedOrganization}
+              placeholder="Choose your oraganization"
+              onValueChange={(val) => setSelectedOrganization(val)}
+            />
+          </View>
+
           <View style={styles.inputBox}>
             <ThemedText type='default' style={styles.inputLabel}>
               नाम / Name

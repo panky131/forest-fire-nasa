@@ -6,7 +6,7 @@ import { Button, themeColor } from 'react-native-rapi-ui';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native'
 
-import { useNavigation, useIsFocused } from '@react-navigation/native'
+import { useIsFocused } from '@react-navigation/native'
 
 import URLs from '@/utils/URLs';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,7 +19,6 @@ const mimetype = require('mimetype');
 
 const SendVideo = () => {
 
-  const Navigation = useNavigation();
   const { authUserData }: any = useAuth();
 
   const params = useLocalSearchParams();

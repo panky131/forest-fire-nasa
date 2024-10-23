@@ -1,23 +1,23 @@
-import { Image, StyleSheet, Platform, View, TouchableOpacity } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import * as Device from "expo-device";
+import Constants from "expo-constants";
+import Toast from 'react-native-toast-message';
 import { themeColor } from 'react-native-rapi-ui';
 import { Link, useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import Constants from "expo-constants";
-import * as Device from "expo-device";
+import { useEffect, useRef, useState } from 'react';
 import * as Notifications from "expo-notifications";
-import Toast from 'react-native-toast-message';
 // @ts-ignore
 import RadioButtonRN from 'radio-buttons-react-native-expo';
+import { Image, StyleSheet, Platform, View, TouchableOpacity } from 'react-native';
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { verticalScale, horizontalScale, moderateScale } from '@/utils/Metrics';
-import LoadingIndicator from '@/components/designs/LoadingIndicator';
+import URLs from '@/utils/URLs';
 import Color from '@/utils/Color';
 import { ThemedText } from '@/components/ThemedText';
-import URLs from '@/utils/URLs';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import LoadingIndicator from '@/components/designs/LoadingIndicator';
+import { verticalScale, horizontalScale, moderateScale } from '@/utils/Metrics';
 
 export default function HomeScreen() {
 
@@ -134,7 +134,7 @@ export default function HomeScreen() {
       setIsLoading(false);
     }
   }
-  
+
   const checkFirstLaunch = async () => {
     try {
       setIsLoading(true);

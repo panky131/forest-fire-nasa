@@ -1,9 +1,10 @@
-import { Image, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
+import { Router, useRouter } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Image, StyleSheet, TouchableOpacity } from 'react-native'
+
 import { ThemedText } from '@/components/ThemedText'
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
-import { Router, useRouter } from 'expo-router'
 
 const relativeImageColor = "#5AE4A8";
 

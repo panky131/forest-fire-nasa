@@ -1,7 +1,7 @@
-import { Stack } from 'expo-router';
 import React from 'react';
-import { StatusBar } from 'expo-status-bar';
+import { Stack } from 'expo-router';
 import { Image } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
 import Color from '@/utils/Color';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';

@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import React, { useEffect, useState } from 'react'
 import { TextInput, Picker } from 'react-native-rapi-ui'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
-import LoadingIndicator from '@/components/designs/LoadingIndicator'
 import URLs from '@/utils/URLs'
-import { useIsFocused } from '@react-navigation/native'
+import Color from '@/utils/Color';
 import { useAuth } from '@/hooks/useAuth'
 import { ThemedText } from '@/components/ThemedText';
-import Color from '@/utils/Color';
-import { router } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native'
+import LoadingIndicator from '@/components/designs/LoadingIndicator'
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 
 const OfficeStaffLogin = () => {
 

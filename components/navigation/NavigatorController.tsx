@@ -1,7 +1,7 @@
 import { Slot } from 'expo-router';
 
 const NavigatorController = () => {
-    return <Slot />
+  return <Slot />
 }
 
 export default NavigatorController

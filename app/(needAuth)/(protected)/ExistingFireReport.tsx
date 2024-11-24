@@ -286,6 +286,31 @@ const NewFireIncident = () => {
               onChangeText={(val) => SetRemark(val)}
             />
           </View>
+          
+          <View>
+            <ThemedText style={styles.remarkText}>
+              Category (It will be dropdown, if it is forest fire then it will ask about area)
+            </ThemedText>
+            <TextInput
+              placeholder="Enter your text"
+              value={Remark}
+              onChangeText={(val) => SetRemark(val)}
+            />
+          </View>
+
+          <View>
+            <ThemedText style={styles.remarkText}>
+              Area burnt 
+            </ThemedText>
+            <TextInput
+              placeholder="Enter your text"
+              value={Remark}
+              onChangeText={(val) => SetRemark(val)}
+            />
+          </View>
+
+          
+
           <View style={styles.submitBtnHolder}>
             <Button
               onPress={() => SubmitIncident()}

@@ -92,14 +92,22 @@ const DashboardModal = ({
       <View style={styles.container}>
         <View style={styles.content}>
           {status == "active" ? (
-            <Button
+            <><Button
               onPress={() => {
                 setToBeingheld(SelectedFire);
                 SetModalVisible(false);
-              }}
+              } }
               text="I am on it"
-              status="primary"
-            />
+              status="primary" />
+              
+              <Button
+                onPress={() => {
+                  setToBeingheld(SelectedFire);
+                  SetModalVisible(false);
+                } }
+                text="Not a fire"
+                status="primary" /></>
+            
           ) : (
             <>
               <Button

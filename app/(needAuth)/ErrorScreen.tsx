@@ -12,7 +12,7 @@ const ErrorScreen = () => {
 
   const router: Router = useRouter();
 
-  const handleRetry = () => router.push('/')
+  const handleRetry = () => router.push('/');
 
   return (
     <SafeAreaView style={styles.safeAreaView}>

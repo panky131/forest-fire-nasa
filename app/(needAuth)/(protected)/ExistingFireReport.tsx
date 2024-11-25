@@ -1,8 +1,10 @@
 import * as Location from 'expo-location';
+import * as FileSystem from 'expo-file-system';
+import Toast from 'react-native-toast-message';
 import { Camera, CameraView } from 'expo-camera';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Button, TextInput, themeColor } from 'react-native-rapi-ui';
+import { Button, Picker, TextInput, themeColor } from 'react-native-rapi-ui';
 import { StyleSheet, Image, View, Modal, TouchableOpacity } from 'react-native';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -13,6 +15,8 @@ import URLs from '@/utils/URLs';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ThemedText';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
+import { tbl_existing_fire_report } from '@/utils/sqlite/SQLiteDBSchema';
+import { insertRow } from '@/utils/sqlite/SQLiteFunctions';
 
 const path = require('path');
 const mimetype = require('mimetype');
@@ -21,28 +25,35 @@ const NewFireIncident = () => {
 
   const { authUserData }: any = useAuth();
 
+  const categoryItems = [
+    { label: 'Value 1', value: 'FED' },
+    { label: 'Value 2', value: 'BED' },
+    { label: 'Value 3', value: 'FSD' },
+  ];
+
   const params = useLocalSearchParams();
   const { alert_id, lat, lng } = params;
 
-  const [Remark, SetRemark] = useState("");
+  const [remark, setRemark] = useState<string>('');
+  const [categoryValue, setCategoryValue] = useState<string>('');
+  const [areaBurntValue, setAreaBurntValue] = useState<string>('');
 
-  const [cameraPermission, setCameraPermission] = useState<boolean | null>(null);
   const [camera, setCamera] = useState(null);
   const [imageUri, setImageUri] = useState(null);
+  const [storedImagePath, setStoredImagePath] = useState<string | null>(null);
   const [invalidLocation, setInvalidLocation] = useState<boolean | number>(false);
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [loading, SetPageLoading] = useState(false);
-  const [PageError, SetPageError] = useState(false);
+  const [loadingText, setLoadingText] = useState<string>('Loading..');
+  const [pageLoading, setPageLoading] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   const permissionFunction = async () => {
     try {
-      SetPageLoading(true);
+      setPageLoading(true);
 
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
-      setCameraPermission(cameraPermission.status === 'granted');
 
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
 
       if (cameraPermission.status !== 'granted' || status !== 'granted') {
         alert('Permission for Camera And Location access needed.');
@@ -57,7 +68,7 @@ const NewFireIncident = () => {
 
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      let location = await Location.getCurrentPositionAsync({
+      const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Highest,
       });
 
@@ -65,15 +76,39 @@ const NewFireIncident = () => {
     } catch (error) {
       console.log(error);
     } finally {
-      SetPageLoading(false);
+      setPageLoading(false);
     }
   };
 
   const captureImage = async () => {
-    // @ts-ignore
-    const data = await camera?.takePictureAsync(null);
-    setImageUri(data.uri);
-    setModalVisible(false);
+    try {
+      // @ts-ignore
+      const data = await camera?.takePictureAsync(null);
+
+      const documentDirectory = FileSystem.documentDirectory || '';
+      const existingFireImgDirectory = documentDirectory + 'existing_report_images/';
+      await FileSystem.makeDirectoryAsync(existingFireImgDirectory,
+        { intermediates: true });
+
+      const filename: string = `existing_fire_report_${Date.now()}.jpg`;
+      const photoPath: string = existingFireImgDirectory + filename;
+      await FileSystem.moveAsync({
+        from: data.uri,
+        to: photoPath,
+      });
+
+      setStoredImagePath(photoPath)
+      setModalVisible(false);
+
+    } catch (error) {
+      console.log(error);
+      Toast.show({
+        type: 'error',
+        text1: 'Oops!',
+        text2: 'Some problems occured while capturing Image. Please try again later..'
+      })
+
+    }
   }
 
   const takePicture = async () => {
@@ -110,9 +145,6 @@ const NewFireIncident = () => {
       let lat1 = lat;
       let long1 = lng;
 
-      // let lat2 = location.coords.latitude;
-      // let long2 = location.coords.longitude;
-
       console.log(lat1);
       console.log(long1);
 
@@ -132,12 +164,12 @@ const NewFireIncident = () => {
   const SubmitIncident = async () => {
     try {
 
-      if (!Remark || !imageUri) {
+      if (!remark || !imageUri) {
         alert("Image must be clicked and remark must be filled out");
         return;
       }
 
-      SetPageLoading(true);
+      setPageLoading(true);
 
       let capturedImage = {
         uri: imageUri,
@@ -146,7 +178,7 @@ const NewFireIncident = () => {
       };
 
       const _finalData = new FormData();
-      _finalData.append('message', Remark);
+      _finalData.append('message', remark);
       _finalData.append('image', capturedImage as never);
       _finalData.append('alert_id', alert_id as never);
       _finalData.append('mobile', authUserData.mobile_number);
@@ -155,28 +187,90 @@ const NewFireIncident = () => {
         method: "POST",
         body: _finalData,
         headers: {
-          // Accept: "application/json",
           "Content-Type": "multipart/form-data",
         },
       });
 
       const resData = await response.json();
       if (resData.status != "success") {
-        SetPageError(true);
         return;
       }
 
       alert("Report Submitted Succesfully");
       setImageUri(null);
-      SetRemark("");
+      setRemark("");
+
+    } catch (error) {
+      console.log(error);
+
+    } finally {
+      setPageLoading(false);
+    }
+  }
+
+  const getFormattedDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const date = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+  };
+
+  const storeReportInSqliteStorage = async () => {
+    try {
+      setLoadingText('Uploading');
+      setPageLoading(true);
+
+      if (!remark || !storedImagePath || !categoryValue || !areaBurntValue) {
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: 'All input fields must be filled out'
+        });
+        return;
+      }
+
+      const timestamp: string = getFormattedDateTime();
+
+      const mobile_number: string = authUserData.mobile_number;
+
+      const insertReportQuery: string = `INSERT INTO ${tbl_existing_fire_report.tbl_name}
+       (${[...tbl_existing_fire_report.tbl_struct]}) VALUES
+        (${Array(tbl_existing_fire_report.tbl_struct.length).fill('?').join(', ')})`;
+
+      const exisitingReportValues: any[] =
+        [null, remark, storedImagePath, alert_id, mobile_number, categoryValue,
+          areaBurntValue, timestamp];
+
+      await insertRow({ query: insertReportQuery, values: exisitingReportValues });
+
+      Toast.show({
+        type: 'success',
+        text1: 'Done!',
+        text2: 'Report is processed successfully and will be uploaded shortly'
+      });
+
+      setRemark('');
+      setAreaBurntValue('');
+      setCategoryValue('');
+      setStoredImagePath('');
 
     } catch (error) {
 
       console.log(error);
-      SetPageError(true);
+      Toast.show({
+        type: 'error',
+        text1: 'Oops!',
+        text2: 'Some problems occured while processing your request. Please try again later'
+      });
 
     } finally {
-      SetPageLoading(false);
+      setPageLoading(false);
+      setLoadingText('Loading');
     }
   }
 
@@ -191,7 +285,6 @@ const NewFireIncident = () => {
     bootsUp();
 
   }, [isFocused])
-
 
 
   // if (invalidLocation as number >= 100) return (
@@ -216,7 +309,7 @@ const NewFireIncident = () => {
 
   return (
     <View>
-      <LoadingIndicator text={'Loading'} visible={loading} />
+      <LoadingIndicator text={loadingText} visible={pageLoading} />
       <Modal
         style={{
           position: "relative",
@@ -238,21 +331,20 @@ const NewFireIncident = () => {
         }}>
           <CameraView
             ref={(ref: any) => setCamera(ref)}
-            // onCameraReady={setCameraReady}
             style={{
               width: '100%',
               height: '80%',
               borderRadius: moderateScale(10),
 
             }}
-            // type={type}
-            // ratio={ratio}
             // @ts-ignore
             autoFocus={'on'}
           />
           <View style={styles.clickBtnOuterContainer}>
             <TouchableOpacity style={styles.clickBtn}>
-              <TouchableOpacity onPress={() => captureImage()} style={styles.clickBtnInner}></TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => captureImage()} style={styles.clickBtnInner}>
+              </TouchableOpacity>
             </TouchableOpacity>
           </View>
         </View>
@@ -266,7 +358,7 @@ const NewFireIncident = () => {
               </ThemedText>
               <Image
                 // @ts-ignore
-                source={{ uri: imageUri }}
+                source={{ uri: storedImagePath ? storedImagePath : null }}
                 style={styles.captureImage}
               />
             </View>
@@ -282,38 +374,37 @@ const NewFireIncident = () => {
             </ThemedText>
             <TextInput
               placeholder="Enter your text"
-              value={Remark}
-              onChangeText={(val) => SetRemark(val)}
+              value={remark}
+              onChangeText={(val) => setRemark(val)}
             />
           </View>
-          
+
           <View>
             <ThemedText style={styles.remarkText}>
               Category (It will be dropdown, if it is forest fire then it will ask about area)
             </ThemedText>
-            <TextInput
-              placeholder="Enter your text"
-              value={Remark}
-              onChangeText={(val) => SetRemark(val)}
+            <Picker
+              items={categoryItems}
+              value={categoryValue}
+              placeholder="Choose your role"
+              onValueChange={(val: any) => setCategoryValue(val)}
             />
           </View>
 
           <View>
             <ThemedText style={styles.remarkText}>
-              Area burnt 
+              Area burnt
             </ThemedText>
             <TextInput
               placeholder="Enter your text"
-              value={Remark}
-              onChangeText={(val) => SetRemark(val)}
+              value={areaBurntValue}
+              onChangeText={(val) => setAreaBurntValue(val)}
             />
           </View>
 
-          
-
           <View style={styles.submitBtnHolder}>
             <Button
-              onPress={() => SubmitIncident()}
+              onPress={() => storeReportInSqliteStorage()}
               textStyle={styles.submitBtn} text='Submit' status='info' />
           </View>
         </View>

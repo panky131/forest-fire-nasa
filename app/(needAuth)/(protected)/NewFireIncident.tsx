@@ -14,20 +14,13 @@ import { tbl_fire_incidents } from '@/utils/sqlite/SQLiteDBSchema';
 import LoadingIndicator from '@/components/designs/LoadingIndicator'
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 
-
-const path = require('path');
-const mimetype = require('mimetype');
-
 const NewFireIncident = () => {
 
   const { authUserData }: any = useAuth();
-  // for input fields
   const [Remark, SetRemark] = useState("");
 
   const [loadingText, setLoadingText] = useState<string>("");
-  const [cameraPermission, setCameraPermission] = useState<boolean | null>(null);
   const [camera, setCamera] = useState<any | null>(null);
-  const [imageUri, setImageUri] = useState<string | null>(null);
   const [storedImagePath, setStoredImagePath] = useState<string | null>(null);
 
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -38,8 +31,7 @@ const NewFireIncident = () => {
   const permisionFunction = async () => {
     // @ts-ignore
     const cameraPermission = await Camera.requestCameraPermissionsAsync();
-    setCameraPermission(cameraPermission.status === 'granted');
-    let { status } = await Location.requestForegroundPermissionsAsync();
+    const { status } = await Location.requestForegroundPermissionsAsync();
 
     if (cameraPermission.status !== 'granted' || status !== 'granted') {
 
@@ -48,7 +40,7 @@ const NewFireIncident = () => {
 
     }
 
-    let location = await Location.getCurrentPositionAsync({});
+    const location = await Location.getCurrentPositionAsync({});
     setLocation(location);
   };
 
@@ -56,7 +48,6 @@ const NewFireIncident = () => {
     try {
       // @ts-ignore
       const data = await camera?.takePictureAsync(null);
-      setImageUri(data.uri);
 
       const documentDirectory = FileSystem.documentDirectory || '';
       const inspectImgDirectory = documentDirectory + 'incidents_images/';
@@ -86,13 +77,6 @@ const NewFireIncident = () => {
   const takePicture = async () => {
     setModalVisible(true);
   };
-
-  const getFileName = (uri: string) => {
-    return path.basename(uri);
-  }
-  const getFileMIME = (uri: string) => {
-    return mimetype.lookup(uri);
-  }
 
   const storeIncidentSqliteStorage = async () => {
     try {
@@ -134,7 +118,6 @@ const NewFireIncident = () => {
         text2: 'Report is processed successfully and will be uploaded shortly'
       });
 
-      setImageUri(null);
       SetRemark("");
       setStoredImagePath("");
 
@@ -156,66 +139,6 @@ const NewFireIncident = () => {
     }
   }
 
-  // const SubmitIncident = async () => {
-  //   try {
-
-  //     if (!Remark || !imageUri) {
-  //       alert("Image must be clicked and remark must be filled out");
-  //       return;
-  //     }
-
-  //     SetPageLoading(true);
-
-  //     let capturedImage = {
-  //       uri: imageUri,
-  //       name: getFileName(imageUri),
-  //       type: getFileMIME(imageUri)
-  //     };
-
-  //     const _finalData = new FormData();
-  //     _finalData.append('message', Remark);
-  //     _finalData.append('image', capturedImage as any);
-  //     if (location?.coords.latitude && location?.coords.longitude) {
-  //       _finalData.append('lat', location?.coords.latitude as never);
-  //       _finalData.append('lng', location?.coords.longitude as never);
-  //     } else {
-  //       _finalData.append('lat', 0 as never);
-  //       _finalData.append('lng', 0 as never);
-  //     }
-  //     _finalData.append('mobile', authUserData.mobile_number);
-  //     _finalData.append('type', 'Fire');
-  //     _finalData.append('name', authUserData.user_name);
-  //     _finalData.append('division_id', authUserData.division_id);
-
-  //     const response = await fetch(URLs.api_base_url + "submit_incident.php", {
-  //       method: "POST",
-  //       body: _finalData,
-  //       headers: {
-  //         // Accept: "application/json", 
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-
-  //     const resData = await response.json();
-  //     console.log(resData);
-  //     if (resData.status != "success") {
-  //       // SetPageError(true);
-  //       return;
-  //     }
-
-  //     alert("Report Submitted Succesfully");
-  //     setImageUri(null);
-  //     SetRemark("");
-
-  //   } catch (error) {
-
-  //     console.log(error);
-  //     // SetPageError(true);
-
-  //   } finally {
-  //     SetPageLoading(false);
-  //   }
-  // }
   useEffect(() => {
     permisionFunction();
     return () => { }

@@ -81,25 +81,6 @@ export default function Layout() {
                     </ThemedText>
                   </View>
                 </Pressable>
-                {/* <TouchableOpacity
-                                    onPress={() => Navigation.navigate('AboutUs')}
-                                    style={{
-                                        paddingHorizontal: horizontalScale(10),
-                                        marginTop: verticalScale(15)
-                                    }}>
-                                    <View style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        gap: horizontalScale(10),
-                                        alignItems: 'center'
-                                    }}>
-                                        <FontAwesome name="handshake-o" size={24} color="#fff" />
-                                        <Text style={{
-                                            color: '#fff',
-                                            fontWeight: '600'
-                                        }}>संयुक्त पहल</Text>
-                                    </View>
-                                </TouchableOpacity> */}
                 <TouchableOpacity
                   onPress={() => router.push('/NewFireIncident')}
                   style={{

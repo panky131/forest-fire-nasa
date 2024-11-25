@@ -13,6 +13,17 @@ interface FireIncidentsType {
   division_id: string
 }
 
+interface ExistingFireReportType {
+  id: number,
+  alert_id: number,
+  area_burnt: string,
+  category: string,
+  image: string,
+  mobile: string,
+  remark: string,
+  timestamp: string
+}
+
 interface newRowParamsType {
   query: string,
   values: any[]
@@ -68,6 +79,6 @@ const insertRow = async ({ query, values }:
 }
 
 export {
-  FireIncidentsType, deleteRow,
+  FireIncidentsType, deleteRow, ExistingFireReportType,
   insertRow, executeSQLiteOperation
 }

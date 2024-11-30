@@ -1,22 +1,16 @@
-import * as Device from "expo-device";
-import Constants from "expo-constants";
-import Toast from 'react-native-toast-message';
 import { themeColor } from 'react-native-rapi-ui';
 import { Link, useNavigation } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import { useEffect, useRef, useState } from 'react';
 import * as Notifications from "expo-notifications";
 // @ts-ignore
 import RadioButtonRN from 'radio-buttons-react-native-expo';
-import { Image, StyleSheet, Platform, View, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, View, TouchableOpacity } from 'react-native';
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import URLs from '@/utils/URLs';
 import Color from '@/utils/Color';
 import { ThemedText } from '@/components/ThemedText';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import LoadingIndicator from '@/components/designs/LoadingIndicator';
 import { verticalScale, horizontalScale, moderateScale } from '@/utils/Metrics';
 
 export default function HomeScreen() {
@@ -26,11 +20,8 @@ export default function HomeScreen() {
   const notificationListener = useRef<any>();
   const responseListener = useRef<any>();
 
-  const [expoPushToken, setExpoPushToken] = useState<string>("");
   const [notification, setNotification] = useState();
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [loadingModalText, setLoadingModalText] = useState<string | null>(null);
   const [SelectedButton, SetSelectedButton] = useState<string | null>(null);
 
   const handleNext = (): void => {
@@ -43,132 +34,7 @@ export default function HomeScreen() {
     }
   }
 
-  const storeTokenInDatabase = async (token: string) => {
-    try {
-
-      setIsLoading(true);
-      console.log('Storing token in db :- ' + token)
-      const data = new FormData();
-      data.append("token", token);
-      const response = await fetch(`${URLs.api_base_url}register_token.php`, {
-        method: "POST",
-        body: data
-      });
-
-      const responseJson = await response.json();
-      if (responseJson?.status === "success") {
-        console.log('Token stored successfully !');
-      } else {
-        console.log("Unable to store token in database Inner");
-      }
-
-    } catch (error) {
-      console.log(error)
-      console.log("Unable to store token in database outer");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const registerForPushNotificationsAsync = async () => {
-    try {
-      setIsLoading(true);
-      let token;
-
-      if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-          name: 'default',
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#FF231F7C',
-        });
-      }
-
-      if (Device.isDevice) {
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-        if (existingStatus !== 'granted') {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
-        if (finalStatus !== 'granted') {
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: 'Failed to get push token for push notification!',
-          });
-          // alert('');
-          return;
-        }
-        const projectId =
-          Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-        if (!projectId) {
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: 'Project ID not found',
-          });
-          console.log('Project ID not found');
-          return "";
-        }
-
-        token = (await Notifications.getExpoPushTokenAsync({
-          projectId
-        })).data;
-        console.log(token);
-      } else {
-        alert('Must use physical device for Push Notifications');
-      }
-
-      return token;
-    } catch (error) {
-      console.log(error);
-      Toast.show({
-        type: 'error',
-        text1: 'Oops!',
-        text2: 'Problems while getting notification token'
-      });
-      console.log(`Problems while getting notification token`);
-      return "";
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  const checkFirstLaunch = async () => {
-    try {
-      setIsLoading(true);
-      const isFirstLaunch = await SecureStore.getItemAsync('isFirstLaunch');
-      if (isFirstLaunch === null || !isFirstLaunch) {
-        console.log(`This is first launch of app`);
-        const token = await registerForPushNotificationsAsync();
-        console.log(`Token returned is :- ${token}`)
-        if (token) {
-          setExpoPushToken(token);
-          await storeTokenInDatabase(token);
-          await SecureStore.setItemAsync("isFirstLaunch", "true");
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: 'Unable to register for push notifications'
-          });
-          console.log("Unable to register for push notifications | Outer reach");
-        }
-      } else {
-        console.log(`This is not first launch of app`);
-      }
-    } catch (error) {
-      console.log(error);
-      console.log(`Error while processing first launch`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
   useEffect(() => {
-
-    checkFirstLaunch();
-
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
       setNotification(notification as never);
     });
@@ -193,7 +59,6 @@ export default function HomeScreen() {
           style={styles.headerLogo}
         />
       }>
-      <LoadingIndicator visible={isLoading} text={loadingModalText} />
 
       <TouchableOpacity>
         <Link style={[styles.reportBtn, {

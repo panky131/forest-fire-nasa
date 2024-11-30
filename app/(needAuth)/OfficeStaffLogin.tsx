@@ -1,9 +1,13 @@
 import { router } from 'expo-router';
+import * as Device from "expo-device";
+import Constants from "expo-constants";
+import Toast from 'react-native-toast-message';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react'
+import * as Notifications from "expo-notifications";
 import { TextInput, Picker } from 'react-native-rapi-ui'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, TouchableOpacity, View, Platform } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import URLs from '@/utils/URLs'
@@ -19,8 +23,8 @@ const OfficeStaffLogin = () => {
   const { login }: any = useAuth();
 
   // page states
-  const [PageLoading, SetPageLoading] = useState(false);
-  const [PageError, SetPageError] = useState(false);
+  const [pageLoading, setPageLoading] = useState<boolean>(false);
+  const [loadingText, setLoadingText] = useState<string>('Loading');
 
   // input states
   const [name, setName] = useState("");
@@ -30,17 +34,95 @@ const OfficeStaffLogin = () => {
   const [otp, setOTPCode] = useState("");
 
   // data states
-  const [PositionList, SetPositionList] = useState([]);
-  const [OfficeList, SetOfficeList] = useState([]);
+  const [notificationToken, setNotificationToken] = useState<string>('');
+  const [officeList, setOfficeList] = useState([]);
+  const [positionList, setPositionList] = useState([]);
+
+  const navigateToErrorScreen = () => {
+    router.replace("/(needAuth)/ErrorScreen");
+  }
+
+  const registerForPushNotificationsAsync = async (): Promise<string> => {
+    try {
+      setPageLoading(true);
+      setLoadingText('Getting notification token');
+      let token: string = '';
+
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
+
+      if (Device.isDevice) {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+
+        if (finalStatus !== 'granted') {
+          Toast.show({
+            type: 'error',
+            text1: 'Oops!',
+            text2: 'Failed to get push token for push notification!',
+          });
+          return '';
+        }
+        const projectId =
+          Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+        if (!projectId) {
+          Toast.show({
+            type: 'error',
+            text1: 'Oops!',
+            text2: 'Project ID not found',
+          });
+          console.log('Project ID not found');
+          return "";
+        }
+
+        token = (await Notifications.getExpoPushTokenAsync({
+          projectId
+        })).data;
+        console.log(token);
+      } else {
+        alert('Must use physical device for Push Notifications');
+      }
+
+      return token;
+    } catch (error) {
+      console.log(error);
+      Toast.show({
+        type: 'error',
+        text1: 'Oops!',
+        text2: 'Problems while getting notification token'
+      });
+      console.log(`Problems while getting notification token`);
+      return "";
+    } finally {
+      setPageLoading(false);
+      setLoadingText('Loading');
+    }
+  }
 
   const handleLogin = async () => {
 
-    // all inputs must be required
-    if (!name || !number || !positionName || !otp || !officeName) return;
+    if (!name || !number || !positionName || !otp || !officeName) {
+      Toast.show({
+        type: 'error',
+        text1: 'Oops !',
+        text2: 'All input field must be filled out'
+      })
+      return;
+    }
 
     try {
-      SetPageLoading(true);
-      SetPageError(false);
+      setPageLoading(true);
 
       const formData = new FormData();
       formData.append('name', name);
@@ -49,6 +131,8 @@ const OfficeStaffLogin = () => {
       formData.append('officeName', officeName);
       formData.append('user_type', "OfficeStaff");
       formData.append('OTPCode', otp);
+      formData.append('notification_token', notificationToken);
+
       const response = await fetch(URLs.api_base_url + "_user_login.php", {
         method: "POST",
         body: formData,
@@ -56,14 +140,14 @@ const OfficeStaffLogin = () => {
 
       const responseJson = await response.json();
       if (responseJson.status != "success") {
-        // SetPageError(true);
-        alert(responseJson.message);
+        navigateToErrorScreen();
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: responseJson.message
+        });
         return;
       }
-      console.log('login_info');
-      console.log(responseJson)
-      // a. inserting fetched credientials into secure store
-      // b. navigating to dashboard screen and making useAuth = true
 
       const divisonId: string = officeName.toString();
       const _mobile: string = responseJson.mobile.toString();
@@ -81,25 +165,29 @@ const OfficeStaffLogin = () => {
       await SecureStore.setItemAsync('mobile_number', _mobile);
       await SecureStore.setItemAsync('division_id', divisonId);
 
-      login(); // given by auth Context
+      login();
       router.replace('/');
 
     } catch (error) {
 
       console.log(error);
-      SetPageError(true);
+      navigateToErrorScreen();
 
     } finally {
-      SetPageLoading(false);
+      setPageLoading(false);
     }
   }
 
-  // funtion to get villages list
+  const getNotificationToken = async () => {
+    const notificationToken = await registerForPushNotificationsAsync();
+    setNotificationToken(notificationToken);
+    console.log('This is new notification token-', notificationToken);
+  }
+
   const getAllPositions = async () => {
     try {
 
-      SetPageLoading(true);
-      SetPageError(false);
+      setPageLoading(true);
 
       const apiUrl: string = URLs.api_base_url + "_get_positions_list.php";
 
@@ -108,22 +196,23 @@ const OfficeStaffLogin = () => {
       });
 
       if (response.status !== 200) {
-        SetPageError(true);
+        navigateToErrorScreen();
         return;
       }
 
       const responseJson = await response.json();
-      SetPositionList(responseJson.positionList);
-      SetOfficeList(responseJson.divisionList)
+      setPositionList(responseJson.positionList);
+      setOfficeList(responseJson.divisionList)
 
 
     } catch (error) {
 
       console.log(error);
-      SetPageError(true);
+      navigateToErrorScreen();
 
     } finally {
-      SetPageLoading(false);
+      setPageLoading(false);
+      getNotificationToken();
     }
   }
 
@@ -140,8 +229,8 @@ const OfficeStaffLogin = () => {
   return (
     <SafeAreaView>
       <LoadingIndicator
-        text={'Loading'}
-        visible={PageLoading}
+        text={loadingText}
+        visible={pageLoading}
       />
       <KeyboardAwareScrollView>
         <View style={styles.detailsHolder}>
@@ -151,7 +240,7 @@ const OfficeStaffLogin = () => {
               प्रभाग का नाम / Division Name
             </ThemedText>
             <Picker
-              items={OfficeList}
+              items={officeList}
               value={officeName}
               placeholder="Choose your division"
               onValueChange={(val) => setofficeName(val)}
@@ -188,7 +277,7 @@ const OfficeStaffLogin = () => {
               अपना पद चुनें / Choose Your Designation
             </ThemedText>
             <Picker
-              items={PositionList}
+              items={positionList}
               value={positionName}
               placeholder="Choose your designation"
               onValueChange={(val) => setpositionName(val)}

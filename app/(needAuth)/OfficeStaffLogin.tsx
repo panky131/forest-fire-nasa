@@ -131,11 +131,12 @@ const OfficeStaffLogin = () => {
       formData.append('officeName', officeName);
       formData.append('user_type', "OfficeStaff");
       formData.append('OTPCode', otp);
-      formData.append('notification_token', notificationToken);
+      formData.append('notificationToken', notificationToken);
 
       const response = await fetch(URLs.api_base_url + "_user_login.php", {
         method: "POST",
         body: formData,
+        cache: 'no-cache'
       });
 
       const responseJson = await response.json();

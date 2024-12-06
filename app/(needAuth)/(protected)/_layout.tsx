@@ -231,6 +231,12 @@ export default function Layout() {
           name="ExistingFireReport" />
         <Drawer.Screen
           options={{
+            title: "Not a fire | MCR",
+            drawerItemStyle: { height: 0 }
+          }}
+          name="NotAFireMCR" />
+        <Drawer.Screen
+          options={{
             title: "Send Video (वीडियो भेजे)",
             drawerItemStyle: { height: 0 }
           }}

@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Href, router } from "expo-router";
 import { Button } from "react-native-rapi-ui";
 import { View, Modal, StyleSheet } from "react-native";
 
@@ -96,18 +97,18 @@ const DashboardModal = ({
               onPress={() => {
                 setToBeingheld(SelectedFire);
                 SetModalVisible(false);
-              } }
+              }}
               text="I am on it"
               status="primary" />
-              
+
               <Button
                 onPress={() => {
-                  setToBeingheld(SelectedFire);
                   SetModalVisible(false);
-                } }
+                  router.push('/NotAFireMCR' as Href);
+                }}
                 text="Not a fire"
-                status="primary" /></>
-            
+                status="warning" /></>
+
           ) : (
             <>
               <Button

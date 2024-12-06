@@ -11,24 +11,20 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 import { useIsFocused } from '@react-navigation/native';
 
-import URLs from '@/utils/URLs';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ThemedText';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
 import { tbl_existing_fire_report } from '@/utils/sqlite/SQLiteDBSchema';
 import { insertRow } from '@/utils/sqlite/SQLiteFunctions';
-
-const path = require('path');
-const mimetype = require('mimetype');
+import { checkAndUploadData } from '@/tasks/BackgroundTaskHandler';
 
 const NewFireIncident = () => {
 
   const { authUserData }: any = useAuth();
 
   const categoryItems = [
-    { label: 'Value 1', value: 'FED' },
-    { label: 'Value 2', value: 'BED' },
-    { label: 'Value 3', value: 'FSD' },
+    { label: 'Forest Fire', value: 'ForestFire' },
+    { label: 'Others', value: 'others' },
   ];
 
   const params = useLocalSearchParams();
@@ -39,9 +35,8 @@ const NewFireIncident = () => {
   const [areaBurntValue, setAreaBurntValue] = useState<string>('');
 
   const [camera, setCamera] = useState(null);
-  const [imageUri, setImageUri] = useState(null);
   const [storedImagePath, setStoredImagePath] = useState<string | null>(null);
-  const [invalidLocation, setInvalidLocation] = useState<boolean | number>(false);
+  const [distanceDifference, setDistanceDifference] = useState<boolean | number>(false);
 
   const [loadingText, setLoadingText] = useState<string>('Loading..');
   const [pageLoading, setPageLoading] = useState<boolean>(false);
@@ -49,7 +44,6 @@ const NewFireIncident = () => {
 
   const permissionFunction = async () => {
     try {
-      setPageLoading(true);
 
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
 
@@ -66,19 +60,35 @@ const NewFireIncident = () => {
         return;
       }
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      isUserLocationValid();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const isUserLocationValid = async () => {
+    try {
+      setPageLoading(true);
+      setLoadingText('Getting your location');
 
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Highest,
       });
 
-      checkDistance(location.coords.latitude, location.coords.longitude); // Pass the location to the checkDistance function
+      calculateDistanceDifference(location.coords.latitude, location.coords.longitude);
+
     } catch (error) {
       console.log(error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Location service is disabled. Please allow the location.'
+      })
     } finally {
       setPageLoading(false);
+      setLoadingText('Loading');
     }
-  };
+  }
 
   const captureImage = async () => {
     try {
@@ -115,13 +125,6 @@ const NewFireIncident = () => {
     setModalVisible(true);
   };
 
-  const getFileName = (uri: string) => {
-    return path.basename(uri);
-  }
-  const getFileMIME = (uri: string) => {
-    return mimetype.lookup(uri);
-  }
-
   function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
     const R = 6371000;
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -138,73 +141,18 @@ const NewFireIncident = () => {
     return parseFloat(distance.toFixed(2));
   }
 
-  const checkDistance = async (lat2: number, long2: number) => {
+  const calculateDistanceDifference = async (lat2: number, long2: number) => {
 
     try {
       console.log('Check distance started');
       let lat1 = lat;
       let long1 = lng;
 
-      console.log(lat1);
-      console.log(long1);
-
-      console.log(lat2);
-      console.log(long2);
-
       const distance_meters = haversine(lat1 as any, long1 as any, lat2, long2);
+      setDistanceDifference(distance_meters);
 
-      setInvalidLocation(distance_meters);
-
-      console.log(`Distance - ` + distance_meters)
     } catch (error) {
       console.log(error)
-    }
-  }
-
-  const SubmitIncident = async () => {
-    try {
-
-      if (!remark || !imageUri) {
-        alert("Image must be clicked and remark must be filled out");
-        return;
-      }
-
-      setPageLoading(true);
-
-      let capturedImage = {
-        uri: imageUri,
-        name: getFileName(imageUri),
-        type: getFileMIME(imageUri)
-      };
-
-      const _finalData = new FormData();
-      _finalData.append('message', remark);
-      _finalData.append('image', capturedImage as never);
-      _finalData.append('alert_id', alert_id as never);
-      _finalData.append('mobile', authUserData.mobile_number);
-
-      const response = await fetch(URLs.api_base_url + "closed_fire.php", {
-        method: "POST",
-        body: _finalData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      const resData = await response.json();
-      if (resData.status != "success") {
-        return;
-      }
-
-      alert("Report Submitted Succesfully");
-      setImageUri(null);
-      setRemark("");
-
-    } catch (error) {
-      console.log(error);
-
-    } finally {
-      setPageLoading(false);
     }
   }
 
@@ -225,7 +173,8 @@ const NewFireIncident = () => {
       setLoadingText('Uploading');
       setPageLoading(true);
 
-      if (!remark || !storedImagePath || !categoryValue || !areaBurntValue) {
+      if (!remark || !storedImagePath || !categoryValue ||
+        (categoryValue === 'ForestFire' && !areaBurntValue)) {
         Toast.show({
           type: 'error',
           text1: 'Oops!',
@@ -247,6 +196,7 @@ const NewFireIncident = () => {
           areaBurntValue, timestamp];
 
       await insertRow({ query: insertReportQuery, values: exisitingReportValues });
+      checkAndUploadData();
 
       Toast.show({
         type: 'success',
@@ -256,7 +206,7 @@ const NewFireIncident = () => {
 
       setRemark('');
       setAreaBurntValue('');
-      setCategoryValue('');
+      setCategoryValue('ForestFire');
       setStoredImagePath('');
 
     } catch (error) {
@@ -274,7 +224,7 @@ const NewFireIncident = () => {
     }
   }
 
-  const bootsUp = async () => {
+  const checkPermissions = async () => {
     await permissionFunction();
   }
 
@@ -282,14 +232,14 @@ const NewFireIncident = () => {
 
   useEffect(() => {
 
-    bootsUp();
+    checkPermissions();
 
   }, [isFocused])
 
 
-  // if (invalidLocation as number >= 100) return (
+  // if (distanceDifference as number > 100) return (
   //   <View style={styles.invalidLocationContainer}>
-  //     <LoadingIndicator text={'Loading'} visible={loading} />
+  //     <LoadingIndicator text={'Loading'} visible={pageLoading} />
   //     <View style={styles.invalidLocationImgContainer}>
   //       <Image
   //         style={styles.invalidLocationImage}
@@ -297,10 +247,15 @@ const NewFireIncident = () => {
   //       />
   //     </View>
   //     <ThemedText style={styles.invalidLocationText} type='default'>
-  //       You are trying to capture photo from {invalidLocation} meters. Please capture within 100 meters
+  //       You are trying to capture photo from {distanceDifference} meters.
+  //       Please capture within 100 meters
   //     </ThemedText>
   //     <TouchableOpacity style={styles.invalidLocationBtn} onPress={() => permissionFunction()}>
-  //       <ThemedText style={styles.invalidLocationText} type='default'>
+  //       <ThemedText style={[styles.invalidLocationText,
+  //       {
+  //         color: '#fff'
+  //       }
+  //       ]} type='default'>
   //         Retry
   //       </ThemedText>
   //     </TouchableOpacity>
@@ -391,16 +346,19 @@ const NewFireIncident = () => {
             />
           </View>
 
-          <View>
-            <ThemedText style={styles.remarkText}>
-              Area burnt
-            </ThemedText>
-            <TextInput
-              placeholder="Enter your text"
-              value={areaBurntValue}
-              onChangeText={(val) => setAreaBurntValue(val)}
-            />
-          </View>
+          {categoryValue && categoryValue === 'ForestFire' ?
+            <View>
+              <ThemedText style={styles.remarkText}>
+                Area burnt
+              </ThemedText>
+              <TextInput
+                placeholder="Enter your text"
+                value={areaBurntValue}
+                onChangeText={(val) => setAreaBurntValue(val)}
+              />
+            </View>
+            : ''
+          }
 
           <View style={styles.submitBtnHolder}>
             <Button
@@ -503,9 +461,9 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   invalidLocationBtn: {
-    backgroundColor: themeColor.warning600,
+    backgroundColor: themeColor.danger600,
     paddingVertical: verticalScale(10),
-    borderRadius: moderateScale(2),
+    borderRadius: moderateScale(100),
     marginTop: verticalScale(16)
   },
   invalidLocationImage: {

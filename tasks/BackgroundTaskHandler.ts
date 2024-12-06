@@ -235,6 +235,7 @@ const processOfflineData = async (): Promise<void> => {
   } catch (error) {
     console.log(`Error while uploading data`);
     console.log(error);
+    isUploading = false;
 
   } finally {
     isUploading = true;
@@ -297,6 +298,7 @@ const checkAndUploadData = async (): Promise<void> => {
         console.log(`DB doesn't exists`);
     }
   } catch (error) {
+    isUploading = false;
     console.log(error);
   }
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { horizontalScale } from '@/utils/Metrics';
@@ -12,6 +13,9 @@ import FireCategorySelect from '@/components/designs/ExistingFireReport/FireCate
 import SelectImageButtonHolder from '@/components/designs/NotAFire/NotAFireMCR/SelectImageButtonHolder';
 
 const ExistingFireReportMCR = () => {
+
+  const params = useLocalSearchParams();
+  const { alert_id } = params;
 
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading..');
@@ -54,6 +58,7 @@ const ExistingFireReportMCR = () => {
           />}
 
         <SubmitReportButton
+          alert_id={alert_id}
           pickedImage={pickedImage}
           areaBurnt={areaBurntValue}
           setLoadingText={setLoadingText}

@@ -17,7 +17,8 @@ interface ComponentPropType {
   fireCategory: string,
   areaBurnt: string,
   setPageLoading: Dispatch<SetStateAction<boolean>>,
-  setLoadingText: Dispatch<SetStateAction<string>>
+  setLoadingText: Dispatch<SetStateAction<string>>,
+  alert_id: string | string[]
 }
 interface fileFormat {
   uri: string | undefined,
@@ -36,7 +37,7 @@ const getFileMIME = (uri: string | undefined) => {
 const SubmitReportButton = (props: ComponentPropType) => {
 
   const authData: any = useAuth();
-  const { pickedImage, fireCategory, areaBurnt, setPageLoading, setLoadingText }
+  const { pickedImage, fireCategory, areaBurnt, setPageLoading, setLoadingText, alert_id }
     = props;
 
   const getPickedImageInFormat = (): fileFormat => {
@@ -50,12 +51,13 @@ const SubmitReportButton = (props: ComponentPropType) => {
   }
 
   const getFormData = (): FormData => {
-    const incidentImage = getPickedImageInFormat();
+    const incidentImage = pickedImage ? getPickedImageInFormat() : '';
     const userData = authData.authUserData;
 
     const formData = new FormData();
     formData.append('area_burnt', areaBurnt);
     formData.append('fireCategory', fireCategory);
+    formData.append('alert_id', alert_id as string);
     formData.append('auth_key', userData.auth_key);
     formData.append('user_name', userData.user_name);
     formData.append('division_id', userData.division_id);
@@ -76,7 +78,7 @@ const SubmitReportButton = (props: ComponentPropType) => {
       setLoadingText('Uploading Data..');
 
       const formData = getFormData();
-      const URL = URLs.api_base_url + 'existingFireReport.php';
+      const URL = URLs.api_base_url + '_close_fire.php';
       const submitResponse: boolean = await sendFormData({ data: formData, url: URL });
 
       if (!submitResponse) {

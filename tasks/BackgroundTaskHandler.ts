@@ -280,12 +280,6 @@ const unregisterBackgroundFetchAsync = async (): Promise<void> => {
 }
 
 const checkAndUploadData = async (): Promise<void> => {
-
-  if (isUploading) {
-    console.log('Upload already in progress, skipping this attempt.');
-    return;
-  }
-
   try {
     isUploading = true;
 

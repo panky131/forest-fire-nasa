@@ -16,7 +16,8 @@ interface ComponentPropType {
   pickedImage: string | undefined,
   remarkInput: string,
   setPageLoading: Dispatch<SetStateAction<boolean>>,
-  setLoadingText: Dispatch<SetStateAction<string>>
+  setLoadingText: Dispatch<SetStateAction<string>>,
+  alert_id: string | string[]
 }
 interface fileFormat {
   uri: string | undefined,
@@ -35,7 +36,7 @@ const getFileMIME = (uri: string | undefined) => {
 const SubmitReportButton = (props: ComponentPropType) => {
 
   const authData: any = useAuth();
-  const { pickedImage, remarkInput, setPageLoading, setLoadingText } = props;
+  const { pickedImage, remarkInput, setPageLoading, setLoadingText, alert_id } = props;
 
   const getPickedImageInFormat = (): fileFormat => {
     const incidentImageFormat: fileFormat = {
@@ -52,6 +53,7 @@ const SubmitReportButton = (props: ComponentPropType) => {
     const userData = authData.authUserData;
 
     const formData = new FormData();
+    formData.append('alert_id', alert_id as string);
     formData.append('remarkText', remarkInput);
     formData.append('auth_key', userData.auth_key);
     formData.append('user_name', userData.user_name);
@@ -73,7 +75,7 @@ const SubmitReportButton = (props: ComponentPropType) => {
       setLoadingText('Uploading Data..');
 
       const formData = getFormData();
-      const URL = URLs.api_base_url + 'notAFire.php';
+      const URL = URLs.api_base_url + '_not_a_fire.php';
       const submitResponse: boolean = await sendFormData({ data: formData, url: URL });
 
       if (!submitResponse) {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { horizontalScale } from '@/utils/Metrics';
@@ -11,6 +12,9 @@ import SubmitReportButton from '@/components/designs/NotAFire/NotAFireMCR/Submit
 import SelectImageButtonHolder from '@/components/designs/NotAFire/NotAFireMCR/SelectImageButtonHolder';
 
 const NotAFireMCR = () => {
+
+  const params = useLocalSearchParams();
+  const { alert_id } = params;
 
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading..');
@@ -45,6 +49,7 @@ const NotAFireMCR = () => {
           setRemarkInput={setRemarkInput} />
 
         <SubmitReportButton
+          alert_id={alert_id}
           setPageLoading={setPageLoading} setLoadingText={setLoadingText}
           pickedImage={pickedImage} remarkInput={remarkInput} />
 

@@ -104,11 +104,13 @@ const DashboardModal = ({
               <Button
                 onPress={() => {
                   const screenName = authUserData.user_type === 'mcr' ?
-                    '/NotAFireMCR' : '/NotAFire';
-                    // '/NotAFire' : '/NotAFireMCR';
+                    'NotAFireMCR' : 'NotAFire';
+                  // 'NotAFire' : 'NotAFireMCR';
 
                   SetModalVisible(false);
-                  router.push(screenName as Href);
+                  Navigation.navigate(screenName, {
+                    alert_id: SelectedFire,
+                  });
                 }}
                 text="Not a fire"
                 status="warning" /></>

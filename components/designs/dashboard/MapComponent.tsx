@@ -93,8 +93,8 @@ const MapComponent = () => {
   const handleMarkerClick = (alert_id: string | number): void => {
 
     const nextScreenName = authUserData.user_type === 'mcr'
-      // ? '/ExistingFireReportMCR' : '/ExistingFireReport';
-    ? '/ExistingFireReport' : '/ExistingFireReportMCR';
+      ? '/ExistingFireReportMCR' : '/ExistingFireReport';
+    // ? '/ExistingFireReport' : '/ExistingFireReportMCR';
 
     Alert.alert('Confirm', 'Do you want to close this Fire.?', [
       {

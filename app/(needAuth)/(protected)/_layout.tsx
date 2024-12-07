@@ -8,7 +8,55 @@ import { ThemedText } from '@/components/ThemedText';
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
+interface ScreenType {
+  title: string,
+  name: string
+}
+
 export default function Layout() {
+
+  const SCREENS: ScreenType[] = [
+    {
+      title: 'Dashboard / डैशबोर्ड',
+      name: 'Dashboard'
+    },
+    {
+      title: 'संयुक्त पहल',
+      name: 'AboutUs'
+    },
+    {
+      title: 'Report Fire / नई आग की सूचना दे',
+      name: 'NewFireIncident'
+    },
+    {
+      title: 'Contact / कंट्रोल रूम से संपर्क करे',
+      name: 'ControllRoomInformation'
+    },
+    {
+      title: 'लॉगआउट करे',
+      name: 'Logout'
+    },
+    {
+      title: 'आग बुझाने की सूचना दे',
+      name: 'ExistingFireReport'
+    },
+    {
+      title: 'MCR | Not a fire',
+      name: 'NotAFireMCR'
+    },
+    {
+      title: 'MCR | Existing Fire Report',
+      name: 'ExistingFireReportMCR'
+    },
+    {
+      title: 'Send Video (वीडियो भेजे)',
+      name: 'SendVideo'
+    },
+    {
+      title: 'Warning (चेतावनी)',
+      name: 'Warning'
+    },
+  ];
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -144,27 +192,6 @@ export default function Layout() {
                     </ThemedText>
                   </View>
                 </TouchableOpacity>
-                {/* {authUserData && authUserData.user_type && authUserData.user_type == "gov" &&
-                                    <TouchableOpacity
-                                        onPress={() => Navigation.navigate('ViilagesList')}
-                                        style={{
-                                            paddingHorizontal: horizontalScale(10),
-                                            marginTop: verticalScale(18)
-                                        }}>
-                                        <View style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            gap: horizontalScale(10),
-                                            alignItems: 'center'
-                                        }}>
-                                            <Ionicons name="list-circle" size={moderateScale(28)} color="#fff" />
-                                            <Text style={{
-                                                color: '#fff',
-                                                fontWeight: '600'
-                                            }}>गाँव की लिस्ट</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                } */}
               </View>
               <View style={{
                 borderTopColor: '#fff',
@@ -193,60 +220,17 @@ export default function Layout() {
           )
         }}
       >
-        <Drawer.Screen
-          options={{
-            title: "Dashboard / डैशबोर्ड"
-          }}
-          name="Dashboard" />
-        <Drawer.Screen
-          options={{
-            title: "संयुक्त पहल"
-          }}
-          name="AboutUs" />
-        <Drawer.Screen
-          options={{
-            title: "Report Fire / नई आग की सूचना दे",
-          }}
-          name="NewFireIncident" />
-        <Drawer.Screen
-          options={{
-            title: "Contact / कंट्रोल रूम से संपर्क करे"
-          }}
-          name="ControllRoomInformation" />
-        {/* {authUserData && authUserData.user_type && authUserData.user_type == "gov" && <Drawer.Screen
-                    options={{
-                        title: "गाँव की लिस्ट"
-                    }}
-                    name="VilagesList" />} */}
-        <Drawer.Screen
-          options={{
-            title: "लॉगआउट करे"
-          }}
-          name="Logout" />
-        <Drawer.Screen
-          options={{
-            title: "आग बुझाने की सूचना दे",
-            drawerItemStyle: { height: 0 }
-          }}
-          name="ExistingFireReport" />
-        <Drawer.Screen
-          options={{
-            title: "MCR | Not a fire",
-            drawerItemStyle: { height: 0 }
-          }}
-          name="NotAFireMCR" />
-        <Drawer.Screen
-          options={{
-            title: "Send Video (वीडियो भेजे)",
-            drawerItemStyle: { height: 0 }
-          }}
-          name="SendVideo" />
-        <Drawer.Screen
-          options={{
-            title: "Warning (चेतावनी)",
-            drawerItemStyle: { height: 0 }
-          }}
-          name="Warning" />
+
+        {SCREENS && SCREENS.map((props, index) => {
+          return (
+            <Drawer.Screen
+              key={index}
+              options={{
+                title: props.title
+              }}
+              name={props.name} />
+          )
+        })}
       </Drawer>
     </GestureHandlerRootView>
   );

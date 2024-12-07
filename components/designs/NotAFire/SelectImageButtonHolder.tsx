@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
-import { pickSingleImage } from "../functions";
+import { pickSingleImage } from "./functions";
 import { ThemedText } from "@/components/ThemedText";
 import { moderateScale, verticalScale } from "@/utils/Metrics";
 

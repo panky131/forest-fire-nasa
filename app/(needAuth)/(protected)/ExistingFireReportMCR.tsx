@@ -6,18 +6,20 @@ import { horizontalScale } from '@/utils/Metrics';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
 import AskUserForImage from '@/components/designs/NotAFire/AskUserForImage';
 import PickedImageHolder from '@/components/designs/NotAFire/PickedImageHolder';
-import RemarkInputTextArea from '@/components/designs/NotAFire/RemarkInputTextArea';
+import AreaBurntInput from '@/components/designs/ExistingFireReport/AreaBurntInput';
+import SubmitReportButton from '@/components/designs/ExistingFireReport/SubmitReportButton';
 import SelectImageButtonHolder from '@/components/designs/NotAFire/SelectImageButtonHolder';
-import SubmitReportButton from '@/components/designs/NotAFire/NotAFireMCR/SubmitReportButton';
+import FireCategorySelect from '@/components/designs/ExistingFireReport/FireCategorySelect';
 
-const NotAFireMCR = () => {
+const ExistingFireReportMCR = () => {
 
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading..');
 
-  const [remarkInput, setRemarkInput] = useState<string>('');
+  const [areaBurntValue, setAreaBurntValue] = useState<string>('');
   const [pickedImage, setPickedImage] = useState<string | undefined>('');
   const [doesUserHasImage, setDoesUserHasImage] = useState<boolean>(false);
+  const [selectedFireCategory, setSelectedFireCategory] = useState<string>('');
 
   const SelectImage = (): React.JSX.Element => {
     return (
@@ -40,23 +42,34 @@ const NotAFireMCR = () => {
 
         {doesUserHasImage && <SelectImage />}
 
-        <RemarkInputTextArea
-          remarkInput={remarkInput}
-          setRemarkInput={setRemarkInput} />
+        <FireCategorySelect
+          selectedFireCategory={selectedFireCategory}
+          setSelectedFireCategory={setSelectedFireCategory}
+        />
+
+        {selectedFireCategory === 'ForestFire' &&
+          <AreaBurntInput
+            areaBurntValue={areaBurntValue}
+            setAreaBurntValue={setAreaBurntValue}
+          />}
 
         <SubmitReportButton
-          setPageLoading={setPageLoading} setLoadingText={setLoadingText}
-          pickedImage={pickedImage} remarkInput={remarkInput} />
+          pickedImage={pickedImage}
+          areaBurnt={areaBurntValue}
+          setLoadingText={setLoadingText}
+          setPageLoading={setPageLoading}
+          fireCategory={selectedFireCategory}
+        />
 
       </KeyboardAwareScrollView>
     </View>
   )
 }
 
-export default NotAFireMCR;
+export default ExistingFireReportMCR
 
 const styles = StyleSheet.create({
   scrollView: {
     paddingHorizontal: horizontalScale(10)
   }
-});
+})

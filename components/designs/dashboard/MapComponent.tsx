@@ -91,6 +91,11 @@ const MapComponent = () => {
   }
 
   const handleMarkerClick = (alert_id: string | number): void => {
+
+    const nextScreenName = authUserData.user_type === 'mcr'
+      // ? '/ExistingFireReportMCR' : '/ExistingFireReport';
+      ? '/ExistingFireReport' : '/ExistingFireReportMCR';
+
     Alert.alert('Confirm', 'Do you want to close this Fire.?', [
       {
         text: 'Cancel',
@@ -99,7 +104,7 @@ const MapComponent = () => {
       },
       {
         text: 'OK', onPress: () => {
-          router.push({ pathname: "/ExistingFireReport", params: { alert_id: alert_id, lat: selectedCoordinates.lat, lng: selectedCoordinates.lng } });
+          router.push({ pathname: nextScreenName, params: { alert_id: alert_id, lat: selectedCoordinates.lat, lng: selectedCoordinates.lng } });
         }
       },
     ]);

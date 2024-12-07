@@ -237,30 +237,30 @@ const NewFireIncident = () => {
   }, [isFocused])
 
 
-  // if (distanceDifference as number > 100) return (
-  //   <View style={styles.invalidLocationContainer}>
-  //     <LoadingIndicator text={'Loading'} visible={pageLoading} />
-  //     <View style={styles.invalidLocationImgContainer}>
-  //       <Image
-  //         style={styles.invalidLocationImage}
-  //         source={require('../../../assets/images/invalid_location.jpg')}
-  //       />
-  //     </View>
-  //     <ThemedText style={styles.invalidLocationText} type='default'>
-  //       You are trying to capture photo from {distanceDifference} meters.
-  //       Please capture within 100 meters
-  //     </ThemedText>
-  //     <TouchableOpacity style={styles.invalidLocationBtn} onPress={() => permissionFunction()}>
-  //       <ThemedText style={[styles.invalidLocationText,
-  //       {
-  //         color: '#fff'
-  //       }
-  //       ]} type='default'>
-  //         Retry
-  //       </ThemedText>
-  //     </TouchableOpacity>
-  //   </View>
-  // )
+  if (distanceDifference as number > 100) return (
+    <View style={styles.invalidLocationContainer}>
+      <LoadingIndicator text={'Loading'} visible={pageLoading} />
+      <View style={styles.invalidLocationImgContainer}>
+        <Image
+          style={styles.invalidLocationImage}
+          source={require('../../../assets/images/invalid_location.jpg')}
+        />
+      </View>
+      <ThemedText style={styles.invalidLocationText} type='default'>
+        You are trying to capture photo from {distanceDifference} meters.
+        Please capture within 100 meters
+      </ThemedText>
+      <TouchableOpacity style={styles.invalidLocationBtn} onPress={() => permissionFunction()}>
+        <ThemedText style={[styles.invalidLocationText,
+        {
+          color: '#fff'
+        }
+        ]} type='default'>
+          Retry
+        </ThemedText>
+      </TouchableOpacity>
+    </View>
+  )
 
   return (
     <View>
@@ -336,12 +336,12 @@ const NewFireIncident = () => {
 
           <View>
             <ThemedText style={styles.remarkText}>
-              Category (It will be dropdown, if it is forest fire then it will ask about area)
+              Category
             </ThemedText>
             <Picker
               items={categoryItems}
               value={categoryValue}
-              placeholder="Choose your role"
+              placeholder="Choose fire category"
               onValueChange={(val: any) => setCategoryValue(val)}
             />
           </View>

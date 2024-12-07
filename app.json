@@ -46,15 +46,21 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "cameraPermission": "Allow Forest Fire Uttarakhand to access your camera",
+          "microphonePermission": "Allow Forest Fire Uttarakhand to access your microphone",
           "recordAudioAndroid": true
         }
       ],
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow 'Forest Fire Reporting And Monitoring' to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Allow 'Forest Fire Uttarakhand' to use your location."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to send incident images."
         }
       ]
     ],
@@ -66,7 +72,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "37bc4098-0e8b-4fb5-b002-9d7bdc088ba8"
+        "projectId": "ac2123a9-deff-466d-8de0-58d3f8ba0139"
       }
     }
   }

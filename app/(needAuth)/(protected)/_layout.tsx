@@ -231,7 +231,7 @@ export default function Layout() {
           name="ExistingFireReport" />
         <Drawer.Screen
           options={{
-            title: "Not a fire | MCR",
+            title: "Not a fire",
             drawerItemStyle: { height: 0 }
           }}
           name="NotAFireMCR" />

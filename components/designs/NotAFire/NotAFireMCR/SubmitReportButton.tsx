@@ -63,7 +63,7 @@ const SubmitReportButton = (props: ComponentPropType) => {
   }
 
   const handleSubmit = async (): Promise<void> => {
-    if (!isInputValid(pickedImage) || !isInputValid(remarkInput)) {
+    if (!isInputValid(remarkInput)) {
       showError('All input field must be filled out.');
       return;
     }

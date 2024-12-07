@@ -8,22 +8,37 @@ import RemarkInputTextArea from '@/components/designs/NotAFire/RemarkInputTextAr
 import PickedImageHolder from '@/components/designs/NotAFire/NotAFireMCR/PickedImageHolder';
 import SubmitReportButton from '@/components/designs/NotAFire/NotAFireMCR/SubmitReportButton';
 import SelectImageButtonHolder from '@/components/designs/NotAFire/NotAFireMCR/SelectImageButtonHolder';
+import AskUserForImage from '@/components/designs/NotAFire/NotAFireMCR/AskUserForImage';
 
 const NotAFireMCR = () => {
 
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading..');
 
+  const [doesUserHasImage, setDoesUserHasImage] = useState<boolean>(false);
   const [remarkInput, setRemarkInput] = useState<string>('');
   const [pickedImage, setPickedImage] = useState<string | undefined>('');
+
+  const SelectImage = (): React.JSX.Element => {
+    return (
+      <>
+        <PickedImageHolder pickedImage={pickedImage} />
+        <SelectImageButtonHolder setPickedImage={setPickedImage} />
+      </>
+    )
+  }
 
   return (
     <View>
       <LoadingIndicator text={loadingText} visible={pageLoading} />
       <KeyboardAwareScrollView style={styles.scrollView}>
 
-        <PickedImageHolder pickedImage={pickedImage} />
-        <SelectImageButtonHolder setPickedImage={setPickedImage} />
+        <AskUserForImage
+          setPickedImage={setPickedImage}
+          doesUserHasImage={doesUserHasImage}
+          setDoesUserHasImage={setDoesUserHasImage} />
+
+        {doesUserHasImage && <SelectImage />}
 
         <RemarkInputTextArea
           remarkInput={remarkInput}
@@ -34,7 +49,7 @@ const NotAFireMCR = () => {
           pickedImage={pickedImage} remarkInput={remarkInput} />
 
       </KeyboardAwareScrollView>
-    </View >
+    </View>
   )
 }
 

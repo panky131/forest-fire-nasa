@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }: any) => {
     await SecureStore.deleteItemAsync('longitude');
     await SecureStore.deleteItemAsync('division_id');
 
-    let tempObj = {
+    const tempObj = {
       auth_key: null,
       mobile_number: null,
       user_type: null,

@@ -24,9 +24,14 @@ const NotAFireMCR = () => {
 
         <PickedImageHolder pickedImage={pickedImage} />
         <SelectImageButtonHolder setPickedImage={setPickedImage} />
+
         <RemarkInputTextArea
-          remarkInput={remarkInput} setRemarkInput={setRemarkInput} />
-        <SubmitReportButton />
+          remarkInput={remarkInput}
+          setRemarkInput={setRemarkInput} />
+
+        <SubmitReportButton
+          setPageLoading={setPageLoading} setLoadingText={setLoadingText}
+          pickedImage={pickedImage} remarkInput={remarkInput} />
 
       </KeyboardAwareScrollView>
     </View >

@@ -1,9 +1,11 @@
 interface ColorType {
-  SpashScreenText: string
+  SpashScreenText: string,
+  ComponentColorCyan: string
 }
 
 const Color: ColorType = {
-  SpashScreenText: '#E4080A'
+  SpashScreenText: '#E4080A',
+  ComponentColorCyan: '#46bdc6'
 };
 
 export default Color;

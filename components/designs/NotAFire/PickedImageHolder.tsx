@@ -1,9 +1,9 @@
 import { Image, StyleSheet } from "react-native";
 
+import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { generateBoxShadowStyle } from "@/utils/UI_components";
 import { horizontalScale, moderateScale, verticalScale } from "@/utils/Metrics";
-import { ThemedText } from "@/components/ThemedText";
 
 interface componentPropType {
   pickedImage: string | undefined

@@ -1,27 +1,21 @@
 import { Dispatch, SetStateAction } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
-import { pickSingleImage } from "./functions";
 import { ThemedText } from "@/components/ThemedText";
 import { moderateScale, verticalScale } from "@/utils/Metrics";
 
 interface ComponentPropType {
-  setPickedImage: Dispatch<SetStateAction<string | undefined>>;
+  setIsCaptureImageModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const SelectImageButtonHolder = ({ setPickedImage }: ComponentPropType) => {
-
-  const selectImageFromDevice = async () => {
-    const selectedImage: string | undefined = await pickSingleImage();
-    setPickedImage(selectedImage);
-  }
+const CaptureImageButton = ({ setIsCaptureImageModalOpen }: ComponentPropType) => {
 
   return (
     <TouchableOpacity
-      style={styles.selectImageButton}
-      onPress={() => selectImageFromDevice()}>
+      onPress={() => setIsCaptureImageModalOpen(true)}
+      style={styles.selectImageButton}>
       <ThemedText type='defaultSemiBold' style={styles.buttonText}>
-        Select Image
+        Capture Image
       </ThemedText>
     </TouchableOpacity>
   )
@@ -44,4 +38,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SelectImageButtonHolder;
+export default CaptureImageButton;

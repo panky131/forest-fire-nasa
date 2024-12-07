@@ -45,6 +45,10 @@ export default function Layout() {
       name: 'NotAFireMCR'
     },
     {
+      title: 'Not a fire',
+      name: 'NotAFire'
+    },
+    {
       title: 'MCR | Existing Fire Report',
       name: 'ExistingFireReportMCR'
     },

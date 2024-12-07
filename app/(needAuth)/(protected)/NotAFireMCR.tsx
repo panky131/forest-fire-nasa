@@ -4,11 +4,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 import { horizontalScale } from '@/utils/Metrics';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
-import AskUserForImage from '@/components/designs/NotAFire/AskUserForImage';
-import PickedImageHolder from '@/components/designs/NotAFire/PickedImageHolder';
 import RemarkInputTextArea from '@/components/designs/NotAFire/RemarkInputTextArea';
-import SelectImageButtonHolder from '@/components/designs/NotAFire/SelectImageButtonHolder';
+import AskUserForImage from '@/components/designs/NotAFire/NotAFireMCR/AskUserForImage';
+import PickedImageHolder from '@/components/designs/NotAFire/PickedImageHolder';
 import SubmitReportButton from '@/components/designs/NotAFire/NotAFireMCR/SubmitReportButton';
+import SelectImageButtonHolder from '@/components/designs/NotAFire/NotAFireMCR/SelectImageButtonHolder';
 
 const NotAFireMCR = () => {
 

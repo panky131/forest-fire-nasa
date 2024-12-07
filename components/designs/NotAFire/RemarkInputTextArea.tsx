@@ -18,7 +18,7 @@ const RemarkInputTextArea = ({ remarkInput, setRemarkInput }: ComponentPropType)
         numberOfLines={4}
         placeholder="Remark"
         value={remarkInput}
-        onChangeText={(val) => setRemarkInput(val)}
+        onChangeText={(value: string) => setRemarkInput(value)}
       />
     </ThemedView>
   )

@@ -1,13 +1,13 @@
+import Toast from 'react-native-toast-message';
+import { Dispatch, SetStateAction } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
+import URLs from '@/utils/URLs';
 import Color from '@/utils/Color';
 import { useAuth } from '@/hooks/useAuth';
+import { sendFormData } from '@/utils/SendFormData';
 import { ThemedText } from '@/components/ThemedText';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
-import { Dispatch, SetStateAction } from 'react';
-import Toast from 'react-native-toast-message';
-import URLs from '@/utils/URLs';
-import { sendFormData } from '@/utils/SendFormData';
 
 const path = require('path');
 const mimetype = require('mimetype');
@@ -31,7 +31,6 @@ const getFileName = (uri: string | undefined) => {
 const getFileMIME = (uri: string | undefined) => {
   return mimetype.lookup(uri);
 }
-
 
 const SubmitReportButton = (props: ComponentPropType) => {
 

@@ -1,4 +1,4 @@
-import { Video } from 'expo-av';
+import { Audio, Video } from 'expo-av';
 import Toast from 'react-native-toast-message';
 import { Camera, CameraView } from 'expo-camera';
 import React, { useState, useEffect } from 'react';
@@ -51,7 +51,7 @@ const SendVideo = () => {
       if (camera) {
         SetRecordingStarted(true);
         // @ts-ignore
-        const data = await camera.recordAsync()
+        const data = await camera.recordAsync();
         closeModal();
         setRecord(data.uri);
         SetRecordingStarted(false);
@@ -118,12 +118,20 @@ const SendVideo = () => {
     }
   }
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
     (async () => {
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
       setHasCameraPermission(cameraStatus.status === 'granted');
       const audioStatus = await Camera.requestMicrophonePermissionsAsync();
       setHasAudioPermission(audioStatus.status === 'granted');
+
+      await Audio.requestPermissionsAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
 
       if (hasCameraPermission === null || hasAudioPermission === null) {
         Toast.show({
@@ -142,9 +150,7 @@ const SendVideo = () => {
         return () => { }
       }
     })();
-  }, []);
-
-  const isFocused = useIsFocused()
+  }, [isFocused]);
 
   useEffect(() => {
     SetPageError(false);

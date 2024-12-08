@@ -11,8 +11,7 @@ const checkIfDbExists = async (): Promise<boolean> => {
     const fileInfo = await FileSystem.getInfoAsync(dbPath);
     console.log(`DB Exists : ${fileInfo.exists}`);
 
-    if (fileInfo.exists && await isDBModified()) {
-      if (!await downloadDBStructure()) return false;
+    if (fileInfo.exists && !await isDBModified()) {
 
       return true;
     }

@@ -107,15 +107,15 @@ const isDBModified = async (): Promise<boolean> => {
 
     if (missingTables.length === 0) {
       console.log('All required tables are present');
-      return true;
+      return false;
     }
 
     console.log('Missing tables:', missingTables);
-    return false;
+    return true;
 
   } catch (error) {
     console.error('Error while checking DB:', error);
-    return false;
+    return true;
   }
 };
 

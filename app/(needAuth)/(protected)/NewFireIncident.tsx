@@ -10,6 +10,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useAuth } from '@/hooks/useAuth'
 import { ThemedText } from '@/components/ThemedText'
 import { insertRow } from '@/utils/sqlite/SQLiteFunctions';
+import { checkAndUploadData } from '@/tasks/BackgroundTaskHandler';
 import { tbl_fire_incidents } from '@/utils/sqlite/SQLiteDBSchema';
 import LoadingIndicator from '@/components/designs/LoadingIndicator'
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
@@ -120,7 +121,7 @@ const NewFireIncident = () => {
 
       SetRemark("");
       setStoredImagePath("");
-
+      checkAndUploadData();
       return;
 
     } catch (error) {

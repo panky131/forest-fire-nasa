@@ -58,6 +58,9 @@ const ExistingFireReportMCR = () => {
           />}
 
         <SubmitReportButton
+          setSelectedFireCategory={setSelectedFireCategory}
+          setAreaBurntValue={setAreaBurntValue}
+          setPickedImage={setPickedImage}
           alert_id={alert_id}
           pickedImage={pickedImage}
           areaBurnt={areaBurntValue}

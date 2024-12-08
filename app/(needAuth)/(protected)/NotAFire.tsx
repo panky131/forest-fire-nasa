@@ -80,6 +80,8 @@ const NotAFire = () => {
           setRemarkInput={setRemarkInput} />
 
         <SubmitReportButton
+          setRemarkInput={setRemarkInput}
+          setCapturedImage={setCapturedImage}
           alert_id={alert_id}
           setLoadingText={setLoadingText}
           setPageLoading={setPageLoading}

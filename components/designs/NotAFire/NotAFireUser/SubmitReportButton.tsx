@@ -17,7 +17,9 @@ interface ComponentPropType {
   remarkInput: string,
   setPageLoading: Dispatch<SetStateAction<boolean>>,
   setLoadingText: Dispatch<SetStateAction<string>>,
-  alert_id: string | string[]
+  alert_id: string | string[],
+  setRemarkInput: Dispatch<SetStateAction<string>>,
+  setCapturedImage: Dispatch<SetStateAction<string | undefined>>
 }
 interface fileFormat {
   uri: string | undefined,
@@ -36,7 +38,8 @@ const getFileMIME = (uri: string | undefined) => {
 const SubmitReportButton = (props: ComponentPropType) => {
 
   const authData: any = useAuth();
-  const { pickedImage, remarkInput, setPageLoading, setLoadingText, alert_id } = props;
+  const { pickedImage, remarkInput, setPageLoading, setLoadingText, alert_id,
+    setRemarkInput, setCapturedImage } = props;
 
   const getPickedImageInFormat = (): fileFormat => {
     const incidentImageFormat: fileFormat = {
@@ -88,6 +91,9 @@ const SubmitReportButton = (props: ComponentPropType) => {
         text1: 'Done',
         text2: 'Report submitted succesfully'
       });
+
+      setRemarkInput('');
+      setCapturedImage('');
 
     } catch (error) {
       console.log(error);

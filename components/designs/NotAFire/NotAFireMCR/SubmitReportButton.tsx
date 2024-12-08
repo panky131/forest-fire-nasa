@@ -17,7 +17,9 @@ interface ComponentPropType {
   remarkInput: string,
   setPageLoading: Dispatch<SetStateAction<boolean>>,
   setLoadingText: Dispatch<SetStateAction<string>>,
-  alert_id: string | string[]
+  alert_id: string | string[],
+  setRemarkInput: Dispatch<SetStateAction<string>>,
+  setPickedImage: Dispatch<SetStateAction<string | undefined>>
 }
 interface fileFormat {
   uri: string | undefined,
@@ -36,7 +38,9 @@ const getFileMIME = (uri: string | undefined) => {
 const SubmitReportButton = (props: ComponentPropType) => {
 
   const authData: any = useAuth();
-  const { pickedImage, remarkInput, setPageLoading, setLoadingText, alert_id } = props;
+  const { pickedImage, remarkInput, setPageLoading, setLoadingText, alert_id,
+    setRemarkInput, setPickedImage
+  } = props;
 
   const getPickedImageInFormat = (): fileFormat => {
     const incidentImageFormat: fileFormat = {
@@ -89,10 +93,12 @@ const SubmitReportButton = (props: ComponentPropType) => {
         text2: 'Report submitted succesfully'
       });
 
+      setRemarkInput('');
+      setPickedImage('');
+
     } catch (error) {
       console.log(error);
       showError('Unable to send data. Please try again');
-
 
     } finally {
       setPageLoading(false);

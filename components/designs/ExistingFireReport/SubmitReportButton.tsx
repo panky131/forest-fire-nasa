@@ -18,7 +18,10 @@ interface ComponentPropType {
   areaBurnt: string,
   setPageLoading: Dispatch<SetStateAction<boolean>>,
   setLoadingText: Dispatch<SetStateAction<string>>,
-  alert_id: string | string[]
+  alert_id: string | string[],
+  setSelectedFireCategory: Dispatch<SetStateAction<string>>,
+  setAreaBurntValue: Dispatch<SetStateAction<string>>,
+  setPickedImage: Dispatch<SetStateAction<string | undefined>>
 }
 interface fileFormat {
   uri: string | undefined,
@@ -37,7 +40,9 @@ const getFileMIME = (uri: string | undefined) => {
 const SubmitReportButton = (props: ComponentPropType) => {
 
   const authData: any = useAuth();
-  const { pickedImage, fireCategory, areaBurnt, setPageLoading, setLoadingText, alert_id }
+  const { pickedImage, fireCategory, areaBurnt, setPageLoading, setLoadingText, alert_id,
+    setSelectedFireCategory, setAreaBurntValue, setPickedImage
+  }
     = props;
 
   const getPickedImageInFormat = (): fileFormat => {
@@ -91,6 +96,10 @@ const SubmitReportButton = (props: ComponentPropType) => {
         text1: 'Done',
         text2: 'Report submitted succesfully'
       });
+
+      setSelectedFireCategory('');
+      setAreaBurntValue('');
+      setPickedImage('');
 
     } catch (error) {
       console.log(error);

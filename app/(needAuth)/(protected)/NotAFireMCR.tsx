@@ -49,6 +49,8 @@ const NotAFireMCR = () => {
           setRemarkInput={setRemarkInput} />
 
         <SubmitReportButton
+          setRemarkInput={setRemarkInput}
+          setPickedImage={setPickedImage}
           alert_id={alert_id}
           setPageLoading={setPageLoading} setLoadingText={setLoadingText}
           pickedImage={pickedImage} remarkInput={remarkInput} />

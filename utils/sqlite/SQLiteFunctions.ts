@@ -1,5 +1,9 @@
-import { useDatabase } from "./SQLiteDBLocals";
+import * as SQLite from 'expo-sqlite';
 import { SQLiteExecuteAsyncResult } from "expo-sqlite";
+
+import { requiredDBTables } from "./SQLiteDBSchema";
+
+const LocalDBName: string = "ForestFireUttarakhand.db";
 
 interface FireIncidentsType {
   id: number,
@@ -28,6 +32,19 @@ interface newRowParamsType {
   query: string,
   values: any[]
 }
+
+const useDatabase = async (): Promise<any | boolean> => {
+  try {
+    const db = await SQLite.openDatabaseAsync(LocalDBName, {
+      useNewConnection: true
+    });
+
+    return db;
+  } catch (error) {
+    console.error('Error opening database:', error);
+    return false;
+  }
+};
 
 const executeSQLiteOperation = async ({ table_name, query = "" }:
   { table_name?: string, query?: string }):
@@ -78,7 +95,33 @@ const insertRow = async ({ query, values }:
   }
 }
 
+const isDBModified = async (): Promise<boolean> => {
+  try {
+    console.log('Checking if DB has changes');
+
+    const query = `SELECT name FROM sqlite_master WHERE type='table' AND name IN (${requiredDBTables.map(name => `'${name}'`).join(',')});`;
+    const foundTables = await executeSQLiteOperation({ query });
+
+    const foundTableNames = foundTables.map((row: { name: string }) => row.name);
+    const missingTables = requiredDBTables.filter(table => !foundTableNames.includes(table));
+
+    if (missingTables.length === 0) {
+      console.log('All required tables are present');
+      return true;
+    }
+
+    console.log('Missing tables:', missingTables);
+    return false;
+
+  } catch (error) {
+    console.error('Error while checking DB:', error);
+    return false;
+  }
+};
+
+
 export {
   FireIncidentsType, deleteRow, ExistingFireReportType,
-  insertRow, executeSQLiteOperation
+  insertRow, executeSQLiteOperation,
+  isDBModified
 }

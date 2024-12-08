@@ -1,7 +1,8 @@
-import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system';
 
+import { isDBModified } from './SQLiteFunctions';
 const LocalDBName: string = "ForestFireUttarakhand.db";
+
 const ExpectedDBStructure: string | undefined = process.env.EXPO_PUBLIC_SQLITE_STRUCT + `?q=${new Date().getTime()}`;
 
 const checkIfDbExists = async (): Promise<boolean> => {
@@ -9,7 +10,14 @@ const checkIfDbExists = async (): Promise<boolean> => {
     const dbPath: string = `${FileSystem.documentDirectory}SQLite/${LocalDBName}`;
     const fileInfo = await FileSystem.getInfoAsync(dbPath);
     console.log(`DB Exists : ${fileInfo.exists}`);
-    return fileInfo.exists;
+
+    if (fileInfo.exists && await isDBModified()) {
+      if (!await downloadDBStructure()) return false;
+
+      return true;
+    }
+
+    return false
   } catch (error) {
     console.log(error);
     return false;
@@ -20,7 +28,6 @@ const downloadDBStructure = async (): Promise<boolean> => {
   try {
 
     const directoryPath = FileSystem.documentDirectory + 'SQLite/';
-
     const directoryInfo = await FileSystem.getInfoAsync(directoryPath);
 
     if (!directoryInfo.exists) {
@@ -67,17 +74,4 @@ const initializeDatabase = async (): Promise<boolean> => {
   }
 };
 
-const useDatabase = async (): Promise<any | boolean> => {
-  try {
-
-    const db = await SQLite.openDatabaseAsync(LocalDBName, {
-      useNewConnection: true
-    });
-
-    return db;
-  } catch (error) {
-    console.error('Error opening database:', error);
-    return false;
-  }
-};
-export { initializeDatabase, useDatabase, checkIfDbExists };
+export { initializeDatabase, checkIfDbExists };

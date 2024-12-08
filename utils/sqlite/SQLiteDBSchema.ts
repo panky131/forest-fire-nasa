@@ -19,7 +19,13 @@ const tbl_existing_fire_report: TBL_TYPE = {
   tbl_struct: STRUCT_existing_fire_report
 }
 
+const requiredDBTables = [
+  tbl_existing_fire_report.tbl_name,
+  tbl_fire_incidents.tbl_name
+];
+
 export {
   STRUCT_fire_incidents, STRUCT_existing_fire_report,
-  tbl_fire_incidents, tbl_existing_fire_report
+  tbl_fire_incidents, tbl_existing_fire_report,
+  requiredDBTables
 };

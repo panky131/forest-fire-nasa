@@ -24,7 +24,13 @@ const NewFireIncident = () => {
 
   const categoryItems = [
     { label: 'Forest Fire', value: 'ForestFire' },
-    { label: 'Others', value: 'others' },
+    { label: 'Fire Drill', value: 'Fire Drill' },
+    { label: 'Control Fire', value: 'Control Fire' },
+    { label: 'Habitat Management', value: 'Habitat Management' },
+    { label: 'False Alarm or No Fire', value: 'False Alarm or No Fire' },
+    { label: 'Fire Outside RF', value: 'Fire Outside RF' },
+    { label: 'Fire in Agriculture/Non-Forest Land', value: 'Fire in Agriculture/Non-Forest Land' },
+    { label: 'Others', value: 'others' }
   ];
 
   const params = useLocalSearchParams();

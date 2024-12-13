@@ -30,7 +30,7 @@ const SelectImageBGLabel = () => {
   return (
     <ThemedView style={styles.selectImageBgHolder}>
       <ThemedText type="default">
-        घटना छवि का चयन करें
+        घटना की फोटो का चयन करें
       </ThemedText>
     </ThemedView>
   )

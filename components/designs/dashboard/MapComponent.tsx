@@ -124,7 +124,7 @@ const MapComponent = () => {
       }
 
       const location: Location.LocationObject = await Location.getCurrentPositionAsync({
-        accuracy: 4
+        accuracy: 2
       });
 
       const userLocation: UserCoordsType = {
@@ -161,21 +161,32 @@ const MapComponent = () => {
   }, [authUserData])
 
   useEffect(() => {
-    setTimeout(async () => {
-      let latitude = await SecureStore.getItemAsync('latitude');
-      let longitude = await SecureStore.getItemAsync('longitude');
-      const region = {
-        latitudeDelta: 0.989999,
-        longitudeDelta: 0.989999,
-        latitude: parseFloat(latitude as string),
-        longitude: parseFloat(longitude as string),
-      };
-      mapRef.current?.animateToRegion(region, 2000);
+    const timeout = setTimeout(async () => {
+      try {
+        const latitude = await SecureStore.getItemAsync('latitude');
+        const longitude = await SecureStore.getItemAsync('longitude');
+
+        if (latitude && longitude) {
+          const region = {
+            latitudeDelta: 4.0,
+            longitudeDelta: 4.0,
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+          };
+
+          mapRef.current?.animateToRegion(region, 2000);
+        } else {
+          console.error('Latitude or longitude not found in SecureStore.');
+        }
+      } catch (error) {
+        console.error('Error retrieving location from SecureStore:', error);
+      }
     }, 4000);
 
-    return () => { }
+    return () => {
+      clearTimeout(timeout);
+    };
   }, []);
-
   if (PageError) {
     return (
       <View style={styles.errorComponentHolder}>

@@ -28,39 +28,52 @@ export default function RootLayout() {
     NotoSans_ExtraBold: require('../assets/fonts/Noto_Sans/static/NotoSans-ExtraBold.ttf'),
   });
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        console.log('App has come to the foreground!');
-        checkAndUploadData();
+  useEffect((): any => {
+    const setupBackgroundTasks = async () => {
+      try {
+        if (appState.current !== 'active') {
+          await registerBackgroundFetchAsync();
+          console.log('Background fetch registered successfully');
+        }
+      } catch (error) {
+        console.error('Error registering background fetch:', error);
       }
+    };
 
+    const subscription = AppState.addEventListener('change', async (nextAppState) => {
+      if (nextAppState === 'active') {
+        console.log('App has come to the foreground!');
+        await checkAndUploadData();
+      }
       appState.current = nextAppState;
-      console.log('AppState', appState.current);
+      console.log('AppState:', appState.current);
     });
 
-    if (appState.current === 'active') {
-      checkAndUploadData();
-    } else {
-      registerBackgroundFetchAsync();
-    }
+    setupBackgroundTasks();
 
-
-
-    return () => {
+    return async () => {
+      try {
+        await unregisterBackgroundFetchAsync();
+        console.log('Background fetch unregistered successfully');
+      } catch (error) {
+        console.error('Error unregistering background fetch:', error);
+      }
       subscription.remove();
-      unregisterBackgroundFetchAsync();
     };
   }, []);
 
   useEffect(() => {
+    let timeoutId: any;
+
     if (loaded) {
       SplashScreen.hideAsync();
+    } else {
+      timeoutId = setTimeout(() => SplashScreen.hideAsync(), 5000);
     }
+
+    return () => clearTimeout(timeoutId);
   }, [loaded]);
+
 
   if (!loaded) {
     return null;

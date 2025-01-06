@@ -4,6 +4,7 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
+  Text
 } from "react-native";
 
 import * as SecureStore from "expo-secure-store";
@@ -11,8 +12,6 @@ import * as SecureStore from "expo-secure-store";
 import URLs from "@/utils/URLs";
 import { ThemedText } from "@/components/ThemedText";
 import { horizontalScale, moderateScale, verticalScale } from "@/utils/Metrics";
-
-import FilterBtnComponent from "./_subComponents/FilterBtnComponent";
 
 interface StatsBoxPropType {
   statsValue: number | string | undefined;
@@ -84,9 +83,15 @@ const DashboardStats = () => {
   return (
     <View style={styles.statsContainer}>
       <View style={styles.mapHeaderComponent}>
-        <TouchableOpacity>{"Alerts in 24 Hours"}</TouchableOpacity>
-        <TouchableOpacity>{"Alerts in 1 Week"}</TouchableOpacity>
-        <TouchableOpacity>{"Alerts in 15 Days"}</TouchableOpacity>
+        <TouchableOpacity>
+          <Text style={styles.filterButton}>24 Hours</Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text style={styles.filterButton}>1 Week</Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text style={styles.filterButton}>15 Days</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.flexBoxContainer}>
@@ -179,5 +184,15 @@ const styles = StyleSheet.create({
     display: "flex",
     gap: horizontalScale(4),
     flexDirection: "row",
+  },
+  filterButton: {
+    borderColor: 'rgba(0,0,0,.7)',
+    borderWidth: 2,
+    paddingHorizontal: horizontalScale(20),
+    paddingVertical: verticalScale(1),
+    borderRadius: moderateScale(200)
+  },
+  filterBtnText: {
+    fontSize: moderateScale(12)
   },
 });

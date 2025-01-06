@@ -243,7 +243,7 @@ const NewFireIncident = () => {
   }, [isFocused])
 
 
-  if (distanceDifference as number > 100) return (
+  if (distanceDifference as number > 500) return (
     <View style={styles.invalidLocationContainer}>
       <LoadingIndicator text={'Loading'} visible={pageLoading} />
       <View style={styles.invalidLocationImgContainer}>
@@ -254,7 +254,7 @@ const NewFireIncident = () => {
       </View>
       <ThemedText style={styles.invalidLocationText} type='default'>
         You are trying to capture photo from {distanceDifference} meters.
-        Please capture within 100 meters
+        Please capture within 500 meters
       </ThemedText>
       <TouchableOpacity style={styles.invalidLocationBtn} onPress={() => permissionFunction()}>
         <ThemedText style={[styles.invalidLocationText,

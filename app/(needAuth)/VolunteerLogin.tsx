@@ -108,7 +108,7 @@ const VolunteerLogin = () => {
       setIsLoading(true);
       setPageError(false);
 
-      const apiUrl: string = URLs.api_base_url + "_get_positions_list.php";
+      const apiUrl: string = URLs.api_base_url + "_get_positions_list.php?type=Volunteer";
 
       const response = await fetch(apiUrl, {
         method: "GET",

@@ -190,7 +190,7 @@ const OfficeStaffLogin = () => {
 
       setPageLoading(true);
 
-      const apiUrl: string = URLs.api_base_url + "_get_positions_list.php";
+      const apiUrl: string = URLs.api_base_url + "_get_positions_list.php?type=OfficeStaff";
 
       const response = await fetch(apiUrl, {
         method: "POST",

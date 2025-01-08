@@ -12,6 +12,7 @@ import * as SecureStore from "expo-secure-store";
 import URLs from "@/utils/URLs";
 import { ThemedText } from "@/components/ThemedText";
 import { horizontalScale, moderateScale, verticalScale } from "@/utils/Metrics";
+import StatsFilterBox from "./_subComponents/StatsFilterBox";
 
 interface StatsBoxPropType {
   statsValue: number | string | undefined;
@@ -36,13 +37,15 @@ interface AuthContextType {
   division_id: number | string;
 }
 
+type DurationType = '24Hours' | '1Week' | '15Days';
+
 const DashboardStats = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isRequestError, setIsRequestError] = useState<boolean>(true);
 
   const [statsData, setStatsData] = useState<ResponseDataType>();
 
-  const getAlertsStatsData = async (): Promise<void> => {
+  const getAlertsStatsData = async (duration: DurationType = '24Hours'): Promise<void> => {
     try {
       setIsLoading(true);
       setIsRequestError(false);
@@ -51,7 +54,7 @@ const DashboardStats = () => {
       const divisionID: string | null = await SecureStore.getItemAsync(
         "division_id"
       );
-      const URL = `${URLs.api_base_url}getDashboardStats.php?auth_key=${authKey}&division_id=${divisionID}`;
+      const URL = `${URLs.api_base_url}getDashboardStats.php?auth_key=${authKey}&division_id=${divisionID}&duration=${duration}`;
 
       const response = await fetch(URL, {
         method: "GET",
@@ -75,24 +78,14 @@ const DashboardStats = () => {
   useEffect(() => {
     getAlertsStatsData();
 
-    return () => {};
+    return () => { };
   }, []);
 
   if (isLoading) return <LoadingView />;
 
   return (
     <View style={styles.statsContainer}>
-      <View style={styles.mapHeaderComponent}>
-        <TouchableOpacity>
-          <Text style={styles.filterButton}>24 Hours</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.filterButton}>1 Week</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.filterButton}>15 Days</Text>
-        </TouchableOpacity>
-      </View>
+      <StatsFilterBox getAlertsStatsData={getAlertsStatsData} />
 
       <View style={styles.flexBoxContainer}>
         <StatsBox
@@ -177,22 +170,5 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: verticalScale(30),
     backgroundColor: "#fff",
-  },
-  mapHeaderComponent: {
-    width: "100%",
-    paddingVertical: verticalScale(10),
-    display: "flex",
-    gap: horizontalScale(4),
-    flexDirection: "row",
-  },
-  filterButton: {
-    borderColor: 'rgba(0,0,0,.7)',
-    borderWidth: 2,
-    paddingHorizontal: horizontalScale(20),
-    paddingVertical: verticalScale(1),
-    borderRadius: moderateScale(200)
-  },
-  filterBtnText: {
-    fontSize: moderateScale(12)
   },
 });

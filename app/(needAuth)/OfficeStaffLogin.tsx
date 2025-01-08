@@ -189,7 +189,6 @@ const OfficeStaffLogin = () => {
     try {
 
       setPageLoading(true);
-
       const apiUrl: string = URLs.api_base_url + "_get_positions_list.php?type=OfficeStaff";
 
       const response = await fetch(apiUrl, {
@@ -204,7 +203,6 @@ const OfficeStaffLogin = () => {
       const responseJson = await response.json();
       setPositionList(responseJson.positionList);
       setOfficeList(responseJson.divisionList)
-
 
     } catch (error) {
 

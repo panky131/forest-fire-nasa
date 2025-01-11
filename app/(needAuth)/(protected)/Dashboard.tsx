@@ -1,8 +1,7 @@
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import MapComponent from '@/components/designs/dashboard/MapComponent';
-import DashboardStats from '@/components/designs/dashboard/DashboardStats';
+import MapAndStatsHolder from '@/components/designs/dashboard/MapAndStatsHolder';
 import BottomButtonHolder from '@/components/designs/dashboard/BottomButtonHolder';
 import DashboardUserInformation from '@/components/designs/dashboard/DashboardUserInformation';
 
@@ -11,11 +10,7 @@ const Dashboard = () => {
     <View style={styles.outerContainer}>
 
       <DashboardUserInformation />
-
-      <DashboardStats />
-
-      <MapComponent />
-
+      <MapAndStatsHolder />
       <BottomButtonHolder />
 
     </View >

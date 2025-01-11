@@ -13,7 +13,7 @@ const Dashboard = () => {
       <MapAndStatsHolder />
       <BottomButtonHolder />
 
-    </View >
+    </View>
   )
 }
 

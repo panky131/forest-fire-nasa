@@ -89,18 +89,34 @@ const DashboardStats = () => {
 
       <View style={styles.flexBoxContainer}>
         <StatsBox
+          statsLabel="Total Alerts"
+          statsValue={
+            statsData && statsData.totalAlerts ? statsData.totalAlerts : 0
+          }
+          statBoxBgColor="#c1121f"
+        />
+        <StatsBox
           statsLabel="Active Alerts"
           statsValue={
             statsData && statsData.activeAlerts ? statsData.activeAlerts : 0
           }
-          statBoxBgColor="#108554"
+          statBoxBgColor="#89023e"
         />
+      </View>
+      <View style={styles.flexBoxContainer}>
         <StatsBox
           statsLabel="Being Held"
           statsValue={
             statsData && statsData.beingHeld ? statsData.beingHeld : 0
           }
-          statBoxBgColor="#dd8d31"
+          statBoxBgColor="#f3722c"
+        />
+        <StatsBox
+          statsLabel="Closed Alerts"
+          statsValue={
+            statsData && statsData.closedAlerts ? statsData.closedAlerts : 0
+          }
+          statBoxBgColor="#43aa8b"
         />
       </View>
     </View>
@@ -121,14 +137,14 @@ const StatsBox = ({
   statBoxBgColor,
 }: StatsBoxPropType) => {
   return (
-    <View style={[styles.statsBox, { backgroundColor: statBoxBgColor }]}>
+    <TouchableOpacity style={[styles.statsBox, { backgroundColor: statBoxBgColor }]}>
       <ThemedText style={styles.boxValueText} type="defaultSemiBold">
         {statsValue}
       </ThemedText>
       <ThemedText style={styles.boxLabelText} type="default">
         {statsLabel}
       </ThemedText>
-    </View>
+    </TouchableOpacity>
   );
 };
 

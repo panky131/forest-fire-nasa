@@ -33,7 +33,7 @@ const OfficeStaffLogin = () => {
   const [officeName, setofficeName] = useState("");
   const [otp, setOTPCode] = useState("");
 
-  // data states
+  // data states 
   const [notificationToken, setNotificationToken] = useState<string>('');
   const [officeList, setOfficeList] = useState([]);
   const [positionList, setPositionList] = useState([]);

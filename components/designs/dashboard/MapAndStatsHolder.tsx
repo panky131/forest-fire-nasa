@@ -1,4 +1,3 @@
-import { StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import LoadingView from './LoadingView';
@@ -39,9 +38,5 @@ const MapAndStatsHolder: React.FC = () => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-
-});
 
 export default MapAndStatsHolder;

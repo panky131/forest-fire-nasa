@@ -1,27 +1,32 @@
-import React from 'react'
+import React, { Dispatch, SetStateAction } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { AlertsDurationType } from '@/utils/Types';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
-type DurationType = '24Hours' | '1Week' | '15Days';
 
 interface ComponentPropType {
-  getAlertsStatsData: (duration?: DurationType) => Promise<void>
+  setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>
 }
 
 const FilterButton = ({ duration, label, onPress }:
-  { duration: DurationType, label: string, onPress: (duration: DurationType) => void }) => (
+  { duration: AlertsDurationType, label: string, onPress: (duration: AlertsDurationType) => void }) => (
   <TouchableOpacity onPress={() => onPress(duration)} style={styles.filterBtnTextOuter}>
     <Text style={styles.filterBtnText}>{label}</Text>
   </TouchableOpacity>
 )
 
-const StatsFilterBox = ({ getAlertsStatsData }: ComponentPropType) => {
+const StatsFilterBox = ({ setAlertsDuration }: ComponentPropType) => {
+
+  const handleFilterButtonClick = (duration: AlertsDurationType) => {
+    setAlertsDuration(duration)
+  }
+
   return (
     <View style={styles.statsFilterBtnsHolder}>
-      <FilterButton duration="24Hours" label="24 Hours" onPress={getAlertsStatsData} />
-      <FilterButton duration="1Week" label="1 Week" onPress={getAlertsStatsData} />
-      <FilterButton duration="15Days" label="15 Days" onPress={getAlertsStatsData} />
+      <FilterButton duration='24hrs' label="24 Hours" onPress={() => handleFilterButtonClick('24hrs')} />
+      <FilterButton duration='1week' label="1 Week" onPress={() => handleFilterButtonClick('1week')} />
+      <FilterButton duration='15days' label="15 Days" onPress={() => handleFilterButtonClick('15days')} />
     </View>
   )
 }

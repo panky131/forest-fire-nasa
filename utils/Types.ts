@@ -19,4 +19,9 @@ interface AlertsResponseDataType {
   submitted_by: string
 }
 
-export type { CoordinatesType, AlertsResponseDataType, UserCoordsType }
+type AlertsDurationType = '24hrs' | '1week' | '15days';
+
+export type {
+  CoordinatesType, AlertsResponseDataType, UserCoordsType,
+  AlertsDurationType
+}

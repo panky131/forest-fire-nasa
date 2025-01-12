@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -11,8 +11,9 @@ import * as SecureStore from "expo-secure-store";
 
 import URLs from "@/utils/URLs";
 import { ThemedText } from "@/components/ThemedText";
-import { horizontalScale, moderateScale, verticalScale } from "@/utils/Metrics";
 import StatsFilterBox from "./_subComponents/StatsFilterBox";
+import { AlertsDurationType, AlertsResponseDataType } from "@/utils/Types";
+import { horizontalScale, moderateScale, verticalScale } from "@/utils/Metrics";
 
 interface StatsBoxPropType {
   statsValue: number | string | undefined;
@@ -20,72 +21,45 @@ interface StatsBoxPropType {
   statBoxBgColor: string;
 }
 
-interface ResponseDataType {
+interface AlertsStatsType {
   totalAlerts: number;
   activeAlerts: number;
   closedAlerts: number;
   beingHeld: number;
 }
 
-interface AuthContextType {
-  auth_key: string | null;
-  mobile_number: string | number | null;
-  user_type: string | null;
-  user_name: null;
-  latitude: number;
-  longitude: number;
-  division_id: number | string;
+interface ComponentPropType {
+  alertsData: AlertsResponseDataType[]
+  setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>
 }
 
-type DurationType = '24Hours' | '1Week' | '15Days';
+const DashboardStats = ({ alertsData, setAlertsDuration }: ComponentPropType) => {
+  const [statsData, setStatsData] = useState<AlertsStatsType>();
 
-const DashboardStats = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isRequestError, setIsRequestError] = useState<boolean>(true);
+  const calculateAlertsStats = (alertsData: AlertsResponseDataType[]): AlertsStatsType => {
+    console.log(alertsData);
 
-  const [statsData, setStatsData] = useState<ResponseDataType>();
+    const activeAlerts = alertsData.filter(alert => alert.status === "active").length;
+    const beingHeld = alertsData.filter(alert => alert.status === "being_held").length;
+    const closedAlerts = alertsData.filter(alert => alert.status === "closed").length;
 
-  const getAlertsStatsData = async (duration: DurationType = '24Hours'): Promise<void> => {
-    try {
-      setIsLoading(true);
-      setIsRequestError(false);
-
-      const authKey: string | null = await SecureStore.getItemAsync("auth_key");
-      const divisionID: string | null = await SecureStore.getItemAsync(
-        "division_id"
-      );
-      const URL = `${URLs.api_base_url}getDashboardStats.php?auth_key=${authKey}&division_id=${divisionID}&duration=${duration}`;
-
-      const response = await fetch(URL, {
-        method: "GET",
-      });
-
-      if (response.status !== 200) {
-        setIsRequestError(true);
-        return;
-      }
-
-      const responseJSON = await response.json();
-      const responseStatsData: ResponseDataType = responseJSON.data;
-      setStatsData(responseStatsData);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
+    return {
+      totalAlerts: alertsData.length,
+      activeAlerts,
+      beingHeld,
+      closedAlerts
+    };
   };
-
   useEffect(() => {
-    getAlertsStatsData();
+    setStatsData(calculateAlertsStats(alertsData));
 
-    return () => { };
-  }, []);
+    return () => { }
+  }, [alertsData])
 
-  if (isLoading) return <LoadingView />;
 
   return (
     <View style={styles.statsContainer}>
-      <StatsFilterBox getAlertsStatsData={getAlertsStatsData} />
+      <StatsFilterBox setAlertsDuration={setAlertsDuration} />
 
       <View style={styles.flexBoxContainer}>
         <StatsBox
@@ -119,14 +93,6 @@ const DashboardStats = () => {
           statBoxBgColor="#588157"
         />
       </View>
-    </View>
-  );
-};
-
-const LoadingView = (): React.JSX.Element => {
-  return (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size={"large"} />
     </View>
   );
 };
@@ -180,11 +146,5 @@ const styles = StyleSheet.create({
   boxLabelText: {
     fontSize: moderateScale(13),
     color: "#fff",
-  },
-  // for loading component
-  loadingContainer: {
-    width: "100%",
-    paddingVertical: verticalScale(30),
-    backgroundColor: "#fff",
-  },
+  }
 });

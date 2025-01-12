@@ -4,10 +4,8 @@ import LoadingView from './LoadingView';
 import MapComponent from './MapComponent';
 import DashboardStats from './DashboardStats';
 import ErrorScreen from '@/app/(needAuth)/ErrorScreen';
-import { AlertsResponseDataType } from '@/utils/Types';
 import { getAlertsData } from '@/utils/functions/getAlerts';
-
-type AlertsDurationType = '24hrs' | '1week' | '15days';
+import { AlertsDurationType, AlertsResponseDataType } from '@/utils/Types';
 
 const MapAndStatsHolder: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -34,7 +32,7 @@ const MapAndStatsHolder: React.FC = () => {
 
   return (
     <>
-      <DashboardStats />
+      <DashboardStats alertsData={alertsData} setAlertsDuration={setAlertsDuration} />
       <MapComponent />
     </>
   );

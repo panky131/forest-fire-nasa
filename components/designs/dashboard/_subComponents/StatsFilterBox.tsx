@@ -1,12 +1,15 @@
 import React, { Dispatch, SetStateAction } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { AlertsDurationType } from '@/utils/Types';
+import { AlertsDurationType, AlertsResponseDataType } from '@/utils/Types';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
+import { filterByDuration } from '@/utils/functions/filterAlertsByDuration';
 
 interface ComponentPropType {
+  alertsData: AlertsResponseDataType[],
   alertsDuration: AlertsDurationType;
   setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>;
+  setFilteredAlertsData: React.Dispatch<React.SetStateAction<AlertsResponseDataType[]>>,
 }
 
 interface FilterButtonProps {
@@ -27,12 +30,20 @@ const FilterButton = ({ duration, label, onPress, isActive }: FilterButtonProps)
   </TouchableOpacity>
 );
 
-const StatsFilterBox = ({ setAlertsDuration, alertsDuration }: ComponentPropType) => {
+const StatsFilterBox = ({ setAlertsDuration, alertsDuration,
+  alertsData, setFilteredAlertsData }: ComponentPropType) => {
   const handleFilterButtonClick = (duration: AlertsDurationType) => {
     setAlertsDuration(duration);
+
+    if (duration === 'all') {
+      return setFilteredAlertsData(alertsData);
+    }
+
+    setFilteredAlertsData(filterByDuration(alertsData, duration));
   };
 
   const filterButtons = [
+    { duration: 'all', label: 'All' },
     { duration: '24hrs', label: '24 Hours' },
     { duration: '1week', label: '1 Week' },
     { duration: '15days', label: '15 Days' }

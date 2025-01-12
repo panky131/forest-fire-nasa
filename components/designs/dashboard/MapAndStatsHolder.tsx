@@ -15,7 +15,7 @@ const MapAndStatsHolder: React.FC = () => {
   const [isRequestError, setIsRequestError] = useState<boolean>(false);
   const [userCoordinates, setUserCoordinates] = useState<UserCoordsType>();
   const [alertsData, setAlertsData] = useState<AlertsResponseDataType[]>([]);
-  const [alertsDuration, setAlertsDuration] = useState<AlertsDurationType>('1week');
+  const [alertsDuration, setAlertsDuration] = useState<AlertsDurationType>('all');
   const [filteredAlertsData, setFilteredAlertsData] = useState<AlertsResponseDataType[]>([]);
 
   const fetchAlerts = async (): Promise<void> => {
@@ -25,12 +25,13 @@ const MapAndStatsHolder: React.FC = () => {
       alertsDuration
     });
 
+    setFilteredAlertsData(fetchedAlerts);
     setAlertsData(fetchedAlerts);
   };
 
   useEffect(() => {
     fetchAlerts();
-  }, [alertsDuration]);
+  }, []);
 
   if (isLoading) return <LoadingView />;
   if (isRequestError) return <ErrorScreen />;
@@ -38,9 +39,9 @@ const MapAndStatsHolder: React.FC = () => {
   return (
     <>
       <DashboardStats
+        filteredAlertsData={filteredAlertsData}
         alertsDuration={alertsDuration}
         alertsData={alertsData}
-        filteredAlertsData={filteredAlertsData}
         setFilteredAlertsData={setFilteredAlertsData}
         setAlertsDuration={setAlertsDuration} />
 

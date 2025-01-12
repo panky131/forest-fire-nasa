@@ -8,7 +8,8 @@ const getTimeLimit = (duration: AlertsDurationType): number => {
   const durationMap: Record<AlertsDurationType, number> = {
     '24hrs': 24 * 60 * 60 * 1000, // 24 hours in milliseconds
     '1week': 7 * 24 * 60 * 60 * 1000, // 1 week in milliseconds
-    '15days': 15 * 24 * 60 * 60 * 1000 // 15 days in milliseconds
+    '15days': 15 * 24 * 60 * 60 * 1000, // 15 days in milliseconds,
+    'all': 0
   };
 
   const timeLimit = durationMap[duration];
@@ -21,6 +22,10 @@ const getTimeLimit = (duration: AlertsDurationType): number => {
 };
 
 const filterByDuration = (data: AlertsResponseDataType[], duration: AlertsDurationType): AlertsResponseDataType[] => {
+  if (duration === 'all') {
+    return data;
+  }
+
   const now = new Date();
   const timeLimit = getTimeLimit(duration);
 

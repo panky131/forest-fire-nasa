@@ -26,16 +26,16 @@ interface AlertsStatsType {
 }
 
 interface ComponentPropType {
+  filteredAlertsData: AlertsResponseDataType[],
   alertsData: AlertsResponseDataType[],
   alertsDuration: AlertsDurationType,
   setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>,
-  filteredAlertsData: AlertsResponseDataType[],
   setFilteredAlertsData: React.Dispatch<React.SetStateAction<AlertsResponseDataType[]>>,
 }
 
 const DashboardStats = (
   { alertsDuration, alertsData, setAlertsDuration,
-    filteredAlertsData, setFilteredAlertsData }: ComponentPropType) => {
+    setFilteredAlertsData, filteredAlertsData }: ComponentPropType) => {
   const [statsData, setStatsData] = useState<AlertsStatsType>();
 
   const calculateAlertsStats = (alertsData: AlertsResponseDataType[]): AlertsStatsType => {
@@ -52,9 +52,9 @@ const DashboardStats = (
   };
 
   useEffect(() => {
-    setStatsData(calculateAlertsStats(alertsData));
+    setStatsData(calculateAlertsStats(filteredAlertsData));
     return () => { }
-  }, [alertsData])
+  }, [filteredAlertsData])
 
   const statsBoxes = [
     { label: "Total Alerts", value: statsData?.totalAlerts, color: "#0a9396", status: 'all' },
@@ -65,7 +65,10 @@ const DashboardStats = (
 
   return (
     <View style={styles.statsContainer}>
-      <StatsFilterBox alertsDuration={alertsDuration} setAlertsDuration={setAlertsDuration} />
+      <StatsFilterBox
+        alertsData={alertsData}
+        setFilteredAlertsData={setFilteredAlertsData}
+        alertsDuration={alertsDuration} setAlertsDuration={setAlertsDuration} />
 
       {[0, 2].map(index => (
         <View key={index} style={styles.flexBoxContainer}>

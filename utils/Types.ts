@@ -19,7 +19,7 @@ interface AlertsResponseDataType {
   submitted_by: string
 }
 
-type AlertsDurationType = '24hrs' | '1week' | '15days';
+type AlertsDurationType = '24hrs' | '1week' | '15days' | 'all';
 
 export type {
   CoordinatesType, AlertsResponseDataType, UserCoordsType,

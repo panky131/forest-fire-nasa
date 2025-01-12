@@ -44,6 +44,8 @@ const MapComponent = (args: ComponentPropType) => {
   const mapRef = useRef<any>("");
 
   const hanldeAlertClick = (alert_id: number, status: string | null, lat: string, lng: string): void => {
+    if (status === 'closed') return;
+
     setSelectedCoordinates({ lat: lat, lng: lng });
     SetSelectedFire(alert_id);
     setStatus(status);
@@ -238,9 +240,14 @@ const MapComponent = (args: ComponentPropType) => {
               description={'New Fire Alert'}
               onCalloutPress={() => hanldeAlertClick(props.alert_id, props.status, props.lat as string, props.lng as string)}
             >
-              {
-                props.status == "active" ? <Image source={require('../../../assets/images/active_alert_2.png')} style={{ height: 35, width: 35 }} /> : <Image source={require('../../../assets/images/being_held_alert.png')} style={{ height: 35, width: 35 }} />
-              }
+
+              {props.status === "active" ? (
+                <Image source={require('../../../assets/images/active_alert_2.png')} style={{ height: 35, width: 35 }} />
+              ) : props.status === "being_held" ? (
+                <Image source={require('../../../assets/images/being_held_alert.png')} style={{ height: 35, width: 35 }} />
+              ) : (
+                <Image source={require('../../../assets/images/closed_alert.png')} style={{ height: 35, width: 35 }} />
+              )}
 
               <Callout tooltip style={[styles.calloutToolTip]}>
                 <ThemedText type='defaultSemiBold' style={styles.activefireText}>
@@ -256,7 +263,9 @@ const MapComponent = (args: ComponentPropType) => {
                 <View style={styles.hr}></View>
                 <ThemedText type='default' style={styles.activefireText}>
                   {
-                    props.status == "active" ? "Click to update the alert status \ क्लिक करें" : "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"
+                    props.status == "active" ? "Click to update the alert status \ क्लिक करें" :
+                      props.status == "closed" ? "Alert is closed" :
+                        "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"
                   }
                 </ThemedText>
               </Callout>

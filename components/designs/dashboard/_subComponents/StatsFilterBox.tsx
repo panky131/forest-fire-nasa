@@ -9,7 +9,8 @@ interface ComponentPropType {
   alertsData: AlertsResponseDataType[],
   alertsDuration: AlertsDurationType;
   setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>;
-  setFilteredAlertsData: React.Dispatch<React.SetStateAction<AlertsResponseDataType[]>>,
+  setDurationFilterAlerts: Dispatch<SetStateAction<AlertsResponseDataType[]>>
+  setFilteredAlertsData: Dispatch<SetStateAction<AlertsResponseDataType[]>>,
 }
 
 interface FilterButtonProps {
@@ -31,14 +32,16 @@ const FilterButton = ({ duration, label, onPress, isActive }: FilterButtonProps)
 );
 
 const StatsFilterBox = ({ setAlertsDuration, alertsDuration,
-  alertsData, setFilteredAlertsData }: ComponentPropType) => {
+  alertsData, setFilteredAlertsData, setDurationFilterAlerts }: ComponentPropType) => {
   const handleFilterButtonClick = (duration: AlertsDurationType) => {
     setAlertsDuration(duration);
 
     if (duration === 'all') {
+      setDurationFilterAlerts(alertsData);
       return setFilteredAlertsData(alertsData);
     }
 
+    setDurationFilterAlerts(filterByDuration(alertsData, duration));
     setFilteredAlertsData(filterByDuration(alertsData, duration));
   };
 

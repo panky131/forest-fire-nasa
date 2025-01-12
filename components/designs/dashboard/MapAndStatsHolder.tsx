@@ -7,6 +7,7 @@ import DashboardStats from './DashboardStats';
 import ErrorScreen from '@/app/(needAuth)/ErrorScreen';
 import { getAlertsData } from '@/utils/functions/getAlerts';
 import { AlertsDurationType, AlertsResponseDataType, UserCoordsType } from '@/utils/Types';
+import { useIsFocused } from '@react-navigation/native';
 
 const MapAndStatsHolder: React.FC = () => {
   const { authUserData }: any = useAuth();
@@ -29,9 +30,11 @@ const MapAndStatsHolder: React.FC = () => {
     setAlertsData(fetchedAlerts);
   };
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
     fetchAlerts();
-  }, []);
+  }, [isFocused]);
 
   if (isLoading) return <LoadingView />;
   if (isRequestError) return <ErrorScreen />;

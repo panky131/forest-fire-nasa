@@ -15,6 +15,7 @@ interface StatsBoxPropType {
   status: 'all' | 'active' | 'being_held' | 'closed';
   alertsData: AlertsResponseDataType[],
   alertsDuration: AlertsDurationType,
+  durationFilterAlerts: AlertsResponseDataType[],
   setFilteredAlertsData: React.Dispatch<React.SetStateAction<AlertsResponseDataType[]>>,
 }
 
@@ -36,7 +37,9 @@ interface ComponentPropType {
 const DashboardStats = (
   { alertsDuration, alertsData, setAlertsDuration,
     setFilteredAlertsData, filteredAlertsData }: ComponentPropType) => {
+
   const [statsData, setStatsData] = useState<AlertsStatsType>();
+  const [durationFilterAlerts, setDurationFilterAlerts] = useState<AlertsResponseDataType[]>([]);
 
   const calculateAlertsStats = (alertsData: AlertsResponseDataType[]): AlertsStatsType => {
     const activeAlerts = alertsData.filter(alert => alert.status === "active").length;
@@ -52,9 +55,15 @@ const DashboardStats = (
   };
 
   useEffect(() => {
-    setStatsData(calculateAlertsStats(filteredAlertsData));
+    setDurationFilterAlerts(filterByDuration(alertsData, alertsDuration));
     return () => { }
-  }, [filteredAlertsData])
+  }, [alertsData])
+
+
+  useEffect(() => {
+    setStatsData(calculateAlertsStats(durationFilterAlerts));
+    return () => { }
+  }, [durationFilterAlerts])
 
   const statsBoxes = [
     { label: "Total Alerts", value: statsData?.totalAlerts, color: "#0a9396", status: 'all' },
@@ -66,6 +75,7 @@ const DashboardStats = (
   return (
     <View style={styles.statsContainer}>
       <StatsFilterBox
+        setDurationFilterAlerts={setDurationFilterAlerts}
         alertsData={alertsData}
         setFilteredAlertsData={setFilteredAlertsData}
         alertsDuration={alertsDuration} setAlertsDuration={setAlertsDuration} />
@@ -78,8 +88,9 @@ const DashboardStats = (
               statsLabel={box.label}
               statsValue={box.value || 0}
               statBoxBgColor={box.color}
-              alertsData={alertsData}
               alertsDuration={alertsDuration}
+              durationFilterAlerts={durationFilterAlerts}
+              alertsData={durationFilterAlerts}
               setFilteredAlertsData={setFilteredAlertsData}
               status={box.status as 'all' | 'active' | 'being_held' | 'closed'}
             />
@@ -98,12 +109,13 @@ const StatsBox = ({
   status,
   alertsData,
   alertsDuration,
+  durationFilterAlerts,
   setFilteredAlertsData
 }: StatsBoxPropType) => {
 
   const handleStatusFilter = () => {
     if (status === 'all') {
-      setFilteredAlertsData(alertsData);
+      setFilteredAlertsData(durationFilterAlerts);
       return;
     }
 

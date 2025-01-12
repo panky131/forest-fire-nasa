@@ -20,13 +20,17 @@ import { AlertsResponseDataType, CoordinatesType, UserCoordsType } from '@/utils
 
 interface ComponentPropType {
   alertsData: AlertsResponseDataType[],
-  fetchAlerts: () => Promise<void>
+  fetchAlerts: () => Promise<void>,
+  userCoordinates: UserCoordsType | undefined,
+  setUserCoordinates: React.Dispatch<React.SetStateAction<UserCoordsType | undefined>>,
+  authUserData: any
 }
 
-const MapComponent = ({ fetchAlerts, alertsData }: ComponentPropType) => {
+const MapComponent = (args: ComponentPropType) => {
+  const { fetchAlerts, alertsData,
+    userCoordinates, setUserCoordinates, authUserData } = args;
 
   const Navigation = useNavigation();
-  const { authUserData }: any = useAuth();
 
   const [status, setStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -35,7 +39,6 @@ const MapComponent = ({ fetchAlerts, alertsData }: ComponentPropType) => {
   const [whichActiveBtn, setWhichActiveBtn] = useState<string>('all');
   const [selectedFire, SetSelectedFire] = useState<number | null>(null);
   const [loadingText, setLoadingText] = useState<string>("");
-  const [userCoordinates, setUserCoordinates] = useState<UserCoordsType>();
   const [filteredAlertsData, setFilteredAlertsData] = useState<AlertsResponseDataType[]>([]);
   const [selectedCoordinates, setSelectedCoordinates] = useState<CoordinatesType>({ lat: 0, lng: 0 });
 
@@ -102,7 +105,11 @@ const MapComponent = ({ fetchAlerts, alertsData }: ComponentPropType) => {
   }
 
   const initializeMapScreen = async (): Promise<void> => {
-    await getUserLocation();
+    if (!userCoordinates) {
+      await getUserLocation();
+    }
+
+    filterAlertsOnDistance();
   }
 
   const filterAlertsOnDistance = () => {
@@ -117,18 +124,6 @@ const MapComponent = ({ fetchAlerts, alertsData }: ComponentPropType) => {
 
     return setFilteredAlertsData(alertsData);
   }
-
-  useEffect(() => {
-
-    filterAlertsOnDistance();
-
-  }, [userCoordinates])
-
-  useEffect(() => {
-    initializeMapScreen();
-
-    return () => { }
-  }, [authUserData])
 
   const animateToDivision = async () => {
     try {
@@ -151,6 +146,10 @@ const MapComponent = ({ fetchAlerts, alertsData }: ComponentPropType) => {
       console.error('Error retrieving location from SecureStore:', error);
     }
   }
+
+  useEffect(() => {
+    initializeMapScreen();
+  }, [])
 
   useEffect(() => {
     animateToDivision();

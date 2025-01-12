@@ -5,11 +5,15 @@ import MapComponent from './MapComponent';
 import DashboardStats from './DashboardStats';
 import ErrorScreen from '@/app/(needAuth)/ErrorScreen';
 import { getAlertsData } from '@/utils/functions/getAlerts';
-import { AlertsDurationType, AlertsResponseDataType } from '@/utils/Types';
+import { AlertsDurationType, AlertsResponseDataType, UserCoordsType } from '@/utils/Types';
+import { useAuth } from '@/hooks/useAuth';
 
 const MapAndStatsHolder: React.FC = () => {
+  const { authUserData }: any = useAuth();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isRequestError, setIsRequestError] = useState<boolean>(false);
+  const [userCoordinates, setUserCoordinates] = useState<UserCoordsType>();
   const [alertsData, setAlertsData] = useState<AlertsResponseDataType[]>([]);
   const [alertsDuration, setAlertsDuration] = useState<AlertsDurationType>('1week');
 
@@ -36,7 +40,11 @@ const MapAndStatsHolder: React.FC = () => {
         alertsDuration={alertsDuration}
         alertsData={alertsData}
         setAlertsDuration={setAlertsDuration} />
-      <MapComponent alertsData={alertsData} fetchAlerts={fetchAlerts} />
+      <MapComponent
+        authUserData={authUserData}
+        userCoordinates={userCoordinates}
+        setUserCoordinates={setUserCoordinates}
+        alertsData={alertsData} fetchAlerts={fetchAlerts} />
     </>
   );
 };

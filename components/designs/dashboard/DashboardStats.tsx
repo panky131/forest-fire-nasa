@@ -93,7 +93,7 @@ const DashboardStats = () => {
           statsValue={
             statsData && statsData.totalAlerts ? statsData.totalAlerts : 0
           }
-          statBoxBgColor="#c1121f"
+          statBoxBgColor="#0a9396"
         />
         <StatsBox
           statsLabel="Active Alerts"
@@ -116,7 +116,7 @@ const DashboardStats = () => {
           statsValue={
             statsData && statsData.closedAlerts ? statsData.closedAlerts : 0
           }
-          statBoxBgColor="#43aa8b"
+          statBoxBgColor="#588157"
         />
       </View>
     </View>

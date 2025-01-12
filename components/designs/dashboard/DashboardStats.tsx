@@ -21,11 +21,12 @@ interface AlertsStatsType {
 }
 
 interface ComponentPropType {
-  alertsData: AlertsResponseDataType[]
+  alertsData: AlertsResponseDataType[],
+  alertsDuration: AlertsDurationType,
   setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>
 }
 
-const DashboardStats = ({ alertsData, setAlertsDuration }: ComponentPropType) => {
+const DashboardStats = ({ alertsDuration, alertsData, setAlertsDuration }: ComponentPropType) => {
   const [statsData, setStatsData] = useState<AlertsStatsType>();
 
   const calculateAlertsStats = (alertsData: AlertsResponseDataType[]): AlertsStatsType => {
@@ -55,7 +56,7 @@ const DashboardStats = ({ alertsData, setAlertsDuration }: ComponentPropType) =>
 
   return (
     <View style={styles.statsContainer}>
-      <StatsFilterBox setAlertsDuration={setAlertsDuration} />
+      <StatsFilterBox alertsDuration={alertsDuration} setAlertsDuration={setAlertsDuration} />
 
       {[0, 2].map(index => (
         <View key={index} style={styles.flexBoxContainer}>

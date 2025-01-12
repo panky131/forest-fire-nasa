@@ -6,27 +6,36 @@ import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
 
 interface ComponentPropType {
+  alertsDuration: AlertsDurationType,
   setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>
 }
 
-const FilterButton = ({ duration, label, onPress }:
-  { duration: AlertsDurationType, label: string, onPress: (duration: AlertsDurationType) => void }) => (
-  <TouchableOpacity onPress={() => onPress(duration)} style={styles.filterBtnTextOuter}>
-    <Text style={styles.filterBtnText}>{label}</Text>
+const FilterButton = ({ duration, label, onPress, isActive }:
+  {
+    duration: AlertsDurationType, label: string,
+    isActive: boolean,
+    onPress: (duration: AlertsDurationType) => void
+  }) => (
+  <TouchableOpacity onPress={() => onPress(duration)}
+    style={[styles.filterBtnTextOuter, isActive && styles.activeButton]}>
+    <Text style={[styles.filterBtnText, isActive && styles.activeButtonText]}>{label}</Text>
   </TouchableOpacity>
 )
 
-const StatsFilterBox = ({ setAlertsDuration }: ComponentPropType) => {
+const StatsFilterBox = ({ setAlertsDuration, alertsDuration }: ComponentPropType) => {
 
   const handleFilterButtonClick = (duration: AlertsDurationType) => {
-    setAlertsDuration(duration)
+    setAlertsDuration(duration);
   }
 
   return (
     <View style={styles.statsFilterBtnsHolder}>
-      <FilterButton duration='24hrs' label="24 Hours" onPress={() => handleFilterButtonClick('24hrs')} />
-      <FilterButton duration='1week' label="1 Week" onPress={() => handleFilterButtonClick('1week')} />
-      <FilterButton duration='15days' label="15 Days" onPress={() => handleFilterButtonClick('15days')} />
+      <FilterButton isActive={alertsDuration === '24hrs'} duration='24hrs' label="24 Hours"
+        onPress={() => handleFilterButtonClick('24hrs')} />
+      <FilterButton isActive={alertsDuration === '1week'} duration='1week' label="1 Week"
+        onPress={() => handleFilterButtonClick('1week')} />
+      <FilterButton isActive={alertsDuration === '15days'} duration='15days' label="15 Days"
+        onPress={() => handleFilterButtonClick('15days')} />
     </View>
   )
 }
@@ -55,4 +64,10 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(12),
     color: 'rgba(0,0,0,.8)'
   },
+  activeButton: {
+    backgroundColor: '#333',
+  },
+  activeButtonText: {
+    color: '#fff'
+  }
 })

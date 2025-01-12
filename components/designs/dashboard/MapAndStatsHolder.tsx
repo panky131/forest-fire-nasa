@@ -1,18 +1,47 @@
-import React from 'react'
-import { StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
 
-import DashboardStats from './DashboardStats'
-import MapComponent from './MapComponent'
+import LoadingView from './LoadingView';
+import MapComponent from './MapComponent';
+import DashboardStats from './DashboardStats';
+import ErrorScreen from '@/app/(needAuth)/ErrorScreen';
+import { AlertsResponseDataType } from '@/utils/Types';
+import { getAlertsData } from '@/utils/functions/getAlerts';
 
-const MapAndStatsHolder = () => {
+type AlertsFilterDurationType = '24hrs' | '1week' | '15days';
+
+const MapAndStatsHolder: React.FC = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isRequestError, setIsRequestError] = useState<boolean>(false);
+  const [alertsData, setAlertsData] = useState<AlertsResponseDataType[]>([]);
+
+  const fetchAlerts = async (): Promise<void> => {
+    const fetchedAlerts = await getAlertsData({
+      setPageError: setIsRequestError,
+      setIsLoading,
+      setAlertsData,
+    });
+
+    setAlertsData(fetchedAlerts);
+  };
+
+  useEffect(() => {
+    fetchAlerts();
+  }, []);
+
+  if (isLoading) return <LoadingView />;
+  if (isRequestError) return <ErrorScreen />;
+
   return (
     <>
       <DashboardStats />
       <MapComponent />
     </>
-  )
-}
+  );
+};
 
-export default MapAndStatsHolder
+const styles = StyleSheet.create({
 
-const styles = StyleSheet.create({})
+});
+
+export default MapAndStatsHolder;

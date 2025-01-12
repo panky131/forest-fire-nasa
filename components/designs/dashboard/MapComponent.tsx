@@ -7,7 +7,6 @@ import { Alert, Image, StyleSheet, View } from 'react-native'
 import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
 
-import URLs from '@/utils/URLs';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ThemedText';
 import DashboardModal from '@/components/models/DashboardModal';
@@ -16,10 +15,15 @@ import FilterBtnComponent from './_subComponents/FilterBtnComponent';
 import StatsBoxLabelValue from './_subComponents/StatsBoxLabelValue';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
-import { FilterMapAlertsFunctions } from './_subComponents/FilterMapAlertFunctions';
+import { filterMapAlertsFunctions } from './_subComponents/FilterMapAlertFunctions';
 import { AlertsResponseDataType, CoordinatesType, UserCoordsType } from '@/utils/Types';
 
-const MapComponent = () => {
+interface ComponentPropType {
+  alertsData: AlertsResponseDataType[],
+  fetchAlerts: () => Promise<void>
+}
+
+const MapComponent = ({ fetchAlerts, alertsData }: ComponentPropType) => {
 
   const Navigation = useNavigation();
   const { authUserData }: any = useAuth();
@@ -29,8 +33,7 @@ const MapComponent = () => {
   const [PageError, SetPageError] = useState<boolean>(false);
   const [ModalVisible, SetModalVisible] = useState<boolean>(false);
   const [whichActiveBtn, setWhichActiveBtn] = useState<string>('all');
-  const [SelectedFire, SetSelectedFire] = useState<number | null>(null);
-  const [pageData, setPageData] = useState<AlertsResponseDataType[]>([]);
+  const [selectedFire, SetSelectedFire] = useState<number | null>(null);
   const [loadingText, setLoadingText] = useState<string>("");
   const [userCoordinates, setUserCoordinates] = useState<UserCoordsType>();
   const [filteredAlertsData, setFilteredAlertsData] = useState<AlertsResponseDataType[]>([]);
@@ -38,53 +41,8 @@ const MapComponent = () => {
 
   const mapRef = useRef<any>("");
 
-  const GetAlertsData = async (): Promise<void> => {
-    try {
-      setIsLoading(true);
-      SetPageError(false);
-
-      const authKey: string | null = await SecureStore.getItemAsync('auth_key');
-
-      const formData = new FormData();
-      formData.append('unique_id', authKey as never);
-      let random = Math.floor(Math.random() * 9999);
-      let url = URLs.api_base_url + `get_alerts.php?random=${random}`;
-      const response = await fetch(url, {
-        method: "POST",
-        body: formData,
-        cache: 'no-cache'
-      });
-
-      const responseJson = await response.json();
-      if (responseJson.status != "success") {
-        SetPageError(true);
-        return;
-      }
-      setPageData(responseJson.alerts);
-
-      FilterMapAlertsFunctions({
-        alertsDataSet: responseJson.alerts,
-        setAlertsData: setFilteredAlertsData,
-        rangeInKmToCheck: 3000,
-        userCoordinates: userCoordinates
-      });
-
-    } catch (error) {
-
-      console.log(error);
-      SetPageError(true);
-
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   const hanldeAlertClick = (alert_id: number, status: string | null, lat: string, lng: string): void => {
-    let temp: CoordinatesType = {
-      lat: lat,
-      lng: lng
-    };
-    setSelectedCoordinates(temp);
+    setSelectedCoordinates({ lat: lat, lng: lng });
     SetSelectedFire(alert_id);
     setStatus(status);
     SetModalVisible(true);
@@ -94,7 +52,6 @@ const MapComponent = () => {
 
     const nextScreenName = authUserData.user_type === 'mcr'
       ? '/ExistingFireReportMCR' : '/ExistingFireReport';
-    // ? '/ExistingFireReport' : '/ExistingFireReportMCR';
 
     Alert.alert('Confirm', 'Do you want to close this Fire.?', [
       {
@@ -112,35 +69,35 @@ const MapComponent = () => {
 
   const getUserLocation = async () => {
     try {
+      setIsLoading(true);
+      setLoadingText("Getting your location");
 
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         Toast.show({
           type: 'error',
           text1: 'Permission Required',
           text2: 'Please allow for location permission'
-        })
+        });
         return;
       }
 
-      const location: Location.LocationObject = await Location.getCurrentPositionAsync({
-        accuracy: 2
-      });
+      const location = await Location.getCurrentPositionAsync({ accuracy: 2 });
 
-      const userLocation: UserCoordsType = {
+      setUserCoordinates({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
-      };
-
-      setUserCoordinates(userLocation);
+      });
 
     } catch (error) {
-      console.log(error);
       Toast.show({
         type: 'error',
         text1: 'Oops!',
         text2: 'Unable to get your location. Please try again'
       });
+    } finally {
+      setIsLoading(false);
+      setLoadingText("Loading");
     }
   }
 
@@ -148,9 +105,22 @@ const MapComponent = () => {
     await getUserLocation();
   }
 
+  const filterAlertsOnDistance = () => {
+    if (userCoordinates) {
+      return filterMapAlertsFunctions({
+        alertsDataSet: alertsData,
+        setAlertsData: setFilteredAlertsData,
+        rangeInKmToCheck: 3000,
+        userCoordinates: userCoordinates
+      });
+    }
+
+    return setFilteredAlertsData(alertsData);
+  }
+
   useEffect(() => {
 
-    if (userCoordinates) GetAlertsData();
+    filterAlertsOnDistance();
 
   }, [userCoordinates])
 
@@ -160,33 +130,32 @@ const MapComponent = () => {
     return () => { }
   }, [authUserData])
 
-  useEffect(() => {
-    const timeout = setTimeout(async () => {
-      try {
-        const latitude = await SecureStore.getItemAsync('latitude');
-        const longitude = await SecureStore.getItemAsync('longitude');
+  const animateToDivision = async () => {
+    try {
+      const latitude = await SecureStore.getItemAsync('latitude');
+      const longitude = await SecureStore.getItemAsync('longitude');
 
-        if (latitude && longitude) {
-          const region = {
-            latitudeDelta: 4.0,
-            longitudeDelta: 4.0,
-            latitude: parseFloat(latitude),
-            longitude: parseFloat(longitude),
-          };
+      if (latitude && longitude) {
+        const region = {
+          latitudeDelta: 4.0,
+          longitudeDelta: 4.0,
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+        };
 
-          mapRef.current?.animateToRegion(region, 2000);
-        } else {
-          console.error('Latitude or longitude not found in SecureStore.');
-        }
-      } catch (error) {
-        console.error('Error retrieving location from SecureStore:', error);
+        mapRef.current?.animateToRegion(region, 2000);
+      } else {
+        console.error('Latitude or longitude not found in SecureStore.');
       }
-    }, 4000);
+    } catch (error) {
+      console.error('Error retrieving location from SecureStore:', error);
+    }
+  }
 
-    return () => {
-      clearTimeout(timeout);
-    };
+  useEffect(() => {
+    animateToDivision();
   }, []);
+
   if (PageError) {
     return (
       <View style={styles.errorComponentHolder}>
@@ -204,13 +173,13 @@ const MapComponent = () => {
       <DashboardModal
         // @ts-ignore
         handleMarkerClickFun={handleMarkerClick}
-        SelectedFire={SelectedFire}
+        SelectedFire={selectedFire}
         SelectedCoordinates={selectedCoordinates}
         SetModalVisible={SetModalVisible}
         visible={ModalVisible}
         Navigation={Navigation}
         status={status}
-        getDataFunction={GetAlertsData}
+        getDataFunction={fetchAlerts}
         authUserData={authUserData}
         SetPageError={SetPageError}
         setIsLoading={setIsLoading}
@@ -218,7 +187,7 @@ const MapComponent = () => {
 
       <View style={styles.mapHeaderComponent}>
         <FilterBtnComponent
-          alertsDataSet={pageData}
+          alertsDataSet={alertsData}
           setAlertsData={setFilteredAlertsData}
           userCoordinates={userCoordinates}
           isActive={whichActiveBtn === 'all' ? true : false}
@@ -228,7 +197,7 @@ const MapComponent = () => {
           isActiveText='all'
         />
         <FilterBtnComponent
-          alertsDataSet={pageData}
+          alertsDataSet={alertsData}
           setAlertsData={setFilteredAlertsData}
           userCoordinates={userCoordinates}
           isActive={whichActiveBtn === '5KM' ? true : false}
@@ -238,7 +207,7 @@ const MapComponent = () => {
           isActiveText='5KM'
         />
         <FilterBtnComponent
-          alertsDataSet={pageData}
+          alertsDataSet={alertsData}
           setAlertsData={setFilteredAlertsData}
           userCoordinates={userCoordinates}
           isActive={whichActiveBtn === '10KM' ? true : false}

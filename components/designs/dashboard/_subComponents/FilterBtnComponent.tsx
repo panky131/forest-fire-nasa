@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction } from 'react'
 import { StyleSheet, TouchableOpacity } from 'react-native'
 
 import { ThemedText } from '@/components/ThemedText'
-import { FilterMapAlertsFunctions } from './FilterMapAlertFunctions'
+import { filterMapAlertsFunctions } from './FilterMapAlertFunctions'
 import { AlertsResponseDataType, UserCoordsType } from '@/utils/Types'
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 
@@ -21,7 +21,7 @@ const FilterBtnComponent = ({ isActive, btnText, rangeInKMToShow,
   alertsDataSet, setAlertsData, userCoordinates, setWhichActiveBtn, isActiveText }: FilterBtnComponentPropType) => {
 
   const handleFilter = () => {
-    FilterMapAlertsFunctions({
+    filterMapAlertsFunctions({
       alertsDataSet: alertsDataSet,
       setAlertsData: setAlertsData,
       rangeInKmToCheck: rangeInKMToShow,

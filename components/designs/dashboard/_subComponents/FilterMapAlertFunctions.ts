@@ -11,7 +11,7 @@ interface FilterMapAlertsFnPropType {
   setAlertsData: Dispatch<SetStateAction<AlertsResponseDataType[]>>
 }
 
-const FilterMapAlertsFunctions = ({
+const filterMapAlertsFunctions = ({
   alertsDataSet, setAlertsData, rangeInKmToCheck, userCoordinates
 }: FilterMapAlertsFnPropType): void => {
   try {
@@ -43,4 +43,4 @@ const FilterMapAlertsFunctions = ({
   }
 }
 
-export { FilterMapAlertsFunctions };
+export { filterMapAlertsFunctions };

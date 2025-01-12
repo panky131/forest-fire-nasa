@@ -32,8 +32,9 @@ const MapAndStatsHolder: React.FC = () => {
 
   return (
     <>
-      <DashboardStats alertsData={alertsData} setAlertsDuration={setAlertsDuration} />
-      <MapComponent />
+      <DashboardStats alertsData={alertsData}
+        setAlertsDuration={setAlertsDuration} />
+      <MapComponent alertsData={alertsData} fetchAlerts={fetchAlerts} />
     </>
   );
 };

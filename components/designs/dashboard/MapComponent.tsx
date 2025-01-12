@@ -110,21 +110,6 @@ const MapComponent = (args: ComponentPropType) => {
     if (!userCoordinates) {
       await getUserLocation();
     }
-
-    filterAlertsOnDistance();
-  }
-
-  const filterAlertsOnDistance = () => {
-    if (userCoordinates) {
-      return filterMapAlertsFunctions({
-        alertsDataSet: alertsData,
-        setAlertsData: setFilteredAlertsData,
-        rangeInKmToCheck: 3000,
-        userCoordinates: userCoordinates
-      });
-    }
-
-    return setFilteredAlertsData(alertsData);
   }
 
   const animateToDivision = async () => {

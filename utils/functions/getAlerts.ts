@@ -49,7 +49,6 @@ const getAlertsData = async (args: FilterMapAlertsFunctionsProps):
       return [];
     }
 
-    console.log(responseJson.alerts);
     return responseJson.alerts;
 
   } catch (error) {

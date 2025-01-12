@@ -4,42 +4,54 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AlertsDurationType } from '@/utils/Types';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
-
 interface ComponentPropType {
-  alertsDuration: AlertsDurationType,
-  setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>
+  alertsDuration: AlertsDurationType;
+  setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>;
 }
 
-const FilterButton = ({ duration, label, onPress, isActive }:
-  {
-    duration: AlertsDurationType, label: string,
-    isActive: boolean,
-    onPress: (duration: AlertsDurationType) => void
-  }) => (
-  <TouchableOpacity onPress={() => onPress(duration)}
-    style={[styles.filterBtnTextOuter, isActive && styles.activeButton]}>
-    <Text style={[styles.filterBtnText, isActive && styles.activeButtonText]}>{label}</Text>
+interface FilterButtonProps {
+  duration: AlertsDurationType;
+  label: string;
+  isActive: boolean;
+  onPress: (duration: AlertsDurationType) => void;
+}
+
+const FilterButton = ({ duration, label, onPress, isActive }: FilterButtonProps) => (
+  <TouchableOpacity
+    onPress={() => onPress(duration)}
+    style={[styles.filterBtnTextOuter, isActive && styles.activeButton]}
+  >
+    <Text style={[styles.filterBtnText, isActive && styles.activeButtonText]}>
+      {label}
+    </Text>
   </TouchableOpacity>
-)
+);
 
 const StatsFilterBox = ({ setAlertsDuration, alertsDuration }: ComponentPropType) => {
-
   const handleFilterButtonClick = (duration: AlertsDurationType) => {
     setAlertsDuration(duration);
-  }
+  };
+
+  const filterButtons = [
+    { duration: '24hrs', label: '24 Hours' },
+    { duration: '1week', label: '1 Week' },
+    { duration: '15days', label: '15 Days' }
+  ];
 
   return (
     <View style={styles.statsFilterBtnsHolder}>
-      <FilterButton isActive={alertsDuration === '24hrs'} duration='24hrs' label="24 Hours"
-        onPress={() => handleFilterButtonClick('24hrs')} />
-      <FilterButton isActive={alertsDuration === '1week'} duration='1week' label="1 Week"
-        onPress={() => handleFilterButtonClick('1week')} />
-      <FilterButton isActive={alertsDuration === '15days'} duration='15days' label="15 Days"
-        onPress={() => handleFilterButtonClick('15days')} />
+      {filterButtons.map(({ duration, label }) => (
+        <FilterButton
+          key={duration}
+          isActive={alertsDuration === duration}
+          duration={duration as AlertsDurationType}
+          label={label}
+          onPress={handleFilterButtonClick}
+        />
+      ))}
     </View>
-  )
-}
-
+  );
+};
 export default StatsFilterBox
 
 const styles = StyleSheet.create({

@@ -7,12 +7,13 @@ import ErrorScreen from '@/app/(needAuth)/ErrorScreen';
 import { AlertsResponseDataType } from '@/utils/Types';
 import { getAlertsData } from '@/utils/functions/getAlerts';
 
-type AlertsFilterDurationType = '24hrs' | '1week' | '15days';
+type AlertsDurationType = '24hrs' | '1week' | '15days';
 
 const MapAndStatsHolder: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isRequestError, setIsRequestError] = useState<boolean>(false);
   const [alertsData, setAlertsData] = useState<AlertsResponseDataType[]>([]);
+  const [alertsDuration, setAlertsDuration] = useState<AlertsDurationType>('1week');
 
   const fetchAlerts = async (): Promise<void> => {
     const fetchedAlerts = await getAlertsData({
@@ -26,7 +27,7 @@ const MapAndStatsHolder: React.FC = () => {
 
   useEffect(() => {
     fetchAlerts();
-  }, []);
+  }, [alertsDuration]);
 
   if (isLoading) return <LoadingView />;
   if (isRequestError) return <ErrorScreen />;

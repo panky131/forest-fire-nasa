@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 
 import LoadingView from './LoadingView';
 import MapComponent from './MapComponent';
+import { useAuth } from '@/hooks/useAuth';
 import DashboardStats from './DashboardStats';
 import ErrorScreen from '@/app/(needAuth)/ErrorScreen';
 import { getAlertsData } from '@/utils/functions/getAlerts';
 import { AlertsDurationType, AlertsResponseDataType, UserCoordsType } from '@/utils/Types';
-import { useAuth } from '@/hooks/useAuth';
 
 const MapAndStatsHolder: React.FC = () => {
   const { authUserData }: any = useAuth();

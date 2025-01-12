@@ -7,7 +7,6 @@ import { Alert, Image, StyleSheet, View } from 'react-native'
 import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
 
-import { useAuth } from '@/hooks/useAuth';
 import { ThemedText } from '@/components/ThemedText';
 import DashboardModal from '@/components/models/DashboardModal';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';

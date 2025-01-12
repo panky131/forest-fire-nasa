@@ -6,11 +6,16 @@ import { ThemedText } from "@/components/ThemedText";
 import StatsFilterBox from "./_subComponents/StatsFilterBox";
 import { AlertsDurationType, AlertsResponseDataType } from "@/utils/Types";
 import { horizontalScale, moderateScale, verticalScale } from "@/utils/Metrics";
+import { filterByDuration } from "@/utils/functions/filterAlertsByDuration";
 
 interface StatsBoxPropType {
   statsValue: number | string | undefined;
   statsLabel: string;
   statBoxBgColor: string;
+  status: 'all' | 'active' | 'being_held' | 'closed';
+  alertsData: AlertsResponseDataType[],
+  alertsDuration: AlertsDurationType,
+  setFilteredAlertsData: React.Dispatch<React.SetStateAction<AlertsResponseDataType[]>>,
 }
 
 interface AlertsStatsType {
@@ -23,10 +28,14 @@ interface AlertsStatsType {
 interface ComponentPropType {
   alertsData: AlertsResponseDataType[],
   alertsDuration: AlertsDurationType,
-  setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>
+  setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>,
+  filteredAlertsData: AlertsResponseDataType[],
+  setFilteredAlertsData: React.Dispatch<React.SetStateAction<AlertsResponseDataType[]>>,
 }
 
-const DashboardStats = ({ alertsDuration, alertsData, setAlertsDuration }: ComponentPropType) => {
+const DashboardStats = (
+  { alertsDuration, alertsData, setAlertsDuration,
+    filteredAlertsData, setFilteredAlertsData }: ComponentPropType) => {
   const [statsData, setStatsData] = useState<AlertsStatsType>();
 
   const calculateAlertsStats = (alertsData: AlertsResponseDataType[]): AlertsStatsType => {
@@ -48,10 +57,10 @@ const DashboardStats = ({ alertsDuration, alertsData, setAlertsDuration }: Compo
   }, [alertsData])
 
   const statsBoxes = [
-    { label: "Total Alerts", value: statsData?.totalAlerts, color: "#0a9396" },
-    { label: "Active Alerts", value: statsData?.activeAlerts, color: "#89023e" },
-    { label: "Being Held", value: statsData?.beingHeld, color: "#f3722c" },
-    { label: "Closed Alerts", value: statsData?.closedAlerts, color: "#588157" }
+    { label: "Total Alerts", value: statsData?.totalAlerts, color: "#0a9396", status: 'all' },
+    { label: "Active Alerts", value: statsData?.activeAlerts, color: "#89023e", status: 'active' },
+    { label: "Being Held", value: statsData?.beingHeld, color: "#f3722c", status: 'being_held' },
+    { label: "Closed Alerts", value: statsData?.closedAlerts, color: "#588157", status: 'closed' }
   ];
 
   return (
@@ -66,6 +75,10 @@ const DashboardStats = ({ alertsDuration, alertsData, setAlertsDuration }: Compo
               statsLabel={box.label}
               statsValue={box.value || 0}
               statBoxBgColor={box.color}
+              alertsData={alertsData}
+              alertsDuration={alertsDuration}
+              setFilteredAlertsData={setFilteredAlertsData}
+              status={box.status as 'all' | 'active' | 'being_held' | 'closed'}
             />
           ))}
         </View>
@@ -79,9 +92,25 @@ const StatsBox = ({
   statsValue,
   statsLabel,
   statBoxBgColor,
+  status,
+  alertsData,
+  alertsDuration,
+  setFilteredAlertsData
 }: StatsBoxPropType) => {
+
+  const handleStatusFilter = () => {
+    if (status === 'all') {
+      setFilteredAlertsData(alertsData);
+      return;
+    }
+
+    const filteredByStatus = alertsData.filter(alert => alert.status === status);
+
+    setFilteredAlertsData(filterByDuration(filteredByStatus, alertsDuration));
+  }
+
   return (
-    <TouchableOpacity style={[styles.statsBox, { backgroundColor: statBoxBgColor }]}>
+    <TouchableOpacity onPress={handleStatusFilter} style={[styles.statsBox, { backgroundColor: statBoxBgColor }]}>
       <ThemedText style={styles.boxValueText} type="defaultSemiBold">
         {statsValue}
       </ThemedText>

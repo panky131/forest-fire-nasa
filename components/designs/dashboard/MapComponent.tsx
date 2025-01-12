@@ -22,11 +22,13 @@ interface ComponentPropType {
   fetchAlerts: () => Promise<void>,
   userCoordinates: UserCoordsType | undefined,
   setUserCoordinates: React.Dispatch<React.SetStateAction<UserCoordsType | undefined>>,
-  authUserData: any
+  authUserData: any,
+  filteredAlertsData: AlertsResponseDataType[],
+  setFilteredAlertsData: React.Dispatch<React.SetStateAction<AlertsResponseDataType[]>>,
 }
 
 const MapComponent = (args: ComponentPropType) => {
-  const { fetchAlerts, alertsData,
+  const { fetchAlerts, alertsData, filteredAlertsData, setFilteredAlertsData,
     userCoordinates, setUserCoordinates, authUserData } = args;
 
   const Navigation = useNavigation();
@@ -38,7 +40,6 @@ const MapComponent = (args: ComponentPropType) => {
   const [whichActiveBtn, setWhichActiveBtn] = useState<string>('all');
   const [selectedFire, SetSelectedFire] = useState<number | null>(null);
   const [loadingText, setLoadingText] = useState<string>("");
-  const [filteredAlertsData, setFilteredAlertsData] = useState<AlertsResponseDataType[]>([]);
   const [selectedCoordinates, setSelectedCoordinates] = useState<CoordinatesType>({ lat: 0, lng: 0 });
 
   const mapRef = useRef<any>("");

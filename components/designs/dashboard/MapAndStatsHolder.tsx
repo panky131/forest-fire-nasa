@@ -16,6 +16,7 @@ const MapAndStatsHolder: React.FC = () => {
   const [userCoordinates, setUserCoordinates] = useState<UserCoordsType>();
   const [alertsData, setAlertsData] = useState<AlertsResponseDataType[]>([]);
   const [alertsDuration, setAlertsDuration] = useState<AlertsDurationType>('1week');
+  const [filteredAlertsData, setFilteredAlertsData] = useState<AlertsResponseDataType[]>([]);
 
   const fetchAlerts = async (): Promise<void> => {
     const fetchedAlerts = await getAlertsData({
@@ -39,8 +40,13 @@ const MapAndStatsHolder: React.FC = () => {
       <DashboardStats
         alertsDuration={alertsDuration}
         alertsData={alertsData}
+        filteredAlertsData={filteredAlertsData}
+        setFilteredAlertsData={setFilteredAlertsData}
         setAlertsDuration={setAlertsDuration} />
+
       <MapComponent
+        filteredAlertsData={filteredAlertsData}
+        setFilteredAlertsData={setFilteredAlertsData}
         authUserData={authUserData}
         userCoordinates={userCoordinates}
         setUserCoordinates={setUserCoordinates}

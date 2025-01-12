@@ -1,15 +1,7 @@
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Text
-} from "react-native";
 
-import * as SecureStore from "expo-secure-store";
 
-import URLs from "@/utils/URLs";
 import { ThemedText } from "@/components/ThemedText";
 import StatsFilterBox from "./_subComponents/StatsFilterBox";
 import { AlertsDurationType, AlertsResponseDataType } from "@/utils/Types";
@@ -37,8 +29,6 @@ const DashboardStats = ({ alertsData, setAlertsDuration }: ComponentPropType) =>
   const [statsData, setStatsData] = useState<AlertsStatsType>();
 
   const calculateAlertsStats = (alertsData: AlertsResponseDataType[]): AlertsStatsType => {
-    console.log(alertsData);
-
     const activeAlerts = alertsData.filter(alert => alert.status === "active").length;
     const beingHeld = alertsData.filter(alert => alert.status === "being_held").length;
     const closedAlerts = alertsData.filter(alert => alert.status === "closed").length;
@@ -50,49 +40,36 @@ const DashboardStats = ({ alertsData, setAlertsDuration }: ComponentPropType) =>
       closedAlerts
     };
   };
+
   useEffect(() => {
     setStatsData(calculateAlertsStats(alertsData));
-
     return () => { }
   }, [alertsData])
 
+  const statsBoxes = [
+    { label: "Total Alerts", value: statsData?.totalAlerts, color: "#0a9396" },
+    { label: "Active Alerts", value: statsData?.activeAlerts, color: "#89023e" },
+    { label: "Being Held", value: statsData?.beingHeld, color: "#f3722c" },
+    { label: "Closed Alerts", value: statsData?.closedAlerts, color: "#588157" }
+  ];
 
   return (
     <View style={styles.statsContainer}>
       <StatsFilterBox setAlertsDuration={setAlertsDuration} />
 
-      <View style={styles.flexBoxContainer}>
-        <StatsBox
-          statsLabel="Total Alerts"
-          statsValue={
-            statsData && statsData.totalAlerts ? statsData.totalAlerts : 0
-          }
-          statBoxBgColor="#0a9396"
-        />
-        <StatsBox
-          statsLabel="Active Alerts"
-          statsValue={
-            statsData && statsData.activeAlerts ? statsData.activeAlerts : 0
-          }
-          statBoxBgColor="#89023e"
-        />
-      </View>
-      <View style={styles.flexBoxContainer}>
-        <StatsBox
-          statsLabel="Being Held"
-          statsValue={
-            statsData && statsData.beingHeld ? statsData.beingHeld : 0
-          }
-          statBoxBgColor="#f3722c"
-        />
-        <StatsBox
-          statsLabel="Closed Alerts"
-          statsValue={
-            statsData && statsData.closedAlerts ? statsData.closedAlerts : 0
-          }
-          statBoxBgColor="#588157"
-        />
-      </View>
+      {[0, 2].map(index => (
+        <View key={index} style={styles.flexBoxContainer}>
+          {statsBoxes.slice(index, index + 2).map(box => (
+            <StatsBox
+              key={box.label}
+              statsLabel={box.label}
+              statsValue={box.value || 0}
+              statBoxBgColor={box.color}
+            />
+          ))}
+        </View>
+      ))}
+
     </View>
   );
 };

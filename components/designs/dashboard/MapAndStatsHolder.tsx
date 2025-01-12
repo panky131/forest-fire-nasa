@@ -17,7 +17,7 @@ const MapAndStatsHolder: React.FC = () => {
     const fetchedAlerts = await getAlertsData({
       setPageError: setIsRequestError,
       setIsLoading,
-      setAlertsData,
+      alertsDuration
     });
 
     setAlertsData(fetchedAlerts);

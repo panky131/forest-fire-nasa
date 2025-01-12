@@ -2,12 +2,12 @@ import * as SecureStore from 'expo-secure-store';
 import { Dispatch, SetStateAction } from "react";
 
 import URLs from "../URLs";
-import { AlertsResponseDataType } from "../Types";
+import { AlertsDurationType, AlertsResponseDataType } from "../Types";
 
 interface FilterMapAlertsFunctionsProps {
-  setAlertsData: React.Dispatch<React.SetStateAction<AlertsResponseDataType[]>>,
   setPageError: Dispatch<SetStateAction<boolean>>,
   setIsLoading: Dispatch<SetStateAction<boolean>>,
+  alertsDuration: AlertsDurationType
 }
 
 const getAuthKey = async (): Promise<string | null> => {
@@ -20,9 +20,10 @@ const createFormData = (authKey: string | null): FormData => {
   return formData;
 }
 
-const fetchAlerts = async (formData: FormData): Promise<Response> => {
+const fetchAlerts = async (formData: FormData, alertsDuration: AlertsDurationType): Promise<Response> => {
   const random = Math.floor(Math.random() * 9999);
-  const url = URLs.api_base_url + `get_alerts.php?random=${random}`;
+  const url = URLs.api_base_url + `get_alerts.php?random=${random}&duration=${alertsDuration}`;
+  console.log(url);
 
   return await fetch(url, {
     method: "POST",
@@ -33,7 +34,7 @@ const fetchAlerts = async (formData: FormData): Promise<Response> => {
 
 const getAlertsData = async (args: FilterMapAlertsFunctionsProps):
   Promise<AlertsResponseDataType[] | any> => {
-  const { setPageError, setIsLoading } = args;
+  const { setPageError, setIsLoading, alertsDuration } = args;
 
   try {
     setIsLoading(true);
@@ -41,7 +42,7 @@ const getAlertsData = async (args: FilterMapAlertsFunctionsProps):
 
     const authKey = await getAuthKey();
     const formData = createFormData(authKey);
-    const response = await fetchAlerts(formData);
+    const response = await fetchAlerts(formData, alertsDuration);
     const responseJson = await response.json();
 
     if (responseJson.status !== "success") {
@@ -49,7 +50,6 @@ const getAlertsData = async (args: FilterMapAlertsFunctionsProps):
       return [];
     }
 
-    console.log(responseJson.alerts);
     return responseJson.alerts;
 
   } catch (error) {

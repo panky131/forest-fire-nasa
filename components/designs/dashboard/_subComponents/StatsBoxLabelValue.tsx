@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
   },
   boxValue: {
     fontSize: moderateScale(13),
-    color: themeColor.primary500
+    color: themeColor.primary500,
+    lineHeight: verticalScale(14)
   },
 })

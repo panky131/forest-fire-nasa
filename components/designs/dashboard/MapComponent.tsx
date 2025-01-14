@@ -119,8 +119,8 @@ const MapComponent = (args: ComponentPropType) => {
 
       if (latitude && longitude) {
         const region = {
-          latitudeDelta: 4.0,
-          longitudeDelta: 4.0,
+          latitudeDelta: 3.0,
+          longitudeDelta: 3.0,
           latitude: parseFloat(latitude),
           longitude: parseFloat(longitude),
         };
@@ -211,8 +211,8 @@ const MapComponent = (args: ComponentPropType) => {
         initialRegion={{
           latitude: parseFloat(authUserData.latitude),
           longitude: parseFloat(authUserData.longitude),
-          latitudeDelta: 0.02,
-          longitudeDelta: 0.01,
+          latitudeDelta: 4.0,
+          longitudeDelta: 4.0,
         }}
         style={styles.mapHolder}
       >
@@ -241,9 +241,9 @@ const MapComponent = (args: ComponentPropType) => {
                 </ThemedText>
                 <View style={styles.hr}></View>
                 <StatsBoxLabelValue label={"Alert ID"} value={props.alert_id} />
-                <StatsBoxLabelValue label={"Latitude"} value={props.lat} />
-                <StatsBoxLabelValue label={"Longitude"} value={props.lng} />
-                <StatsBoxLabelValue label={"Handler"} value={props.handler} />
+                <StatsBoxLabelValue label={"Location"} value={`${props.lat} | ${props.lng}`} />
+                {/* <StatsBoxLabelValue label={"Longitude"} value={props.lng} /> */}
+                {/* <StatsBoxLabelValue label={"Handler"} value={props.handler} /> */}
                 <StatsBoxLabelValue label={"Datetime"} value={props.datetime} />
                 <StatsBoxLabelValue label={"Submitted By"} value={props.submitted_by} />
                 <View style={styles.hr}></View>

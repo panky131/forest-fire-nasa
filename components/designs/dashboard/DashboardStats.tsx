@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   statsContainer: {
     backgroundColor: "#fff",
     paddingHorizontal: horizontalScale(15),
-    paddingVertical: verticalScale(15),
+    paddingVertical: verticalScale(5),
     borderRadius: moderateScale(8),
     display: "flex",
     gap: verticalScale(10),
@@ -151,7 +151,6 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     gap: horizontalScale(10),
-    aspectRatio: 16 / 4,
   },
   statsBox: {
     flex: 1,
@@ -160,6 +159,7 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: verticalScale(10),
   },
   boxValueText: {
     fontSize: moderateScale(17),

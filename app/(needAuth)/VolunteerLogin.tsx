@@ -62,7 +62,7 @@ const VolunteerLogin = () => {
 
       const responseJson = await response.json();
 
-      if (responseJson.status != "success") {
+      if (responseJson.status !== "success") {
 
         Toast.show({
           type: 'error',

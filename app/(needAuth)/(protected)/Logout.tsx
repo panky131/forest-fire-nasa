@@ -22,6 +22,7 @@ const Logout = () => {
     await SecureStore.deleteItemAsync('latitude');
     await SecureStore.deleteItemAsync('longitude');
     await SecureStore.deleteItemAsync('division_id');
+    await SecureStore.deleteItemAsync('organizationId');
 
     router.push("/");
   }

@@ -82,6 +82,8 @@ const VolunteerLogin = () => {
       const _auth_key: string = responseJson.authKey.toString();
       const _user_type: string = responseJson.user_type.toString();
 
+      console.log(selectedOrganization);
+
       await SecureStore.setItemAsync('auth_key', _auth_key);
       await SecureStore.setItemAsync('mobile_number', _mobile);
       await SecureStore.setItemAsync('user_type', _user_type);
@@ -89,6 +91,7 @@ const VolunteerLogin = () => {
       await SecureStore.setItemAsync('latitude', _lat);
       await SecureStore.setItemAsync('longitude', _long);
       await SecureStore.setItemAsync('division_id', _divisonId);
+      await SecureStore.setItemAsync('organizationId', selectedOrganization.toString());
 
       login();
       router.replace('/');

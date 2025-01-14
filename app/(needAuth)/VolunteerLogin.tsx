@@ -116,14 +116,18 @@ const VolunteerLogin = () => {
 
       const responseJson = await response.json();
 
-      if (responseJson.status != "success") {
+      if (responseJson.status !== "success") {
         setPageError(true);
         return;
       }
 
       const { divisionList, oraganizationsList } = responseJson;
 
-      setDivisonList(divisionList);
+      const filteredDivisionList = divisionList.filter(({ label }: PickerDataType) =>
+        label !== 'FOREST HEAD QUARTER'
+      );
+
+      setDivisonList(filteredDivisionList);
       setOrganizationsList(oraganizationsList);
 
     } catch (error) {

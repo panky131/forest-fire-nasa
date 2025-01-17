@@ -56,6 +56,7 @@ const DashboardStats = (
 
   useEffect(() => {
     setDurationFilterAlerts(filterByDuration(alertsData, alertsDuration));
+    setFilteredAlertsData(filterByDuration(alertsData, alertsDuration));
     return () => { }
   }, [alertsData])
 

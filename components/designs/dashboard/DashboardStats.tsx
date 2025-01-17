@@ -5,8 +5,8 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import StatsFilterBox from "./_subComponents/StatsFilterBox";
 import { AlertsDurationType, AlertsResponseDataType } from "@/utils/Types";
-import { horizontalScale, moderateScale, verticalScale } from "@/utils/Metrics";
 import { filterByDuration } from "@/utils/functions/filterAlertsByDuration";
+import { horizontalScale, moderateScale, verticalScale } from "@/utils/Metrics";
 
 interface StatsBoxPropType {
   statsValue: number | string | undefined;

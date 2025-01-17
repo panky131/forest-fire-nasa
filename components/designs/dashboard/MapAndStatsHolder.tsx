@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
 
 import LoadingView from './LoadingView';
 import MapComponent from './MapComponent';
@@ -8,7 +9,6 @@ import DashboardStats from './DashboardStats';
 import ErrorScreen from '@/app/(needAuth)/ErrorScreen';
 import { getAlertsData } from '@/utils/functions/getAlerts';
 import { AlertsDurationType, AlertsResponseDataType, UserCoordsType } from '@/utils/Types';
-import { AppState } from 'react-native';
 
 const MapAndStatsHolder: React.FC = () => {
   const { authUserData }: any = useAuth();

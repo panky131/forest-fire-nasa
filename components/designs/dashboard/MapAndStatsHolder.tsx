@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useIsFocused } from '@react-navigation/native';
 
 import LoadingView from './LoadingView';
 import MapComponent from './MapComponent';
@@ -7,10 +8,11 @@ import DashboardStats from './DashboardStats';
 import ErrorScreen from '@/app/(needAuth)/ErrorScreen';
 import { getAlertsData } from '@/utils/functions/getAlerts';
 import { AlertsDurationType, AlertsResponseDataType, UserCoordsType } from '@/utils/Types';
-import { useIsFocused } from '@react-navigation/native';
+import { AppState } from 'react-native';
 
 const MapAndStatsHolder: React.FC = () => {
   const { authUserData }: any = useAuth();
+  const appState = useRef(AppState.currentState);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isRequestError, setIsRequestError] = useState<boolean>(false);
@@ -31,6 +33,19 @@ const MapAndStatsHolder: React.FC = () => {
   };
 
   const isFocused = useIsFocused();
+
+  useEffect(() => {
+    AppState.addEventListener('change', async (nextAppState) => {
+      if (nextAppState === 'active') {
+        fetchAlerts();
+      }
+      appState.current = nextAppState;
+      console.log('AppState:', appState.current);
+    });
+
+    return () => { }
+  }, [])
+
 
   useEffect(() => {
     fetchAlerts();

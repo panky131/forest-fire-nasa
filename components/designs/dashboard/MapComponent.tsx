@@ -186,6 +186,17 @@ const MapComponent = (args: ComponentPropType) => {
           alertsDataSet={alertsData}
           setAlertsData={setFilteredAlertsData}
           userCoordinates={userCoordinates}
+          isActive={whichActiveBtn === '1KM' ? true : false}
+          btnText='1 Kms'
+          rangeInKMToShow={1}
+          setWhichActiveBtn={setWhichActiveBtn}
+          isActiveText='1KM'
+        />
+
+        <FilterBtnComponent
+          alertsDataSet={alertsData}
+          setAlertsData={setFilteredAlertsData}
+          userCoordinates={userCoordinates}
           isActive={whichActiveBtn === '5KM' ? true : false}
           btnText='5 Kms'
           rangeInKMToShow={5}
@@ -242,10 +253,9 @@ const MapComponent = (args: ComponentPropType) => {
                 <View style={styles.hr}></View>
                 <StatsBoxLabelValue label={"Alert ID"} value={props.alert_id} />
                 <StatsBoxLabelValue label={"Location"} value={`${props.lat} | ${props.lng}`} />
-                {/* <StatsBoxLabelValue label={"Longitude"} value={props.lng} /> */}
-                {/* <StatsBoxLabelValue label={"Handler"} value={props.handler} /> */}
                 <StatsBoxLabelValue label={"Datetime"} value={props.datetime} />
-                <StatsBoxLabelValue label={"Submitted By"} value={props.submitted_by} />
+                <StatsBoxLabelValue label={"Range"} value={props.range_name} />
+                <StatsBoxLabelValue label={"Beat"} value={props.beat} />
                 <View style={styles.hr}></View>
                 <ThemedText type='default' style={styles.activefireText}>
                   {

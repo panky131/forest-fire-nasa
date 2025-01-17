@@ -16,7 +16,9 @@ interface AlertsResponseDataType {
   handler: string,
   remarks: string,
   datetime: string,
-  submitted_by: string
+  submitted_by: string,
+  beat: string,
+  range_name: string
 }
 
 type AlertsDurationType = '24hrs' | '1week' | '15days' | 'all';

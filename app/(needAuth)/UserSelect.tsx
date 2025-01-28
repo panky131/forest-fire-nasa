@@ -75,6 +75,19 @@ export default function HomeScreen() {
 
       <TouchableOpacity>
         <Link style={[styles.reportBtn, {
+          backgroundColor: themeColor.info600
+        }]} href={'./ControlRoomInfo'}>
+          <View style={styles.ButtonTextHolder}>
+            <MaterialCommunityIcons name="fire" size={moderateScale(24)} color="#fff" />
+            <ThemedText style={styles.linkBtnText} type='link'>
+              कंट्रोल रूम से संपर्क करे / Contact Control Room
+            </ThemedText>
+          </View>
+        </Link>
+      </TouchableOpacity>
+
+      <TouchableOpacity>
+        <Link style={[styles.reportBtn, {
           backgroundColor: themeColor.warning600
         }]} href={'/(needAuth)/Warning'}>
           <View style={styles.ButtonTextHolder}>

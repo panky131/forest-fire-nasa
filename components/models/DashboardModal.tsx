@@ -6,6 +6,7 @@ import { Button } from "react-native-rapi-ui";
 import { View, Modal, StyleSheet } from "react-native";
 
 import URLs from "@/utils/URLs";
+import { useAuth } from "@/hooks/useAuth";
 import { AlertsResponseDataType } from "@/utils/Types";
 import { horizontalScale, verticalScale } from "@/utils/Metrics";
 
@@ -63,6 +64,9 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
   SetPageError,
   setIsLoading
 }) => {
+
+  const userData: any = useAuth();
+  const isVolunteer = userData?.authUserData?.user_type === "end";
 
   const checkLocationPermission = async (): Promise<boolean> => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -175,11 +179,14 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
         text="Send Video"
         status="primary"
       />
-      <Button
-        onPress={handleCloseFire}
-        text="Close Fire"
-        status="success"
-      />
+      {
+        !isVolunteer &&
+        <Button
+          onPress={handleCloseFire}
+          text="Close Fire"
+          status="success"
+        />
+      }
     </>
   );
 

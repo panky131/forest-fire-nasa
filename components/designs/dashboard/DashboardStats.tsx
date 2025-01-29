@@ -12,7 +12,7 @@ interface StatsBoxPropType {
   statsValue: number | string | undefined;
   statsLabel: string;
   statBoxBgColor: string;
-  status: 'all' | 'active' | 'being_held' | 'closed';
+  status: 'all' | 'active' | 'being_held' | 'closed' | 'not_fire';
   alertsData: AlertsResponseDataType[],
   alertsDuration: AlertsDurationType,
   durationFilterAlerts: AlertsResponseDataType[],
@@ -24,6 +24,7 @@ interface AlertsStatsType {
   activeAlerts: number;
   closedAlerts: number;
   beingHeld: number;
+  notAFireAlerts: number;
 }
 
 interface ComponentPropType {
@@ -45,12 +46,14 @@ const DashboardStats = (
     const activeAlerts = alertsData.filter(alert => alert.status === "active").length;
     const beingHeld = alertsData.filter(alert => alert.status === "being_held").length;
     const closedAlerts = alertsData.filter(alert => alert.status === "closed").length;
+    const notAFireAlerts = alertsData.filter(alert => alert.status === "not_fire").length;
 
     return {
       totalAlerts: alertsData.length,
       activeAlerts,
       beingHeld,
-      closedAlerts
+      closedAlerts,
+      notAFireAlerts
     };
   };
 
@@ -67,7 +70,7 @@ const DashboardStats = (
   }, [durationFilterAlerts])
 
   const statsBoxes = [
-    { label: "Total Alerts", value: statsData?.totalAlerts, color: "#0a9396", status: 'all' },
+    { label: "Not a fire", value: statsData?.notAFireAlerts, color: "#333", status: 'not_fire' },
     { label: "Active Alerts", value: statsData?.activeAlerts, color: "#89023e", status: 'active' },
     { label: "Being Held", value: statsData?.beingHeld, color: "#f3722c", status: 'being_held' },
     { label: "Closed Alerts", value: statsData?.closedAlerts, color: "#588157", status: 'closed' }
@@ -81,6 +84,19 @@ const DashboardStats = (
         setFilteredAlertsData={setFilteredAlertsData}
         alertsDuration={alertsDuration} setAlertsDuration={setAlertsDuration} />
 
+      <View style={styles.flexBoxContainer}>
+        <StatsBox
+          statsLabel={"Total Alerts"}
+          statsValue={statsData?.totalAlerts || 0}
+          statBoxBgColor={'#0a9396'}
+          alertsDuration={alertsDuration}
+          durationFilterAlerts={durationFilterAlerts}
+          alertsData={durationFilterAlerts}
+          setFilteredAlertsData={setFilteredAlertsData}
+          status={'all' as 'all' | 'active' | 'being_held' | 'closed' | 'not_fire'}
+        />
+      </View>
+
       {[0, 2].map(index => (
         <View key={index} style={styles.flexBoxContainer}>
           {statsBoxes.slice(index, index + 2).map(box => (
@@ -93,7 +109,7 @@ const DashboardStats = (
               durationFilterAlerts={durationFilterAlerts}
               alertsData={durationFilterAlerts}
               setFilteredAlertsData={setFilteredAlertsData}
-              status={box.status as 'all' | 'active' | 'being_held' | 'closed'}
+              status={box.status as 'all' | 'active' | 'being_held' | 'closed' | 'not_fire'}
             />
           ))}
         </View>

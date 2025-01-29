@@ -1,5 +1,6 @@
 import { Camera } from 'expo-camera';
 import * as Location from 'expo-location';
+import { Picker } from 'react-native-rapi-ui';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
@@ -7,15 +8,25 @@ import React, { useEffect, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { horizontalScale } from '@/utils/Metrics';
+import { ThemedText } from '@/components/ThemedText';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import PickedImageHolder from '@/components/designs/NotAFire/PickedImageHolder';
-import RemarkInputTextArea from '@/components/designs/NotAFire/RemarkInputTextArea';
 import CaptureImageButton from '@/components/designs/NotAFire/NotAFireUser/CaptureImageButton';
 import SubmitReportButton from '@/components/designs/NotAFire/NotAFireUser/SubmitReportButton';
 import CaptureImageModal from '@/components/designs/NotAFire/NotAFireUser/CaptureImageModal';
 
 const NotAFire = () => {
+
+  const categoryItems = [
+    { label: 'Fire Drill', value: 'Fire Drill' },
+    { label: 'Control Fire', value: 'Control Fire' },
+    { label: 'Habitat Management', value: 'Habitat Management' },
+    { label: 'False Alarm or No Fire', value: 'False Alarm or No Fire' },
+    { label: 'Fire Outside RF', value: 'Fire Outside RF' },
+    { label: 'Fire in Agriculture/Non-Forest Land', value: 'Fire in Agriculture/Non-Forest Land' },
+    { label: 'Others', value: 'others' }
+  ];
 
   const params = useLocalSearchParams();
   const { alert_id } = params;
@@ -23,7 +34,7 @@ const NotAFire = () => {
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading..');
 
-  const [remarkInput, setRemarkInput] = useState<string>('');
+  const [categoryValue, setCategoryValue] = useState<string>('');
   const [capturedImage, setCapturedImage] = useState<string | undefined>('');
   const [isCaptureImageModalOpen, setIsCaptureImageModalOpen] = useState<boolean>(false);
 
@@ -75,18 +86,26 @@ const NotAFire = () => {
         <PickedImageHolder pickedImage={capturedImage} />
         <CaptureImageButton setIsCaptureImageModalOpen={setIsCaptureImageModalOpen} />
 
-        <RemarkInputTextArea
-          remarkInput={remarkInput}
-          setRemarkInput={setRemarkInput} />
+        <View>
+          <ThemedText style={styles.remarkText}>
+            Category
+          </ThemedText>
+          <Picker
+            items={categoryItems}
+            value={categoryValue}
+            placeholder="Choose fire category"
+            onValueChange={(val: any) => setCategoryValue(val)}
+          />
+        </View>
 
         <SubmitReportButton
-          setRemarkInput={setRemarkInput}
+          setRemarkInput={setCategoryValue}
           setCapturedImage={setCapturedImage}
           alert_id={alert_id}
           setLoadingText={setLoadingText}
           setPageLoading={setPageLoading}
           pickedImage={capturedImage}
-          remarkInput={remarkInput}
+          remarkInput={categoryValue}
         />
 
       </KeyboardAwareScrollView>
@@ -99,5 +118,10 @@ export default NotAFire
 const styles = StyleSheet.create({
   scrollView: {
     paddingHorizontal: horizontalScale(10)
-  }
+  },
+  remarkText: {
+    marginTop: verticalScale(20),
+    marginBottom: verticalScale(5),
+    fontSize: moderateScale(15),
+  },
 });

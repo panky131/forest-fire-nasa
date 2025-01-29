@@ -34,10 +34,10 @@ const MapComponent = (args: ComponentPropType) => {
 
   const [status, setStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [PageError, SetPageError] = useState<boolean>(false);
-  const [ModalVisible, SetModalVisible] = useState<boolean>(false);
+  const [pageError, setPageError] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [whichActiveBtn, setWhichActiveBtn] = useState<string>('all');
-  const [selectedFire, SetSelectedFire] = useState<AlertsResponseDataType | null>(null);
+  const [selectedFire, setSelectedFire] = useState<AlertsResponseDataType | null>(null);
   const [loadingText, setLoadingText] = useState<string>("");
   const [selectedCoordinates, setSelectedCoordinates] = useState<CoordinatesType>({ lat: 0, lng: 0 });
 
@@ -47,9 +47,9 @@ const MapComponent = (args: ComponentPropType) => {
     if (status === 'closed') return;
 
     setSelectedCoordinates({ lat: lat, lng: lng });
-    SetSelectedFire(alert);
+    setSelectedFire(alert);
     setStatus(status);
-    SetModalVisible(true);
+    setModalVisible(true);
   }
 
   const handleMarkerClick = (alert_id: string | number): void => {
@@ -141,7 +141,7 @@ const MapComponent = (args: ComponentPropType) => {
     animateToDivision();
   }, []);
 
-  if (PageError) {
+  if (pageError) {
     return (
       <View style={styles.errorComponentHolder}>
         <Image style={styles.errorImage} source={require('../../../assets/images/error.jpg')} />
@@ -160,13 +160,13 @@ const MapComponent = (args: ComponentPropType) => {
         handleMarkerClickFun={handleMarkerClick}
         SelectedFire={selectedFire as AlertsResponseDataType}
         SelectedCoordinates={selectedCoordinates}
-        SetModalVisible={SetModalVisible}
-        visible={ModalVisible}
+        SetModalVisible={setModalVisible}
+        visible={modalVisible}
         Navigation={Navigation}
         status={status as string}
         getDataFunction={fetchAlerts}
         authUserData={authUserData}
-        SetPageError={SetPageError}
+        SetPageError={setPageError}
         setIsLoading={setIsLoading}
       />
 

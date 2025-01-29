@@ -63,7 +63,6 @@ const DashboardStats = (
     return () => { }
   }, [alertsData])
 
-
   useEffect(() => {
     setStatsData(calculateAlertsStats(durationFilterAlerts));
     return () => { }

@@ -14,7 +14,6 @@ import FilterBtnComponent from './_subComponents/FilterBtnComponent';
 import StatsBoxLabelValue from './_subComponents/StatsBoxLabelValue';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
-import { filterMapAlertsFunctions } from './_subComponents/FilterMapAlertFunctions';
 import { AlertsResponseDataType, CoordinatesType, UserCoordsType } from '@/utils/Types';
 
 interface ComponentPropType {
@@ -38,17 +37,17 @@ const MapComponent = (args: ComponentPropType) => {
   const [PageError, SetPageError] = useState<boolean>(false);
   const [ModalVisible, SetModalVisible] = useState<boolean>(false);
   const [whichActiveBtn, setWhichActiveBtn] = useState<string>('all');
-  const [selectedFire, SetSelectedFire] = useState<number | null>(null);
+  const [selectedFire, SetSelectedFire] = useState<AlertsResponseDataType | null>(null);
   const [loadingText, setLoadingText] = useState<string>("");
   const [selectedCoordinates, setSelectedCoordinates] = useState<CoordinatesType>({ lat: 0, lng: 0 });
 
   const mapRef = useRef<any>("");
 
-  const hanldeAlertClick = (alert_id: number, status: string | null, lat: string, lng: string): void => {
+  const hanldeAlertClick = (alert_id: number, status: string | null, lat: string, lng: string, alert: AlertsResponseDataType): void => {
     if (status === 'closed') return;
 
     setSelectedCoordinates({ lat: lat, lng: lng });
-    SetSelectedFire(alert_id);
+    SetSelectedFire(alert);
     setStatus(status);
     SetModalVisible(true);
   }
@@ -159,12 +158,12 @@ const MapComponent = (args: ComponentPropType) => {
       <DashboardModal
         // @ts-ignore
         handleMarkerClickFun={handleMarkerClick}
-        SelectedFire={selectedFire}
+        SelectedFire={selectedFire as AlertsResponseDataType}
         SelectedCoordinates={selectedCoordinates}
         SetModalVisible={SetModalVisible}
         visible={ModalVisible}
         Navigation={Navigation}
-        status={status}
+        status={status as string}
         getDataFunction={fetchAlerts}
         authUserData={authUserData}
         SetPageError={SetPageError}
@@ -235,7 +234,7 @@ const MapComponent = (args: ComponentPropType) => {
               coordinate={{ latitude: props.lat ? parseFloat(props.lat as string) : 0, longitude: props.lng ? parseFloat(props.lng as string) : 0 }}
               title={'Fire Station'}
               description={'New Fire Alert'}
-              onCalloutPress={() => hanldeAlertClick(props.alert_id, props.status, props.lat as string, props.lng as string)}
+              onCalloutPress={() => hanldeAlertClick(props.alert_id, props.status, props.lat as string, props.lng as string, props)}
             >
 
               {props.status === "active" ? (
@@ -259,8 +258,8 @@ const MapComponent = (args: ComponentPropType) => {
                 <View style={styles.hr}></View>
                 <ThemedText type='default' style={styles.activefireText}>
                   {
-                    props.status == "active" ? "Click to update the alert status \ क्लिक करें" :
-                      props.status == "closed" ? "Alert is closed" :
+                    props.status === "active" ? "Click to update the alert status \ क्लिक करें" :
+                      props.status === "closed" ? "Alert is closed" :
                         "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"
                   }
                 </ThemedText>

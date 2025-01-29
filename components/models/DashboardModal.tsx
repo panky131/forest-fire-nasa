@@ -1,11 +1,31 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Href, router } from "expo-router";
+import * as Location from "expo-location";
+import haversine from "haversine-distance";
 import { Button } from "react-native-rapi-ui";
 import { View, Modal, StyleSheet } from "react-native";
 
 import URLs from "@/utils/URLs";
+import { AlertsResponseDataType } from "@/utils/Types";
 import { horizontalScale, verticalScale } from "@/utils/Metrics";
+
+interface DashboardModalProps {
+  visible: boolean;
+  SetModalVisible: (visible: boolean) => void;
+  SelectedFire: AlertsResponseDataType;
+  handleMarkerClickFun: (fire: AlertsResponseDataType) => void;
+  Navigation: any;
+  status: string;
+  getDataFunction: () => void;
+  authUserData: {
+    auth_key: string;
+    mobile_number: string;
+    user_type: string;
+  };
+  SetPageError: (error: boolean) => void;
+  SelectedCoordinates: any;
+  setIsLoading: (loading: boolean) => void;
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -31,7 +51,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const DashboardModal = ({
+const DashboardModal: React.FC<DashboardModalProps> = ({
   visible,
   SetModalVisible,
   SelectedFire,
@@ -41,47 +61,127 @@ const DashboardModal = ({
   getDataFunction,
   authUserData,
   SetPageError,
-  SelectedCoordinates,
   setIsLoading
-}: any) => {
+}) => {
 
+  const checkLocationPermission = async (): Promise<boolean> => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access location was denied");
+      return false;
+    }
+    return true;
+  };
 
-  const setToBeingheld = async (alert_id: string | number) => {
+  const checkDistance = async (lat: string, lng: string): Promise<boolean> => {
+    const location = await Location.getCurrentPositionAsync({});
+    const { latitude: userLatitude, longitude: userLongitude } = location.coords;
+
+    const distance = haversine(
+      { latitude: parseFloat(lat), longitude: parseFloat(lng) },
+      { latitude: userLatitude, longitude: userLongitude }
+    );
+
+    if (distance > 500) {
+      alert("You must be within 500 meters to proceed.");
+      return false;
+    }
+    return true;
+  };
+
+  const submitAlertStatusChange = async (alertId: string): Promise<boolean> => {
+    const formData = new FormData();
+    formData.append("alert_id", alertId as never);
+    formData.append("auth_key", authUserData.auth_key);
+    formData.append("phone_number", authUserData.mobile_number);
+
+    const response = await fetch(`${URLs.api_base_url}changeAlertStatus.php`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const responseJson = await response.json();
+    return responseJson.status === "success";
+  };
+
+  const setToBeingheld = async (selectedFire: AlertsResponseDataType) => {
     try {
-
       setIsLoading(true);
-      console.log(alert_id);
-      console.log(authUserData.auth_key);
-      console.log(authUserData.mobile_number)
+      const { alert_id, lat, lng }: AlertsResponseDataType = selectedFire;
 
-      const formData = new FormData();
-      formData.append('alert_id', alert_id as never);
-      formData.append('auth_key', authUserData.auth_key);
-      formData.append('phone_number', authUserData.mobile_number);
-      console.log(authUserData)
-      const response = await fetch(URLs.api_base_url + "changeAlertStatus.php", {
-        method: "POST",
-        body: formData
-      });
+      const hasPermission = await checkLocationPermission();
+      if (!hasPermission) return;
 
-      const responseJson = await response.json();
-      if (responseJson.status != "success") {
+      const isWithinRange = await checkDistance(lat as string, lng as string);
+      if (!isWithinRange) return;
+
+      const success = await submitAlertStatusChange(alert_id as any);
+      if (!success) {
         SetPageError(true);
         return;
       }
+
       getDataFunction();
-
-
     } catch (error) {
-
-      console.log(error);
+      console.error(error);
       SetPageError(true);
-
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
+  const handleNotAFire = () => {
+    const screenName = authUserData.user_type === 'mcr' ? 'NotAFireMCR' : 'NotAFire';
+    SetModalVisible(false);
+    Navigation.navigate(screenName, {
+      alert_id: SelectedFire,
+    });
+  };
+
+  const handleSendVideo = () => {
+    Navigation.navigate("SendVideo", {
+      alert_id: SelectedFire,
+    });
+    SetModalVisible(false);
+  };
+
+  const handleCloseFire = () => {
+    handleMarkerClickFun(SelectedFire);
+    SetModalVisible(false);
+  };
+
+  const renderActiveButtons = () => (
+    <>
+      <Button
+        onPress={() => {
+          setToBeingheld(SelectedFire);
+          SetModalVisible(false);
+        }}
+        text="I am on it"
+        status="primary"
+      />
+      <Button
+        onPress={handleNotAFire}
+        text="Not a fire"
+        status="warning"
+      />
+    </>
+  );
+
+  const renderInactiveButtons = () => (
+    <>
+      <Button
+        onPress={handleSendVideo}
+        text="Send Video"
+        status="primary"
+      />
+      <Button
+        onPress={handleCloseFire}
+        text="Close Fire"
+        status="success"
+      />
+    </>
+  );
 
   return (
     <Modal
@@ -92,56 +192,12 @@ const DashboardModal = ({
     >
       <View style={styles.container}>
         <View style={styles.content}>
-          {status == "active" ? (
-            <><Button
-              onPress={() => {
-                setToBeingheld(SelectedFire);
-                SetModalVisible(false);
-              }}
-              text="I am on it"
-              status="primary" />
-
-              <Button
-                onPress={() => {
-                  const screenName = authUserData.user_type === 'mcr' ?
-                    'NotAFireMCR' : 'NotAFire';
-                  // 'NotAFire' : 'NotAFireMCR';
-
-                  SetModalVisible(false);
-                  Navigation.navigate(screenName, {
-                    alert_id: SelectedFire,
-                  });
-                }}
-                text="Not a fire"
-                status="warning" /></>
-
-          ) : (
-            <>
-              <Button
-                onPress={() => {
-                  Navigation.navigate("SendVideo", {
-                    alert_id: SelectedFire,
-                  });
-                  SetModalVisible(false);
-                }}
-                text="Send Video"
-                status="primary"
-              />
-              <Button
-                onPress={() => {
-                  handleMarkerClickFun(SelectedFire);
-                  SetModalVisible(false);
-                }}
-                text="Close Fire"
-                status="success"
-              />
-            </>
-          )}
+          {status === "active" ? renderActiveButtons() : renderInactiveButtons()}
         </View>
       </View>
     </Modal>
-  )
-}
+  );
+};
 
 DashboardModal.propTypes = {
   visible: PropTypes.bool.isRequired,

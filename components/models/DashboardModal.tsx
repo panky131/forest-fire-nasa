@@ -14,7 +14,7 @@ interface DashboardModalProps {
   visible: boolean;
   SetModalVisible: (visible: boolean) => void;
   SelectedFire: AlertsResponseDataType;
-  handleMarkerClickFun: (fire: AlertsResponseDataType) => void;
+  handleMarkerClickFun: (fire: string | number) => void;
   Navigation: any;
   status: string;
   getDataFunction: () => void;
@@ -153,7 +153,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
   };
 
   const handleCloseFire = () => {
-    handleMarkerClickFun(SelectedFire);
+    handleMarkerClickFun(SelectedFire.alert_id);
     SetModalVisible(false);
   };
 

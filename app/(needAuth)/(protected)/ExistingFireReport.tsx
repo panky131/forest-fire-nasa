@@ -1,76 +1,61 @@
-import * as Location from 'expo-location';
-import * as FileSystem from 'expo-file-system';
-import Toast from 'react-native-toast-message';
-import { Camera, CameraView } from 'expo-camera';
-import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Button, Picker, TextInput, themeColor } from 'react-native-rapi-ui';
-import { StyleSheet, Image, View, Modal, TouchableOpacity } from 'react-native';
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
+import * as Location from 'expo-location';
+import { Image, StyleSheet, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { useIsFocused } from '@react-navigation/native';
-
-import { useAuth } from '@/hooks/useAuth';
-import { ThemedText } from '@/components/ThemedText';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
-import { tbl_existing_fire_report } from '@/utils/sqlite/SQLiteDBSchema';
-import { insertRow } from '@/utils/sqlite/SQLiteFunctions';
-import { checkAndUploadData } from '@/tasks/BackgroundTaskHandler';
+import PickedImageHolder from '@/components/designs/NotAFire/PickedImageHolder';
+import AreaBurntInput from '@/components/designs/ExistingFireReport/AreaBurntInput';
+import AskUserForImage from '@/components/designs/NotAFire/NotAFireMCR/AskUserForImage';
+import SubmitReportButton from '@/components/designs/ExistingFireReport/SubmitReportButton';
+import FireCategorySelect from '@/components/designs/ExistingFireReport/FireCategorySelect';
+import SelectImageButtonHolder from '@/components/designs/NotAFire/NotAFireMCR/SelectImageButtonHolder';
+import Toast from 'react-native-toast-message';
+import { haversine } from '@/components/designs/dashboard/_subComponents/CommonUtilsFuntions';
+import { useIsFocused } from '@react-navigation/native';
+import { ThemedText } from '@/components/ThemedText';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { themeColor } from 'react-native-rapi-ui';
 
-const NewFireIncident = () => {
-
-  const { authUserData }: any = useAuth();
-
-  const categoryItems = [
-    { label: 'Forest Fire', value: 'ForestFire' },
-    { label: 'Fire Drill', value: 'Fire Drill' },
-    { label: 'Control Fire', value: 'Control Fire' },
-    { label: 'Habitat Management', value: 'Habitat Management' },
-    { label: 'False Alarm or No Fire', value: 'False Alarm or No Fire' },
-    { label: 'Fire Outside RF', value: 'Fire Outside RF' },
-    { label: 'Fire in Agriculture/Non-Forest Land', value: 'Fire in Agriculture/Non-Forest Land' },
-    { label: 'Others', value: 'others' }
-  ];
+const ExistingFireReport = () => {
 
   const params = useLocalSearchParams();
   const { alert_id, lat, lng } = params;
 
-  const [remark, setRemark] = useState<string>('');
-  const [categoryValue, setCategoryValue] = useState<string>('');
-  const [areaBurntValue, setAreaBurntValue] = useState<string>('');
+  const [pageLoading, setPageLoading] = useState<boolean>(false);
+  const [loadingText, setLoadingText] = useState<string>('Loading..');
 
-  const [camera, setCamera] = useState(null);
-  const [storedImagePath, setStoredImagePath] = useState<string | null>(null);
+  const [areaBurntValue, setAreaBurntValue] = useState<string>('');
+  const [pickedImage, setPickedImage] = useState<string | undefined>('');
+  const [doesUserHasImage, setDoesUserHasImage] = useState<boolean>(false);
+  const [selectedFireCategory, setSelectedFireCategory] = useState<string>('');
   const [distanceDifference, setDistanceDifference] = useState<boolean | number>(false);
 
-  const [loadingText, setLoadingText] = useState<string>('Loading..');
-  const [pageLoading, setPageLoading] = useState<boolean>(false);
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const SelectImage = (): React.JSX.Element => {
+    return (
+      <>
+        <PickedImageHolder pickedImage={pickedImage} />
+        <SelectImageButtonHolder setPickedImage={setPickedImage} />
+      </>
+    )
+  }
 
-  const permissionFunction = async () => {
+  const calculateDistanceDifference = async (lat2: number, long2: number) => {
+
     try {
+      console.log('Check distance started');
+      const lat1 = lat;
+      const long1 = lng;
 
-      const cameraPermission = await Camera.requestCameraPermissionsAsync();
+      const distance_meters = haversine(lat1 as any, long1 as any, lat2, long2);
+      setDistanceDifference(distance_meters);
 
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (cameraPermission.status !== 'granted' || status !== 'granted') {
-        alert('Permission for Camera And Location access needed.');
-        return;
-      }
-
-      const isLocationEnabled = await Location.hasServicesEnabledAsync();
-      if (!isLocationEnabled) {
-        alert('Location services are disabled.');
-        return;
-      }
-
-      isUserLocationValid();
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   const isUserLocationValid = async () => {
     try {
@@ -96,139 +81,19 @@ const NewFireIncident = () => {
     }
   }
 
-  const captureImage = async () => {
+  const permissionFunction = async () => {
     try {
-      // @ts-ignore
-      const data = await camera?.takePictureAsync(null);
-
-      const documentDirectory = FileSystem.documentDirectory || '';
-      const existingFireImgDirectory = documentDirectory + 'existing_report_images/';
-      await FileSystem.makeDirectoryAsync(existingFireImgDirectory,
-        { intermediates: true });
-
-      const filename: string = `existing_fire_report_${Date.now()}.jpg`;
-      const photoPath: string = existingFireImgDirectory + filename;
-      await FileSystem.moveAsync({
-        from: data.uri,
-        to: photoPath,
-      });
-
-      setStoredImagePath(photoPath)
-      setModalVisible(false);
-
-    } catch (error) {
-      console.log(error);
-      Toast.show({
-        type: 'error',
-        text1: 'Oops!',
-        text2: 'Some problems occured while capturing Image. Please try again later..'
-      })
-
-    }
-  }
-
-  const takePicture = async () => {
-    setModalVisible(true);
-  };
-
-  function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
-    const R = 6371000;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-
-    return parseFloat(distance.toFixed(2));
-  }
-
-  const calculateDistanceDifference = async (lat2: number, long2: number) => {
-
-    try {
-      console.log('Check distance started');
-      let lat1 = lat;
-      let long1 = lng;
-
-      const distance_meters = haversine(lat1 as any, long1 as any, lat2, long2);
-      setDistanceDifference(distance_meters);
-
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const getFormattedDateTime = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const date = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-
-    return `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
-  };
-
-  const storeReportInSqliteStorage = async () => {
-    try {
-      setLoadingText('Uploading');
-      setPageLoading(true);
-
-      if (!remark || !storedImagePath || !categoryValue ||
-        (categoryValue === 'ForestFire' && !areaBurntValue)) {
-        Toast.show({
-          type: 'error',
-          text1: 'Oops!',
-          text2: 'All input fields must be filled out'
-        });
+      const isLocationEnabled = await Location.hasServicesEnabledAsync();
+      if (!isLocationEnabled) {
+        alert('Location services are disabled.');
         return;
       }
 
-      const timestamp: string = getFormattedDateTime();
-
-      const mobile_number: string = authUserData.mobile_number;
-
-      const insertReportQuery: string = `INSERT INTO ${tbl_existing_fire_report.tbl_name}
-       (${[...tbl_existing_fire_report.tbl_struct]}) VALUES
-        (${Array(tbl_existing_fire_report.tbl_struct.length).fill('?').join(', ')})`;
-
-      const exisitingReportValues: any[] =
-        [null, remark, storedImagePath, alert_id, mobile_number, categoryValue,
-          areaBurntValue, timestamp];
-
-      await insertRow({ query: insertReportQuery, values: exisitingReportValues });
-      checkAndUploadData();
-
-      Toast.show({
-        type: 'success',
-        text1: 'Done!',
-        text2: 'Report is processed successfully and will be uploaded shortly'
-      });
-
-      setRemark('');
-      setAreaBurntValue('');
-      setCategoryValue('ForestFire');
-      setStoredImagePath('');
-
+      isUserLocationValid();
     } catch (error) {
-
       console.log(error);
-      Toast.show({
-        type: 'error',
-        text1: 'Oops!',
-        text2: 'Some problems occured while processing your request. Please try again later'
-      });
-
-    } finally {
-      setPageLoading(false);
-      setLoadingText('Loading');
     }
-  }
+  };
 
   const checkPermissions = async () => {
     await permissionFunction();
@@ -238,10 +103,10 @@ const NewFireIncident = () => {
 
   useEffect(() => {
 
+    setDistanceDifference(0);
     checkPermissions();
 
   }, [isFocused])
-
 
   if (distanceDifference as number > 500) return (
     <View style={styles.invalidLocationContainer}>
@@ -271,192 +136,48 @@ const NewFireIncident = () => {
   return (
     <View>
       <LoadingIndicator text={loadingText} visible={pageLoading} />
-      <Modal
-        style={{
-          position: "relative",
-          flex: 1,
-          paddingBottom: verticalScale(12)
-        }}
-        transparent={false}
-        animationType="slide"
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View style={{
-          display: 'flex',
-          alignItems: 'center',
-          paddingHorizontal: horizontalScale(10),
-          paddingVertical: verticalScale(10)
-        }}>
-          <CameraView
-            ref={(ref: any) => setCamera(ref)}
-            style={{
-              width: '100%',
-              height: '80%',
-              borderRadius: moderateScale(10),
-
-            }}
-            // @ts-ignore
-            autoFocus={'on'}
-          />
-          <View style={styles.clickBtnOuterContainer}>
-            <TouchableOpacity style={styles.clickBtn}>
-              <TouchableOpacity
-                onPress={() => captureImage()} style={styles.clickBtnInner}>
-              </TouchableOpacity>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
       <KeyboardAwareScrollView style={styles.scrollView}>
-        <View style={styles.inputHolder}>
-          <View>
-            <View style={styles.captureImageBox}>
-              <ThemedText style={styles.imageText}>
-                आग बुझाने की फोटो खीचें
-              </ThemedText>
-              <Image
-                // @ts-ignore
-                source={{ uri: storedImagePath ? storedImagePath : null }}
-                style={styles.captureImage}
-              />
-            </View>
-            <View style={styles.chooseBtnHolder}>
-              <Button
-                onPress={() => takePicture()}
-                textStyle={styles.chooseBtn} size='sm' text='Choose' />
-            </View>
-          </View>
-          <View>
-            <ThemedText style={styles.remarkText}>
-              Remark
-            </ThemedText>
-            <TextInput
-              placeholder="Enter your text"
-              value={remark}
-              onChangeText={(val) => setRemark(val)}
-            />
-          </View>
 
-          <View>
-            <ThemedText style={styles.remarkText}>
-              Category
-            </ThemedText>
-            <Picker
-              items={categoryItems}
-              value={categoryValue}
-              placeholder="Choose fire category"
-              onValueChange={(val: any) => setCategoryValue(val)}
-            />
-          </View>
+        <AskUserForImage
+          setPickedImage={setPickedImage}
+          doesUserHasImage={doesUserHasImage}
+          setDoesUserHasImage={setDoesUserHasImage} />
 
-          {categoryValue && categoryValue === 'ForestFire' ?
-            <View>
-              <ThemedText style={styles.remarkText}>
-                Area burnt
-              </ThemedText>
-              <TextInput
-                placeholder="Enter your text"
-                value={areaBurntValue}
-                onChangeText={(val) => setAreaBurntValue(val)}
-              />
-            </View>
-            : ''
-          }
+        {doesUserHasImage && <SelectImage />}
 
-          <View style={styles.submitBtnHolder}>
-            <Button
-              onPress={() => storeReportInSqliteStorage()}
-              textStyle={styles.submitBtn} text='Submit' status='info' />
-          </View>
-        </View>
+        <FireCategorySelect
+          selectedFireCategory={selectedFireCategory}
+          setSelectedFireCategory={setSelectedFireCategory}
+        />
+
+        {selectedFireCategory === 'ForestFire' &&
+          <AreaBurntInput
+            areaBurntValue={areaBurntValue}
+            setAreaBurntValue={setAreaBurntValue}
+          />}
+
+        <SubmitReportButton
+          setSelectedFireCategory={setSelectedFireCategory}
+          setAreaBurntValue={setAreaBurntValue}
+          setPickedImage={setPickedImage}
+          alert_id={alert_id}
+          pickedImage={pickedImage}
+          areaBurnt={areaBurntValue}
+          setLoadingText={setLoadingText}
+          setPageLoading={setPageLoading}
+          fireCategory={selectedFireCategory}
+        />
+
       </KeyboardAwareScrollView>
     </View>
   )
 }
 
-export default NewFireIncident
+export default ExistingFireReport
 
 const styles = StyleSheet.create({
-  headerImage: {
-    width: '100%',
-    height: verticalScale(200),
-    borderRadius: moderateScale(5),
-    marginTop: verticalScale(10)
-  },
   scrollView: {
     paddingHorizontal: horizontalScale(10)
-  },
-  remarkText: {
-    marginTop: verticalScale(20),
-    marginBottom: verticalScale(5),
-    fontSize: moderateScale(15),
-  },
-  inputHolder: {
-    marginTop: verticalScale(10)
-  },
-  captureImageBox: {
-    width: '100%',
-    height: verticalScale(320),
-    backgroundColor: 'rgba(0,0,0,.1)',
-    position: 'relative',
-    borderRadius: moderateScale(5),
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden'
-  },
-  imageText: {
-    position: 'absolute',
-    color: 'rgba(0,0,0,.7)',
-    fontSize: moderateScale(15),
-  },
-  captureImage: {
-    width: '100%',
-    height: '100%',
-    zIndex: 1,
-    position: 'absolute'
-  },
-  chooseBtnHolder: {
-    display: 'flex',
-    flexDirection: 'row',
-    marginTop: verticalScale(5),
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  chooseBtn: {
-    paddingHorizontal: horizontalScale(15),
-    paddingVertical: verticalScale(5)
-  },
-  submitBtnHolder: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: verticalScale(10)
-  },
-  submitBtn: {
-    minWidth: horizontalScale(200),
-    textAlign: 'center'
-  },
-  clickBtnOuterContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: verticalScale(10)
-  },
-  clickBtn: {
-    borderColor: themeColor.info600,
-    borderWidth: 2,
-    padding: 3,
-    borderRadius: 100
-  },
-  clickBtnInner: {
-    width: 50,
-    height: 50,
-    backgroundColor: themeColor.info600,
-    borderRadius: 100
   },
   // Invalid location styles
   invalidLocationContainer: {

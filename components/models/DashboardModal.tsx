@@ -147,7 +147,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
 
   const handleSendVideo = () => {
     Navigation.navigate("SendVideo", {
-      alert_id: SelectedFire,
+      alert_id: SelectedFire.alert_id,
     });
     SetModalVisible(false);
   };

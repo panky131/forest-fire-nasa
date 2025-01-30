@@ -41,7 +41,9 @@ const SubmitReportButton = (props: ComponentPropType) => {
   const { pickedImage, remarkInput, setPageLoading, setLoadingText, alert_id,
     setRemarkInput, setCapturedImage } = props;
 
-  const getPickedImageInFormat = (): fileFormat => {
+  const getPickedImageInFormat = (): fileFormat | string => {
+    if (!pickedImage || pickedImage === '') return '';
+
     const incidentImageFormat: fileFormat = {
       uri: pickedImage,
       name: getFileName(pickedImage),
@@ -68,7 +70,7 @@ const SubmitReportButton = (props: ComponentPropType) => {
   }
 
   const handleSubmit = async (): Promise<void> => {
-    if (!isInputValid(remarkInput) || !isInputValid(pickedImage)) {
+    if (!isInputValid(remarkInput)) {
       showError('All input field must be filled out.');
       return;
     }

@@ -15,6 +15,7 @@ import PickedImageHolder from '@/components/designs/NotAFire/PickedImageHolder';
 import CaptureImageButton from '@/components/designs/NotAFire/NotAFireUser/CaptureImageButton';
 import SubmitReportButton from '@/components/designs/NotAFire/NotAFireUser/SubmitReportButton';
 import CaptureImageModal from '@/components/designs/NotAFire/NotAFireUser/CaptureImageModal';
+import ImageAvailableRadioButton from '@/components/designs/NotAFire/NotAFireUser/ImageAvailableRadioButton';
 
 const NotAFire = () => {
 
@@ -34,6 +35,7 @@ const NotAFire = () => {
   const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading..');
 
+  const [isImageAvailable, setIsImageAvailable] = useState<boolean>(false);
   const [categoryValue, setCategoryValue] = useState<string>('');
   const [capturedImage, setCapturedImage] = useState<string | undefined>('');
   const [isCaptureImageModalOpen, setIsCaptureImageModalOpen] = useState<boolean>(false);
@@ -83,8 +85,17 @@ const NotAFire = () => {
 
       <KeyboardAwareScrollView style={styles.scrollView}>
 
-        <PickedImageHolder pickedImage={capturedImage} />
-        <CaptureImageButton setIsCaptureImageModalOpen={setIsCaptureImageModalOpen} />
+        <ImageAvailableRadioButton
+          isImageAvailable={isImageAvailable}
+          setIsImageAvailable={setIsImageAvailable} />
+
+        {
+          isImageAvailable &&
+          <>
+            <PickedImageHolder pickedImage={capturedImage} />
+            <CaptureImageButton setIsCaptureImageModalOpen={setIsCaptureImageModalOpen} />
+          </>
+        }
 
         <View>
           <ThemedText style={styles.remarkText}>

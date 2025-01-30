@@ -65,6 +65,9 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
   setIsLoading
 }) => {
 
+  console.log(SelectedFire);
+
+
   const userData: any = useAuth();
   const isVolunteer = userData?.authUserData?.user_type === "end";
 
@@ -138,7 +141,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
     const screenName = authUserData.user_type === 'mcr' ? 'NotAFireMCR' : 'NotAFire';
     SetModalVisible(false);
     Navigation.navigate(screenName, {
-      alert_id: SelectedFire,
+      alert_id: SelectedFire.alert_id,
     });
   };
 

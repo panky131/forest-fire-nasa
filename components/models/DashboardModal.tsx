@@ -65,9 +65,6 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
   setIsLoading
 }) => {
 
-  console.log(SelectedFire);
-
-
   const userData: any = useAuth();
   const isVolunteer = userData?.authUserData?.user_type === "end";
 

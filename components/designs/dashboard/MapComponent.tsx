@@ -241,6 +241,8 @@ const MapComponent = (args: ComponentPropType) => {
                 <Image source={require('../../../assets/images/active_alert_2.png')} style={{ height: 35, width: 35 }} />
               ) : props.status === "being_held" ? (
                 <Image source={require('../../../assets/images/being_held_alert.png')} style={{ height: 35, width: 35 }} />
+              ) : props.status === "not_fire" ? (
+                <Image source={require('../../../assets/images/not_fire.png')} style={{ height: 35, width: 35 }} />
               ) : (
                 <Image source={require('../../../assets/images/closed_alert.png')} style={{ height: 35, width: 35 }} />
               )}

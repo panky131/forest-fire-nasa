@@ -142,11 +142,12 @@ const StatsBox = ({
 
   return (
     <TouchableOpacity onPress={handleStatusFilter} style={[styles.statsBox, { backgroundColor: statBoxBgColor }]}>
-      <ThemedText style={styles.boxValueText} type="defaultSemiBold">
-        {statsValue}
-      </ThemedText>
       <ThemedText style={styles.boxLabelText} type="default">
         {statsLabel}
+      </ThemedText>
+      <View style={{ backgroundColor: "#fff", width: 1, height: "100%" }} />
+      <ThemedText style={styles.boxValueText} type="defaultSemiBold">
+        {statsValue}
       </ThemedText>
     </TouchableOpacity>
   );
@@ -176,13 +177,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: verticalScale(10),
+    flexDirection: 'row',
+    gap: horizontalScale(10),
   },
   boxValueText: {
     fontSize: moderateScale(17),
     color: "#fff",
   },
   boxLabelText: {
-    fontSize: moderateScale(13),
+    fontSize: moderateScale(12),
     color: "#fff",
   }
 });

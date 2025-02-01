@@ -86,7 +86,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
       { latitude: userLatitude, longitude: userLongitude }
     );
 
-    if (distance > 500) {
+    if (distance > 1000) {
       alert("You must be within 500 meters to proceed.");
       return false;
     }

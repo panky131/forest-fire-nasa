@@ -93,7 +93,7 @@ const MapComponent = (args: ComponentPropType) => {
         longitude: location.coords.longitude
       });
 
-    } catch (error) {
+    } catch {
       Toast.show({
         type: 'error',
         text1: 'Oops!',

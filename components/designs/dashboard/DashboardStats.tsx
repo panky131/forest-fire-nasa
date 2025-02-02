@@ -69,7 +69,7 @@ const DashboardStats = (
   }, [durationFilterAlerts])
 
   const statsBoxes = [
-    { label: "Not a fire", value: statsData?.notAFireAlerts, color: "#333", status: 'not_fire' },
+    { label: "Not forest fire", value: statsData?.notAFireAlerts, color: "#333", status: 'not_fire' },
     { label: "Active Alerts", value: statsData?.activeAlerts, color: "#89023e", status: 'active' },
     { label: "Being Held", value: statsData?.beingHeld, color: "#f3722c", status: 'being_held' },
     { label: "Closed Alerts", value: statsData?.closedAlerts, color: "#588157", status: 'closed' }

@@ -166,7 +166,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
       />
       <Button
         onPress={handleNotAFire}
-        text="Not a fire"
+        text="Not forest fire"
         status="warning"
       />
     </>

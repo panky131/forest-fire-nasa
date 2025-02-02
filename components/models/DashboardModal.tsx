@@ -174,11 +174,11 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
 
   const renderInactiveButtons = () => (
     <>
-      <Button
+      {/* <Button
         onPress={handleSendVideo}
         text="Send Video"
         status="primary"
-      />
+      /> */}
       {
         !isVolunteer &&
         <Button

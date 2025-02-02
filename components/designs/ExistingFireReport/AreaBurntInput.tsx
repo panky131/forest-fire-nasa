@@ -17,7 +17,7 @@ const AreaBurntInput = (props: ComponentPropType) => {
   return (
     <View>
       <ThemedText style={styles.inputLabelText}>
-        Area burnt
+        जला हुआ क्षेत्रफल
       </ThemedText>
       <TextInput
         placeholder="Enter your text"

@@ -67,6 +67,7 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
 
   const userData: any = useAuth();
   const isVolunteer = userData?.authUserData?.user_type === "end";
+  const isMCR = userData?.authUserData?.user_type === "mcr";
 
   const checkLocationPermission = async (): Promise<boolean> => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -86,8 +87,8 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
       { latitude: userLatitude, longitude: userLongitude }
     );
 
-    if (distance > 1000) {
-      alert("You must be within 500 meters to proceed.");
+    if (distance > 1000 && !isMCR) {
+      alert("You must be within 1000 meters to proceed.");
       return false;
     }
     return true;
@@ -174,11 +175,11 @@ const DashboardModal: React.FC<DashboardModalProps> = ({
 
   const renderInactiveButtons = () => (
     <>
-      <Button
+      {/* <Button
         onPress={handleSendVideo}
         text="Send Video"
         status="primary"
-      />
+      /> */}
       {
         !isVolunteer &&
         <Button

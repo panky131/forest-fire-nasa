@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { sendFormData } from '@/utils/SendFormData';
 import { ThemedText } from '@/components/ThemedText';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
+import { useRouter } from 'expo-router';
 
 const path = require('path');
 const mimetype = require('mimetype');
@@ -44,6 +45,8 @@ const SubmitReportButton = (props: ComponentPropType) => {
     setSelectedFireCategory, setAreaBurntValue, setPickedImage
   }
     = props;
+
+  const router = useRouter();
 
   const getPickedImageInFormat = (): fileFormat => {
     const incidentImageFormat: fileFormat = {
@@ -94,12 +97,13 @@ const SubmitReportButton = (props: ComponentPropType) => {
       Toast.show({
         type: 'success',
         text1: 'Done',
-        text2: 'Report submitted succesfully'
+        text2: 'Report submitted succesfully. Changes may take some time to reflect.'
       });
 
       setSelectedFireCategory('');
       setAreaBurntValue('');
       setPickedImage('');
+      router.push('/Dashboard');
 
     } catch (error) {
       console.log(error);

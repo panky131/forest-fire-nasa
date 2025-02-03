@@ -262,6 +262,7 @@ const MapComponent = (args: ComponentPropType) => {
                   {
                     props.status === "active" ? "Click to update the alert status \ क्लिक करें" :
                       props.status === "closed" ? "Alert is closed" :
+                      props.status === "not_fire" ? "It is not a forest fire" :
                         "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"
                   }
                 </ThemedText>

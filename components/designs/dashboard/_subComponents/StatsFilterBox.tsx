@@ -46,9 +46,8 @@ const StatsFilterBox = ({ setAlertsDuration, alertsDuration,
   };
 
   const filterButtons = [
-    { duration: '15days', label: '15 Days' },
+    { duration: '3days', label: '3 Days' },
     { duration: '24hrs', label: '24 Hours' },
-    { duration: '1week', label: '1 Week' },
   ];
 
   return (

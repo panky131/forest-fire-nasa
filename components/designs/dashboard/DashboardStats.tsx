@@ -1,7 +1,6 @@
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-
 import { ThemedText } from "@/components/ThemedText";
 import StatsFilterBox from "./_subComponents/StatsFilterBox";
 import { AlertsDurationType, AlertsResponseDataType } from "@/utils/Types";

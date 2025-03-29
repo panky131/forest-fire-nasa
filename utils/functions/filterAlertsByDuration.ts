@@ -6,9 +6,8 @@ const getTimeDifference = (datetime: string, now: Date): number => {
 
 const getTimeLimit = (duration: AlertsDurationType): number => {
   const durationMap: Record<AlertsDurationType, number> = {
-    '24hrs': 24 * 60 * 60 * 1000, // 24 hours in milliseconds
-    '1week': 7 * 24 * 60 * 60 * 1000, // 1 week in milliseconds
-    '15days': 15 * 24 * 60 * 60 * 1000, // 15 days in milliseconds,
+    '24hrs': 24 * 60 * 60 * 1000,
+    '3days': 7 * 24 * 60 * 60 * 1000,
     'all': 0
   };
 

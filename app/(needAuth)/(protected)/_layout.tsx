@@ -61,7 +61,7 @@ export default function Layout() {
       name: 'Warning'
     },
     {
-      title: 'Free Fire',
+      title: 'Pre Fire',
       name: 'FreeFire'
     },
   ];

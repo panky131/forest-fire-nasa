@@ -1,6 +1,6 @@
 import { AppState } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import LoadingView from './LoadingView';
 import MapComponent from './MapComponent';

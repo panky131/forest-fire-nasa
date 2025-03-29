@@ -256,6 +256,7 @@ const MapComponent = (args: ComponentPropType) => {
                 <StatsBoxLabelValue label={"Location"} value={`${props.lat} | ${props.lng}`} />
                 <StatsBoxLabelValue label={"Datetime"} value={props.datetime} />
                 <StatsBoxLabelValue label={"Range"} value={props.range_name} />
+                <StatsBoxLabelValue label={"Division"} value={props.division} />
                 <StatsBoxLabelValue label={"Beat"} value={props.beat} />
                 <View style={styles.hr}></View>
                 <ThemedText type='default' style={styles.activefireText}>

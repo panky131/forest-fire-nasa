@@ -1,6 +1,6 @@
 import { AppState } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import LoadingView from './LoadingView';
 import MapComponent from './MapComponent';
@@ -43,8 +43,8 @@ const MapAndStatsHolder: React.FC = () => {
       console.log('AppState:', appState.current);
     });
 
-    return () => { }
-  }, [])
+    return () => { };
+  }, []);
 
 
   useEffect(() => {

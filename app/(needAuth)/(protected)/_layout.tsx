@@ -10,7 +10,7 @@ import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 
 interface ScreenType {
   title: string,
-  name: string
+  name: string;
 }
 
 export default function Layout() {
@@ -59,6 +59,10 @@ export default function Layout() {
     {
       title: 'Warning (चेतावनी)',
       name: 'Warning'
+    },
+    {
+      title: 'Free Fire',
+      name: 'FreeFire'
     },
   ];
 
@@ -221,7 +225,7 @@ export default function Layout() {
                 </TouchableOpacity>
               </View>
             </View>
-          )
+          );
         }}
       >
 
@@ -233,7 +237,7 @@ export default function Layout() {
                 title: props.title
               }}
               name={props.name} />
-          )
+          );
         })}
       </Drawer>
     </GestureHandlerRootView>

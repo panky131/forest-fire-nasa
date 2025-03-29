@@ -4,6 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AlertsDurationType, AlertsResponseDataType } from '@/utils/Types';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import { filterByDuration } from '@/utils/functions/filterAlertsByDuration';
+import { Href, useRouter } from 'expo-router';
 
 interface ComponentPropType {
   alertsData: AlertsResponseDataType[],
@@ -32,8 +33,11 @@ const FilterButton = ({ duration, label, onPress, isActive }: FilterButtonProps)
 );
 
 const FreeFireLinkButton = () => {
+  const router = useRouter();
+
   return (
     <TouchableOpacity
+      onPress={() => router.push('/(needAuth)/(protected)/FreeFire' as Href)}
       style={[styles.filterBtnTextOuter]}
     >
       <Text style={[styles.filterBtnText]}>

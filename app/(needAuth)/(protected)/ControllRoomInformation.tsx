@@ -115,7 +115,7 @@ const ControlRoonInformation = () => {
           <NotificationBox
             linking={true}
             icon={<MaterialIcons name="email" size={moderateScale(30)} color="#333" />}
-            label={"Toll Free No / टोल फ्री नंबर"}
+            label={"Command & Control Centre / कमांड एंड कंट्रोल सेंटर"}
             value={PageData && PageData.email && PageData.email}
           />
           <NotificationBox

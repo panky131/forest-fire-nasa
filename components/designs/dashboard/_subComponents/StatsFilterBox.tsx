@@ -41,7 +41,7 @@ const FreeFireLinkButton = () => {
       style={[styles.filterBtnTextOuter]}
     >
       <Text style={[styles.filterBtnText]}>
-        Free fire
+        Pre fire
       </Text>
     </TouchableOpacity>
   );

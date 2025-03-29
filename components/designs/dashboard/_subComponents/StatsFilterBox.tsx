@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react'
+import React, { Dispatch, SetStateAction } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { AlertsDurationType, AlertsResponseDataType } from '@/utils/Types';
@@ -9,7 +9,7 @@ interface ComponentPropType {
   alertsData: AlertsResponseDataType[],
   alertsDuration: AlertsDurationType;
   setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>;
-  setDurationFilterAlerts: Dispatch<SetStateAction<AlertsResponseDataType[]>>
+  setDurationFilterAlerts: Dispatch<SetStateAction<AlertsResponseDataType[]>>;
   setFilteredAlertsData: Dispatch<SetStateAction<AlertsResponseDataType[]>>,
 }
 
@@ -30,6 +30,18 @@ const FilterButton = ({ duration, label, onPress, isActive }: FilterButtonProps)
     </Text>
   </TouchableOpacity>
 );
+
+const FreeFireLinkButton = () => {
+  return (
+    <TouchableOpacity
+      style={[styles.filterBtnTextOuter]}
+    >
+      <Text style={[styles.filterBtnText]}>
+        Free fire
+      </Text>
+    </TouchableOpacity>
+  );
+};
 
 const StatsFilterBox = ({ setAlertsDuration, alertsDuration,
   alertsData, setFilteredAlertsData, setDurationFilterAlerts }: ComponentPropType) => {
@@ -61,10 +73,11 @@ const StatsFilterBox = ({ setAlertsDuration, alertsDuration,
           onPress={handleFilterButtonClick}
         />
       ))}
+      <FreeFireLinkButton />
     </View>
   );
 };
-export default StatsFilterBox
+export default StatsFilterBox;
 
 const styles = StyleSheet.create({
   statsFilterBtnsHolder: {
@@ -94,4 +107,4 @@ const styles = StyleSheet.create({
   activeButtonText: {
     color: '#fff'
   }
-})
+});

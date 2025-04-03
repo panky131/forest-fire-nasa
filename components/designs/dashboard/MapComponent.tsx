@@ -1,8 +1,8 @@
 import Toast from 'react-native-toast-message';
 import { themeColor } from 'react-native-rapi-ui';
 import { router, useNavigation } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react'
-import { Alert, Image, StyleSheet, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Image, StyleSheet, View } from 'react-native';
 
 import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
@@ -50,7 +50,7 @@ const MapComponent = (args: ComponentPropType) => {
     setSelectedFire(alert);
     setStatus(status);
     setModalVisible(true);
-  }
+  };
 
   const handleMarkerClick = (alert_id: string | number): void => {
 
@@ -69,7 +69,7 @@ const MapComponent = (args: ComponentPropType) => {
         }
       },
     ]);
-  }
+  };
 
   const getUserLocation = async () => {
     try {
@@ -103,13 +103,13 @@ const MapComponent = (args: ComponentPropType) => {
       setIsLoading(false);
       setLoadingText("Loading");
     }
-  }
+  };
 
   const initializeMapScreen = async (): Promise<void> => {
     if (!userCoordinates) {
       await getUserLocation();
     }
-  }
+  };
 
   const animateToDivision = async () => {
     try {
@@ -131,11 +131,11 @@ const MapComponent = (args: ComponentPropType) => {
     } catch (error) {
       console.error('Error retrieving location from SecureStore:', error);
     }
-  }
+  };
 
   useEffect(() => {
     initializeMapScreen();
-  }, [])
+  }, []);
 
   useEffect(() => {
     animateToDivision();
@@ -149,7 +149,7 @@ const MapComponent = (args: ComponentPropType) => {
           Some problem occured {"\n"} while loading map.
         </ThemedText>
       </View>
-    )
+    );
   }
 
   return (
@@ -230,6 +230,7 @@ const MapComponent = (args: ComponentPropType) => {
           return (
 
             <Marker
+              tracksViewChanges={false}
               key={index}
               coordinate={{ latitude: props.lat ? parseFloat(props.lat as string) : 0, longitude: props.lng ? parseFloat(props.lng as string) : 0 }}
               title={'Fire Station'}
@@ -263,20 +264,20 @@ const MapComponent = (args: ComponentPropType) => {
                   {
                     props.status === "active" ? "Click to update the alert status \ क्लिक करें" :
                       props.status === "closed" ? "Alert is closed" :
-                      props.status === "not_fire" ? "It is not a forest fire" :
-                        "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"
+                        props.status === "not_fire" ? "It is not a forest fire" :
+                          "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"
                   }
                 </ThemedText>
               </Callout>
             </Marker>
-          )
+          );
         })}
       </MapView>
     </View>
-  )
-}
+  );
+};
 
-export default MapComponent
+export default MapComponent;
 
 const styles = StyleSheet.create({
   errorComponentHolder: {
@@ -350,4 +351,4 @@ const styles = StyleSheet.create({
     gap: horizontalScale(4),
     flexDirection: 'row'
   },
-})
+});

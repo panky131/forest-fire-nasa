@@ -19,7 +19,8 @@ interface AlertsResponseDataType {
   submitted_by: string,
   beat: string,
   range_name: string,
-  division: string;
+  division: string,
+  ft_type: string;
 }
 
 type AlertsDurationType = '24hrs' | '3days' | 'all';

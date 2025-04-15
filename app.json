@@ -42,7 +42,9 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      ["expo-router"],
+      [
+        "expo-router"
+      ],
       [
         "expo-camera",
         {
@@ -71,7 +73,9 @@
       "router": {
         "origin": false
       },
-      "eas": {}
+      "eas": {
+        "projectId": "37bc4098-0e8b-4fb5-b002-9d7bdc088ba8"
+      }
     }
   }
 }

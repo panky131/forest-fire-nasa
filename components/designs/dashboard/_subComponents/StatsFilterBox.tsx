@@ -41,9 +41,26 @@ const FreeFireLinkButton = () => {
       style={[styles.filterBtnTextOuter]}
     >
       <Text style={[styles.filterBtnText]}>
-        Pre fire
+        Pre Fire
       </Text>
     </TouchableOpacity>
+    
+  );
+};
+
+const WeatherBulletinButton = () => {
+  const router = useRouter();
+
+  return (
+    <TouchableOpacity
+      onPress={() => router.push('https://mausam.imd.gov.in/dehradun/mcdata/FOREST_FIRE_BULLETIN.pdf' as Href)}
+      style={[styles.filterBtnTextOuter]}
+    >
+      <Text style={[styles.filterBtnText]}>
+        Weather
+      </Text>
+    </TouchableOpacity>
+    
   );
 };
 
@@ -78,6 +95,7 @@ const StatsFilterBox = ({ setAlertsDuration, alertsDuration,
         />
       ))}
       <FreeFireLinkButton />
+      <WeatherBulletinButton/>
     </View>
   );
 };

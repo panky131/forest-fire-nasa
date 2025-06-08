@@ -36,7 +36,7 @@ const BottomButtonHolder = () => {
         style={{
           backgroundColor: '#e63946',
         }}
-        text='नयी आग की सूचना दे / Report New Fire Incident'
+        text='नयी आग की सूचना दे / Report New Fire'
         onPress={() => router.push('/NewFireIncident')}
       />
       <Button

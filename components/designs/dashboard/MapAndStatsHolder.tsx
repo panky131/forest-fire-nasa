@@ -18,7 +18,7 @@ const MapAndStatsHolder: React.FC = () => {
   const [isRequestError, setIsRequestError] = useState<boolean>(false);
   const [userCoordinates, setUserCoordinates] = useState<UserCoordsType>();
   const [alertsData, setAlertsData] = useState<AlertsResponseDataType[]>([]);
-  const [alertsDuration, setAlertsDuration] = useState<AlertsDurationType>('3days');
+  const [alertsDuration, setAlertsDuration] = useState<AlertsDurationType>('24hrs');
   const [filteredAlertsData, setFilteredAlertsData] = useState<AlertsResponseDataType[]>([]);
 
   const fetchAlerts = async (): Promise<void> => {
@@ -33,7 +33,7 @@ const MapAndStatsHolder: React.FC = () => {
   };
 
   const isFocused = useIsFocused();
-
+  
   useEffect(() => {
     AppState.addEventListener('change', async (nextAppState) => {
       if (nextAppState === 'active') {

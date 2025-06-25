@@ -180,6 +180,27 @@ export default function Layout() {
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity
+                  onPress={() => router.push('/(needAuth)/HarelaReport')}
+                  style={{
+                    paddingHorizontal: horizontalScale(10),
+                    marginTop: verticalScale(18)
+                  }}>
+                  <View style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: horizontalScale(10),
+                    alignItems: 'center'
+                  }}>
+                    <MaterialCommunityIcons name="cannabis" size={moderateScale(24)} color="#fff" />
+                    <ThemedText type='default' style={{
+                      color: '#fff',
+                      fontSize: moderateScale(14)
+                    }}>
+                      Hrela (हरेला)
+                    </ThemedText>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
                   onPress={() => router.push('/ControllRoomInformation' as Href)}
                   style={{
                     paddingHorizontal: horizontalScale(10),

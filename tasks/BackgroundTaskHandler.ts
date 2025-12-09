@@ -1,5 +1,5 @@
 import Toast from 'react-native-toast-message';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as TaskManager from 'expo-task-manager';
 import NetInfo from '@react-native-community/netinfo';
 import * as BackgroundFetch from 'expo-background-fetch';

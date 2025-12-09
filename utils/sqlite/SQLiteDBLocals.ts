@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 import { isDBModified } from './SQLiteFunctions';
 const LocalDBName: string = "ForestFireUttarakhand.db";

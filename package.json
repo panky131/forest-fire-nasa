@@ -42,6 +42,8 @@
     "expo-task-manager": "~14.0.9",
     "expo-web-browser": "~15.0.10",
     "haversine-distance": "^1.2.3",
+    "mimetype": "^0.0.8",
+    "path": "^0.12.7",
     "radio-buttons-react-native": "^1.0.4",
     "radio-buttons-react-native-expo": "^1.1.0",
     "react": "19.1.0",

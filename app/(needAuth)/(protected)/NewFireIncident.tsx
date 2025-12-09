@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 import Toast from 'react-native-toast-message';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Camera, CameraView } from 'expo-camera';
 import React, { useEffect, useState } from 'react';
 import { Button, TextInput, themeColor } from 'react-native-rapi-ui';

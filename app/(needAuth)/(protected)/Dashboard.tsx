@@ -22,11 +22,10 @@ const Dashboard = () => {
         return true;
       };
 
-      BackHandler.addEventListener("hardwareBackPress", onBackPress);
-
+      const subsription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
 
       return () =>
-        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+        subsription.remove();
     }, [])
   );
 

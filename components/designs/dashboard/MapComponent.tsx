@@ -3,6 +3,7 @@ import { themeColor } from 'react-native-rapi-ui';
 import { router, useNavigation } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Image, StyleSheet, View } from 'react-native';
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
@@ -12,9 +13,9 @@ import DashboardModal from '@/components/models/DashboardModal';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
 import FilterBtnComponent from './_subComponents/FilterBtnComponent';
 import StatsBoxLabelValue from './_subComponents/StatsBoxLabelValue';
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import { AlertsResponseDataType, CoordinatesType, UserCoordsType } from '@/utils/Types';
+import { AlertMarker } from './AlertMaker';
 
 interface ComponentPropType {
   alertsData: AlertsResponseDataType[],
@@ -216,8 +217,9 @@ const MapComponent = (args: ComponentPropType) => {
 
       <MapView
         ref={mapRef}
+        googleRenderer='LEGACY'
         provider={PROVIDER_GOOGLE}
-        mapType='standard'
+        mapType="standard"
         initialRegion={{
           latitude: parseFloat(authUserData.latitude),
           longitude: parseFloat(authUserData.longitude),
@@ -226,54 +228,79 @@ const MapComponent = (args: ComponentPropType) => {
         }}
         style={styles.mapHolder}
       >
-        {filteredAlertsData && filteredAlertsData.map((props: AlertsResponseDataType, index: number) => {
-          return (
+        {filteredAlertsData
+          ?.filter(
+            (props) =>
+              props.lat &&
+              props.lng &&
+              !isNaN(parseFloat(props.lat as string)) &&
+              !isNaN(parseFloat(props.lng as string))
+          )
+          .map((props: AlertsResponseDataType, index: number) => {
+            const coordinate = {
+              latitude: parseFloat(props.lat as string),
+              longitude: parseFloat(props.lng as string),
+            };
 
-            <Marker
-              tracksViewChanges={false}
-              key={index}
-              coordinate={{ latitude: props.lat ? parseFloat(props.lat as string) : 0, longitude: props.lng ? parseFloat(props.lng as string) : 0 }}
-              title={'Fire Station'}
-              description={'New Fire Alert'}
-              onCalloutPress={() => hanldeAlertClick(props.alert_id, props.status, props.lat as string, props.lng as string, props)}
-            >
+            const iconMap: Record<string, number> = {
+              active: require("../../../assets/images/active_alert_2.png"),
+              closed: require("../../../assets/images/closed_alert.png"),
+              not_fire: require("../../../assets/images/not_fire.png"),
+              being_held: require("../../../assets/images/being_held_alert.png"),
+            };
 
-              {props.status === "active" ? (
-                <Image source={require('../../../assets/images/active_alert_2.png')} style={{ height: 35, width: 35 }} />
-              ) : props.status === "being_held" ? (
-                <Image source={require('../../../assets/images/being_held_alert.png')} style={{ height: 35, width: 35 }} />
-              ) : props.status === "not_fire" ? (
-                <Image source={require('../../../assets/images/not_fire.png')} style={{ height: 35, width: 35 }} />
-              ) : (
-                <Image source={require('../../../assets/images/closed_alert.png')} style={{ height: 35, width: 35 }} />
-              )}
+            const icon = iconMap[props.status] ?? iconMap["closed"];
 
-              <Callout tooltip style={[styles.calloutToolTip]}>
-                <ThemedText type='defaultSemiBold' style={styles.activefireText}>
-                  Active Fire
-                </ThemedText>
-                <View style={styles.hr}></View>
-                <StatsBoxLabelValue label={"Alert ID"} value={props.alert_id} />
-                <StatsBoxLabelValue label={"Location"} value={`${props.lat} | ${props.lng}`} />
-                <StatsBoxLabelValue label={"Datetime"} value={props.datetime} />
-                <StatsBoxLabelValue label={"Range"} value={props.range_name} />
-                <StatsBoxLabelValue label={"Division"} value={props.division} />
-                <StatsBoxLabelValue label={"Beat"} value={props.beat} />
-                <StatsBoxLabelValue label={"Forest Type"} value={props.ft_type} />
-                <View style={styles.hr}></View>
-                <ThemedText type='default' style={styles.activefireText}>
-                  {
-                    props.status === "active" ? "Click to update the alert status \ क्लिक करें" :
-                      props.status === "closed" ? "Alert is closed" :
-                        props.status === "not_fire" ? "It is not a forest fire" :
-                          "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"
-                  }
-                </ThemedText>
-              </Callout>
-            </Marker>
-          );
-        })}
+            return (
+              <AlertMarker
+                key={props.alert_id ?? index}
+                coordinate={coordinate}
+                icon={icon}
+                onPressCallout={() =>
+                  hanldeAlertClick(
+                    props.alert_id,
+                    props.status,
+                    props.lat as string,
+                    props.lng as string,
+                    props
+                  )
+                }
+              >
+                <Callout tooltip style={[styles.calloutToolTip]}>
+                  <ThemedText type="defaultSemiBold" style={styles.activefireText}>
+                    Active Fire
+                  </ThemedText>
+
+                  <View style={styles.hr} />
+
+                  <StatsBoxLabelValue label="Alert ID" value={props.alert_id} />
+                  <StatsBoxLabelValue
+                    label="Location"
+                    value={`${props.lat} | ${props.lng}`}
+                  />
+                  <StatsBoxLabelValue label="Datetime" value={props.datetime} />
+                  <StatsBoxLabelValue label="Range" value={props.range_name} />
+                  <StatsBoxLabelValue label="Division" value={props.division} />
+                  <StatsBoxLabelValue label="Beat" value={props.beat} />
+                  <StatsBoxLabelValue label="Forest Type" value={props.ft_type} />
+
+                  <View style={styles.hr} />
+
+                  <ThemedText type="default" style={styles.activefireText}>
+                    {props.status === "active"
+                      ? "Click to update the alert status / क्लिक करें"
+                      : props.status === "closed"
+                        ? "Alert is closed"
+                        : props.status === "not_fire"
+                          ? "It is not a forest fire"
+                          : "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"}
+                  </ThemedText>
+                </Callout>
+              </AlertMarker>
+            );
+          })}
       </MapView>
+
     </View>
   );
 };

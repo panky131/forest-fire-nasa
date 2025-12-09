@@ -1,16 +1,16 @@
-import { useRouter } from 'expo-router'
-import React, { useEffect } from 'react'
-import { themeColor } from 'react-native-rapi-ui'
-import NetInfo from "@react-native-community/netinfo"
-import { Image, StyleSheet, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
+import { themeColor } from 'react-native-rapi-ui';
+import NetInfo from "@react-native-community/netinfo";
+import { Image, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import URLs from '@/utils/URLs';
 import Color from '@/utils/Color';
-import { ThemedText } from '@/components/ThemedText'
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
-import { checkIfDbExists, initializeDatabase } from '@/utils/sqlite/SQLiteDBLocals'
-import { _delete_item_securestore, _get_item_securestore } from '@/utils/SecureStore'
+import { ThemedText } from '@/components/ThemedText';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
+import { checkIfDbExists, initializeDatabase } from '@/utils/sqlite/SQLiteDBLocals';
+import { _delete_item_securestore, _get_item_securestore } from '@/utils/SecureStore';
 
 const CustomSplashScreen = () => {
 
@@ -51,7 +51,7 @@ const CustomSplashScreen = () => {
       router.replace("/(needAuth)/ErrorScreen" as any);
       return false;
     }
-  }
+  };
 
   const CheckForAuth = async (): Promise<void> => {
     try {
@@ -93,22 +93,19 @@ const CustomSplashScreen = () => {
         if (await ValidateUser()) {
           router.replace("/(needAuth)/(protected)/Dashboard");
           return;
-        } else {
-          console.log('====================================');
-          console.log(`this is the final wala`);
-          console.log('====================================');
-          router.replace("/(needAuth)/UserSelect");
-          return;
         }
+
+        router.replace("/(needAuth)/UserSelect");
+        return;
       }
 
       return;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       router.replace("/(needAuth)/ErrorScreen" as any);
       return;
     }
-  }
+  };
 
   // useEffect(
   //     React.useCallback(() => {
@@ -125,8 +122,8 @@ const CustomSplashScreen = () => {
   useEffect(() => {
     CheckForAuth();
 
-    return () => { }
-  }, [])
+    return () => { };
+  }, []);
 
 
   return (
@@ -162,10 +159,10 @@ const CustomSplashScreen = () => {
         />
       </View>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default CustomSplashScreen
+export default CustomSplashScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -225,4 +222,4 @@ const styles = StyleSheet.create({
     height: horizontalScale(45),
     objectFit: 'contain'
   }
-})
+});

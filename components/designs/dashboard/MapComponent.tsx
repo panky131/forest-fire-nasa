@@ -3,7 +3,7 @@ import { themeColor } from 'react-native-rapi-ui';
 import { router, useNavigation } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Image, StyleSheet, View } from 'react-native';
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Callout, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
@@ -217,7 +217,6 @@ const MapComponent = (args: ComponentPropType) => {
 
       <MapView
         ref={mapRef}
-        googleRenderer='LEGACY'
         provider={PROVIDER_GOOGLE}
         mapType="standard"
         initialRegion={{

@@ -33,9 +33,9 @@ const MapAndStatsHolder: React.FC = () => {
   };
 
   const isFocused = useIsFocused();
-  
+
   useEffect(() => {
-    AppState.addEventListener('change', async (nextAppState) => {
+    const subscription = AppState.addEventListener('change', async (nextAppState) => {
       if (nextAppState === 'active') {
         fetchAlerts();
       }
@@ -43,7 +43,7 @@ const MapAndStatsHolder: React.FC = () => {
       console.log('AppState:', appState.current);
     });
 
-    return () => { };
+    return () => subscription.remove();
   }, []);
 
 

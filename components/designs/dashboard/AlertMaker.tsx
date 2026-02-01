@@ -31,6 +31,7 @@ export const AlertMarker = ({
       ref={markerRef}
       coordinate={coordinate}
       tracksViewChanges={!loaded}
+      onPress={onPressCallout}
     >
       <Image
         source={icon}

@@ -1,13 +1,15 @@
+import { Entypo } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { themeColor } from 'react-native-rapi-ui';
 import { router, useNavigation } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Image, StyleSheet, View } from 'react-native';
+import { Alert, Image, StyleSheet, Touchable, TouchableOpacity, View } from 'react-native';
 import MapView, { Callout, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
 
+import { AlertMarker } from './AlertMaker';
 import { ThemedText } from '@/components/ThemedText';
 import DashboardModal from '@/components/models/DashboardModal';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
@@ -15,7 +17,6 @@ import FilterBtnComponent from './_subComponents/FilterBtnComponent';
 import StatsBoxLabelValue from './_subComponents/StatsBoxLabelValue';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import { AlertsResponseDataType, CoordinatesType, UserCoordsType } from '@/utils/Types';
-import { AlertMarker } from './AlertMaker';
 
 interface ComponentPropType {
   alertsData: AlertsResponseDataType[],
@@ -41,6 +42,7 @@ const MapComponent = (args: ComponentPropType) => {
   const [selectedFire, setSelectedFire] = useState<AlertsResponseDataType | null>(null);
   const [loadingText, setLoadingText] = useState<string>("");
   const [selectedCoordinates, setSelectedCoordinates] = useState<CoordinatesType>({ lat: 0, lng: 0 });
+  const [selectedCalloutTree, setSelectedCalloutTree] = useState<AlertsResponseDataType | null>(null);
 
   const mapRef = useRef<any>("");
 
@@ -255,50 +257,57 @@ const MapComponent = (args: ComponentPropType) => {
                 key={props.alert_id ?? index}
                 coordinate={coordinate}
                 icon={icon}
-                onPressCallout={() =>
-                  hanldeAlertClick(
-                    props.alert_id,
-                    props.status,
-                    props.lat as string,
-                    props.lng as string,
-                    props
-                  )
-                }
-              >
-                <Callout tooltip style={[styles.calloutToolTip]}>
-                  <ThemedText type="defaultSemiBold" style={styles.activefireText}>
-                    Active Fire
-                  </ThemedText>
-
-                  <View style={styles.hr} />
-
-                  <StatsBoxLabelValue label="Alert ID" value={props.alert_id} />
-                  <StatsBoxLabelValue
-                    label="Location"
-                    value={`${props.lat} | ${props.lng}`}
-                  />
-                  <StatsBoxLabelValue label="Datetime" value={props.datetime} />
-                  <StatsBoxLabelValue label="Range" value={props.range_name} />
-                  <StatsBoxLabelValue label="Division" value={props.division} />
-                  <StatsBoxLabelValue label="Beat" value={props.beat} />
-                  <StatsBoxLabelValue label="Forest Type" value={props.ft_type} />
-
-                  <View style={styles.hr} />
-
-                  <ThemedText type="default" style={styles.activefireText}>
-                    {props.status === "active"
-                      ? "Click to update the alert status / क्लिक करें"
-                      : props.status === "closed"
-                        ? "Alert is closed"
-                        : props.status === "not_fire"
-                          ? "It is not a forest fire"
-                          : "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"}
-                  </ThemedText>
-                </Callout>
-              </AlertMarker>
+                onPressCallout={() => setSelectedCalloutTree(props)}
+              />
             );
           })}
       </MapView>
+
+
+      {selectedCalloutTree && (
+        <View style={styles.overlay}>
+          <View style={styles.selectedCalloutFireView}>
+            <ThemedText type="defaultSemiBold" style={styles.activefireText}>
+              Active Fire
+            </ThemedText>
+            <TouchableOpacity onPress={() => setSelectedCalloutTree(null)}>
+              <Entypo name="cross" size={moderateScale(24)} color="black" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.hr} />
+
+          <StatsBoxLabelValue label="Alert ID" value={selectedCalloutTree.alert_id} />
+          <StatsBoxLabelValue
+            label="Location"
+            value={`${selectedCalloutTree.lat} | ${selectedCalloutTree.lng}`}
+          />
+          <StatsBoxLabelValue label="Datetime" value={selectedCalloutTree.datetime} />
+          <StatsBoxLabelValue label="Range" value={selectedCalloutTree.range_name} />
+          <StatsBoxLabelValue label="Division" value={selectedCalloutTree.division} />
+          <StatsBoxLabelValue label="Beat" value={selectedCalloutTree.beat} />
+          <StatsBoxLabelValue label="Forest Type" value={selectedCalloutTree.ft_type} />
+
+          <View style={styles.hr} />
+
+          <TouchableOpacity onPress={() => hanldeAlertClick(
+            selectedCalloutTree.alert_id, selectedCalloutTree.status,
+            selectedCalloutTree.lat as string,
+            selectedCalloutTree.lng as string,
+            selectedCalloutTree
+          )}>
+            <ThemedText type="default" style={styles.activefireText}>
+              {selectedCalloutTree.status === "active"
+                ? "Click to update the alert status / क्लिक करें"
+                : selectedCalloutTree.status === "closed"
+                  ? "Alert is closed"
+                  : selectedCalloutTree.status === "not_fire"
+                    ? "It is not a forest fire"
+                    : "Close fire / आग बुझाने की सूचना के लिए क्लिक करें"}
+            </ThemedText>
+          </TouchableOpacity>
+        </View>
+      )}
 
     </View>
   );
@@ -307,6 +316,22 @@ const MapComponent = (args: ComponentPropType) => {
 export default MapComponent;
 
 const styles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    bottom: verticalScale(24),
+    left: 16,
+    right: 16,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    elevation: 6,
+  },
+  selectedCalloutFireView: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
   errorComponentHolder: {
     flex: 1,
     backgroundColor: '#fff',

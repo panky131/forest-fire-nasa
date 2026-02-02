@@ -64,6 +64,10 @@ export default function Layout() {
       title: 'Pre Fire Alert',
       name: 'FreeFire'
     },
+    {
+      title: 'Announcements',
+      name: 'Announcements'
+    },
   ];
 
   return (
@@ -197,6 +201,27 @@ export default function Layout() {
                       fontSize: moderateScale(14)
                     }}>
                       Hrela (हरेला)
+                    </ThemedText>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push('/Announcements')}
+                  style={{
+                    paddingHorizontal: horizontalScale(10),
+                    marginTop: verticalScale(18)
+                  }}>
+                  <View style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: horizontalScale(10),
+                    alignItems: 'center'
+                  }}>
+                    <MaterialCommunityIcons name="cannabis" size={moderateScale(24)} color="#fff" />
+                    <ThemedText type='default' style={{
+                      color: '#fff',
+                      fontSize: moderateScale(14)
+                    }}>
+                      Announcements
                     </ThemedText>
                   </View>
                 </TouchableOpacity>

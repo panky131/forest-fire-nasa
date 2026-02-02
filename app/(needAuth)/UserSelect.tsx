@@ -17,8 +17,8 @@ export default function HomeScreen() {
 
   const Navigation = useNavigation();
 
-  const notificationListener = useRef<any>();
-  const responseListener = useRef<any>();
+  const notificationListener = useRef<any>(null);
+  const responseListener = useRef<any>(null);
 
   const [notification, setNotification] = useState();
 
@@ -29,10 +29,16 @@ export default function HomeScreen() {
 
     if (SelectedButton == 'OfficeStaff') {
       Navigation.navigate('OfficeStaffLogin' as never);
-    } else {
+    }
+
+    if (SelectedButton === "Volunteer") {
       Navigation.navigate('VolunteerLogin' as never);
     }
-  }
+
+    if (SelectedButton === "SDRF") {
+      Navigation.navigate('SDRFLogin' as never);
+    }
+  };
 
   useEffect(() => {
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
@@ -44,8 +50,12 @@ export default function HomeScreen() {
     });
 
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current);
-      Notifications.removeNotificationSubscription(responseListener.current);
+      if (notificationListener.current && typeof notificationListener.current.remove === 'function') {
+        notificationListener.current.remove();
+      }
+      if (responseListener.current && typeof responseListener.current.remove === 'function') {
+        responseListener.current.remove();
+      }
     };
   }, []);
 
@@ -112,6 +122,10 @@ export default function HomeScreen() {
             {
               label: 'Forest staff / वन कर्मी',
               accessibilityLabel: 'OfficeStaff'
+            },
+            {
+              label: 'SDRF',
+              accessibilityLabel: 'SDRF'
             }]
           }
           selectedBtn={(e: any) => SetSelectedButton(e.accessibilityLabel)}

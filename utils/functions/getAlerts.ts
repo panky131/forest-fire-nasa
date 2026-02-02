@@ -22,7 +22,7 @@ const createFormData = (authKey: string | null): FormData => {
 
 const fetchAlerts = async (formData: FormData, alertsDuration: AlertsDurationType): Promise<Response> => {
   const random = Math.floor(Math.random() * 9999);
-  const url = URLs.api_base_url + `get_alerts.php?random=${random}&duration=${alertsDuration}`;
+  const url = URLs.api_base_url + `get_alerts_ref.php?random=${random}&duration=${alertsDuration}`;
 
   return await fetch(url, {
     method: "POST",

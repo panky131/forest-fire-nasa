@@ -183,7 +183,7 @@ export default function Layout() {
                     </ThemedText>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={() => router.push('/(needAuth)/HarelaReport')}
                   style={{
                     paddingHorizontal: horizontalScale(10),
@@ -203,7 +203,7 @@ export default function Layout() {
                       Hrela (हरेला)
                     </ThemedText>
                   </View>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <TouchableOpacity
                   onPress={() => router.push('/Announcements')}
                   style={{

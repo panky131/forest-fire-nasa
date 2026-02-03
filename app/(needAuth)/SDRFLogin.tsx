@@ -267,12 +267,12 @@ const SDRFLogin = () => {
 
           <View style={styles.inputBox}>
             <ThemedText type='default' style={styles.inputLabel}>
-              प्रभाग का नाम / Division Name
+              जिले का नाम / District Name
             </ThemedText>
             <Picker
               items={districts}
               value={districtName}
-              placeholder="Choose your division"
+              placeholder="Choose your district"
               onValueChange={(val) => setDistrictName(val)}
             />
           </View>

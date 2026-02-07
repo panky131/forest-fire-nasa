@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -44,9 +44,13 @@ export interface Division {
   name: string;
 }
 
+type AnnouncementImage = ImagePicker.ImagePickerAsset | null;
+
 const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
   const [form, setForm] = useState<FormState>({});
-  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [image, setImage] = useState<AnnouncementImage>(null);
+  const [image2, setImage2] = useState<AnnouncementImage>(null);
+
   const [submitting, setSubmitting] = useState(false);
 
   const [divisions, setDivisions] = useState<Division[]>([]);
@@ -54,14 +58,13 @@ const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
 
   const DIVISION_API = `${URLs.api_base_url}announcements/division_list.php`;
 
-
-  const capturePhoto = async (): Promise<void> => {
+  const capturePhoto = async (updateImage: Dispatch<SetStateAction<AnnouncementImage>>): Promise<void> => {
     const result = await ImagePicker.launchCameraAsync({
       quality: 0.7
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0]);
+      updateImage(result.assets[0]);
     }
   };
 
@@ -82,8 +85,8 @@ const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
       return;
     }
 
-    const location = await Location.getCurrentPositionAsync({});
     setSubmitting(true);
+    const location = await Location.getCurrentPositionAsync({});
 
     const data = new FormData();
     Object.entries(form).forEach(([key, value]) => {
@@ -98,6 +101,15 @@ const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
       name: 'photo.jpg',
       type: 'image/jpeg'
     } as any);
+
+    if (image2) {
+      data.append('image2', {
+        uri: image2.uri,
+        name: 'photo2.jpg',
+        type: 'image/jpeg'
+      } as any);
+    }
+
 
     try {
       const res = await fetch(API_URL, {
@@ -171,7 +183,6 @@ const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
           </Picker>
         </View>
 
-        {/* Range */}
         <Text style={styles.label}>Range Name</Text>
         <TextInput
           style={styles.input}
@@ -179,7 +190,6 @@ const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
           onChangeText={(v) => setForm({ ...form, range_name: v })}
         />
 
-        {/* Beat */}
         <Text style={styles.label}>Beat Name</Text>
         <TextInput
           style={styles.input}
@@ -187,7 +197,6 @@ const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
           onChangeText={(v) => setForm({ ...form, beat_name: v })}
         />
 
-        {/* Description */}
         <Text style={styles.label}>Description</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
@@ -196,9 +205,8 @@ const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
           onChangeText={(v) => setForm({ ...form, description: v })}
         />
 
-        {/* Photo */}
         <Text style={styles.label}>Photo</Text>
-        <TouchableOpacity style={styles.photoButton} onPress={capturePhoto}>
+        <TouchableOpacity style={styles.photoButton} onPress={() => capturePhoto(setImage)}>
           <Text style={styles.photoButtonText}>
             {image ? 'Retake Photo' : 'Capture Photo'}
           </Text>
@@ -208,7 +216,17 @@ const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
           <Image source={{ uri: image.uri }} style={styles.imagePreview} />
         )}
 
-        {/* Actions */}
+        <Text style={styles.label}>Second Photo</Text>
+        <TouchableOpacity style={styles.photoButton} onPress={() => capturePhoto(setImage2)}>
+          <Text style={styles.photoButtonText}>
+            {image2 ? 'Retake Second Photo' : 'Capture Second Photo'}
+          </Text>
+        </TouchableOpacity>
+
+        {image2 && (
+          <Image source={{ uri: image2.uri }} style={styles.imagePreview} />
+        )}
+
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
@@ -234,8 +252,6 @@ const CreateAnnouncementModal: React.FC<Props> = ({ visible, onClose }) => {
 };
 
 export default CreateAnnouncementModal;
-
-/* -------------------- STYLES -------------------- */
 
 const styles = StyleSheet.create({
   container: {

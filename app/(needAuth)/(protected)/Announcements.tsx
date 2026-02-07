@@ -1,7 +1,8 @@
 import CreateAnnouncementModal from '@/components/designs/announcements/CreateAnnouncementModal';
 import { ThemedText } from '@/components/ThemedText';
-import { horizontalScale, moderateScale } from '@/utils/Metrics';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import URLs from '@/utils/URLs';
+import { format } from 'timeago.js';
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -12,7 +13,7 @@ import {
   StyleSheet,
   Dimensions
 } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 const API_BASE = URLs.api_base_url + "announcements";
@@ -58,6 +59,8 @@ const AnnouncementsScreen: React.FC = () => {
       item.image_path_2
     ].filter(Boolean);
 
+    const convertedDate = new Date(item.created_at.replace(' ', 'T'));
+
     return (
       <View style={styles.card}>
         <FlatList
@@ -75,16 +78,21 @@ const AnnouncementsScreen: React.FC = () => {
           )}
         />
 
-
         <ThemedText style={styles.division}>{item.division}</ThemedText>
+
+        <View style={styles.divider} />
+
         <ThemedText style={{ fontSize: moderateScale(14) }}>{item.range_name} / {item.beat_name}</ThemedText>
         <ThemedText style={styles.desc}>{item.description}</ThemedText>
+        <ThemedText style={{ fontSize: moderateScale(10), textAlign: 'right', color: 'rgba(0,0,0,.6)' }}>
+          {format(convertedDate)}
+        </ThemedText>
       </View>
     );
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,.06)' }}>
       <FlatList
         data={announcements}
         keyExtractor={(item) => item.announcement_id.toString()}
@@ -105,7 +113,7 @@ const AnnouncementsScreen: React.FC = () => {
           loadAnnouncements();
         }}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -114,8 +122,16 @@ export default AnnouncementsScreen;
 const screenWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
+  divider: {
+    width: '100%',
+    height: verticalScale(1),
+    backgroundColor: 'rgba(0,0,0,.2)',
+    marginTop: verticalScale(5),
+    marginBottom: verticalScale(10),
+  },
   card: {
     padding: 10,
+    paddingTop: 15,
     margin: 10,
     backgroundColor: '#fff',
     borderRadius: 8
@@ -127,7 +143,7 @@ const styles = StyleSheet.create({
   },
   division: {
     fontWeight: 'bold',
-    marginTop: 6
+    marginTop: 10
   },
   desc: {
     fontSize: moderateScale(12)

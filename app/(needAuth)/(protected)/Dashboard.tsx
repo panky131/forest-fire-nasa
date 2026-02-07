@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react'
+import React, { useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';
-import { Alert, BackHandler, StyleSheet, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, BackHandler, StyleSheet } from 'react-native';
 
 import MapAndStatsHolder from '@/components/designs/dashboard/MapAndStatsHolder';
 import BottomButtonHolder from '@/components/designs/dashboard/BottomButtonHolder';
@@ -30,20 +31,18 @@ const Dashboard = () => {
   );
 
   return (
-    <View style={styles.outerContainer}>
-
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.outerContainer}>
       <DashboardUserInformation />
       <MapAndStatsHolder />
       <BottomButtonHolder />
+    </SafeAreaView>
+  );
+};
 
-    </View>
-  )
-}
-
-export default Dashboard
+export default Dashboard;
 
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1
   }
-})
+});

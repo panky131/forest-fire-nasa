@@ -1,14 +1,11 @@
-import React, { LegacyRef, useRef } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import { WebView } from 'react-native-webview';
 
-import { useAuth } from '@/hooks/useAuth';
-import { horizontalScale, verticalScale } from '@/utils/Metrics';
+const MAP_URL = 'https://forestfireuttarakhand.in/admin/pre_fires/index.html';
 
 const FreeFire = () => {
-  const mapRef: LegacyRef<MapView> | undefined = useRef<MapView | null>(null);
-  const { authUserData }: any = useAuth();
   const [isFocused, setIsFocused] = React.useState(false);
 
   useFocusEffect(
@@ -23,19 +20,14 @@ const FreeFire = () => {
   return (
     <View style={styles.container}>
       {isFocused && (
-        <MapView
-          ref={mapRef}
-          provider={PROVIDER_GOOGLE}
-          mapType='standard'
-          initialRegion={{
-            latitude: parseFloat(authUserData.latitude),
-            longitude: parseFloat(authUserData.longitude),
-            latitudeDelta: 4.0,
-            longitudeDelta: 4.0,
-          }}
-          style={styles.map}
-        >
-        </MapView>
+        <WebView
+          source={{ uri: MAP_URL }}
+          style={styles.webview}
+          originWhitelist={['*']}
+          javaScriptEnabled
+          domStorageEnabled
+          startInLoadingState
+        />
       )}
     </View>
   );
@@ -45,15 +37,10 @@ export default FreeFire;
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    height: '100%',
-    paddingHorizontal: horizontalScale(10),
-    paddingVertical: verticalScale(10)
+    flex: 1,
+    backgroundColor: '#000'
   },
-  map: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 10,
-    overflow: 'hidden'
+  webview: {
+    flex: 1
   }
 });

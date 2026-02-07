@@ -146,7 +146,8 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   desc: {
-    fontSize: moderateScale(12)
+    fontSize: moderateScale(12),
+    color: 'rgba(0,0,0,.7)'
   },
   fab: {
     position: 'absolute',

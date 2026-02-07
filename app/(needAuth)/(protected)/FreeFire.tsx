@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { WebView } from 'react-native-webview';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MAP_URL = 'https://forestfireuttarakhand.in/admin/pre_fires/index.html';
 
@@ -18,7 +19,7 @@ const FreeFire = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView edges={['bottom']} style={styles.container}>
       {isFocused && (
         <WebView
           source={{ uri: MAP_URL }}
@@ -29,7 +30,7 @@ const FreeFire = () => {
           startInLoadingState
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -38,7 +39,6 @@ export default FreeFire;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000'
   },
   webview: {
     flex: 1

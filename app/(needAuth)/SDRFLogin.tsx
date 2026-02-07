@@ -36,7 +36,7 @@ const SDRFLogin = () => {
   const [otp, setOTPCode] = useState("");
 
   const [notificationToken, setNotificationToken] = useState<string>('');
-  const [positionList, setPositionList] = useState([]);
+  const [positionList, setPositionList] = useState<SelectItem[]>([]);
   const [districts, setDistricts] = useState<SelectItem[]>([]);
 
   const navigateToErrorScreen = () => {
@@ -189,10 +189,10 @@ const SDRFLogin = () => {
     try {
 
       setPageLoading(true);
-      const apiUrl: string = URLs.api_base_url + "_get_positions_list.php?type=OfficeStaff";
+      const apiUrl: string = URLs.api_base_url + "login/fetchSRDFLoginPosts.php";
 
       const response = await fetch(apiUrl, {
-        method: "POST",
+        method: "GET",
       });
 
       if (response.status !== 200) {
@@ -201,7 +201,14 @@ const SDRFLogin = () => {
       }
 
       const responseJson = await response.json();
-      setPositionList(responseJson.positionList);
+      if (responseJson.status !== "success") {
+        navigateToErrorScreen();
+        return;
+      }
+
+      const postions: string[] = responseJson.positions;
+      const sdrfPositionsList: SelectItem[] = postions.map(position => ({ label: position, value: position }));
+      setPositionList(sdrfPositionsList);
 
     } catch (error) {
 
@@ -300,8 +307,6 @@ const SDRFLogin = () => {
             />
           </View>
 
-
-
           <View style={styles.inputBox}>
             <ThemedText type='default' style={styles.inputLabel}>
               अपना पद चुनें / Choose Your Designation
@@ -313,19 +318,6 @@ const SDRFLogin = () => {
               onValueChange={(val) => setpositionName(val)}
             />
           </View>
-
-          {/* <View style={styles.inputBox}>
-            <MediumText
-              style={styles.inputLabel}
-              text={'क्रू स्टेशन का प्रकार'}
-            />
-            <Picker
-              items={PositionList}
-              value={positionName}
-              placeholder="Choose your crew station type"
-              onValueChange={(val) => setpositionName(val)}
-            />
-          </View> */}
 
           <View style={styles.inputBox}>
             <ThemedText type='default' style={styles.inputLabel}>

@@ -13,30 +13,32 @@ import { ThemedText } from '@/components/ThemedText';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { verticalScale, horizontalScale, moderateScale } from '@/utils/Metrics';
 
+export type LoginUserTypes = "OfficeStaff" | "Volunteer" | "SDRF" | "RevenueStaff";
+
 export default function HomeScreen() {
 
-  const Navigation = useNavigation();
+  const navigation = useNavigation();
 
   const notificationListener = useRef<any>(null);
   const responseListener = useRef<any>(null);
 
   const [notification, setNotification] = useState();
 
-  const [SelectedButton, SetSelectedButton] = useState<string | null>(null);
+  const [selectedButton, setSelectedButton] = useState<LoginUserTypes | null>(null);
 
   const handleNext = (): void => {
-    if (SelectedButton == null) return;
+    if (!selectedButton) return;
 
-    if (SelectedButton == 'OfficeStaff') {
-      Navigation.navigate('OfficeStaffLogin' as never);
-    }
+    const navigationMap: Record<LoginUserTypes, string> = {
+      'OfficeStaff': 'OfficeStaffLogin',
+      'Volunteer': 'VolunteerLogin',
+      'SDRF': 'SDRFLogin',
+      'RevenueStaff': 'RevenueStaffLogin',
+    };
 
-    if (SelectedButton === "Volunteer") {
-      Navigation.navigate('VolunteerLogin' as never);
-    }
-
-    if (SelectedButton === "SDRF") {
-      Navigation.navigate('SDRFLogin' as never);
+    const route = navigationMap[selectedButton];
+    if (route) {
+      navigation.navigate(route as never);
     }
   };
 
@@ -126,9 +128,13 @@ export default function HomeScreen() {
             {
               label: 'SDRF',
               accessibilityLabel: 'SDRF'
+            },
+            {
+              label: 'Revenue Staff',
+              accessibilityLabel: 'RevenueStaff'
             }]
           }
-          selectedBtn={(e: any) => SetSelectedButton(e.accessibilityLabel)}
+          selectedBtn={(e: any) => setSelectedButton(e.accessibilityLabel)}
         />
       </View>
 

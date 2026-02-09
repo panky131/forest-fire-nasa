@@ -130,7 +130,7 @@ const RevenueStaffLogin = () => {
       formData.append('number', number);
       formData.append('positionName', positionName);
       formData.append('district', districtName);
-      formData.append('user_type', "SDRF");
+      formData.append('user_type', "RevenueStaff");
       formData.append('OTPCode', otp);
       formData.append('notificationToken', notificationToken);
 
@@ -151,21 +151,21 @@ const RevenueStaffLogin = () => {
       }
 
       const divisonId: string = districtName.toString();
-      const _mobile: string = responseJson.mobile.toString();
-      const _user_name: string = responseJson.name.toString();
-      const _auth_key: string = responseJson.authKey.toString();
-      const _user_type: string = responseJson.user_type.toString();
-      const _lat: string = responseJson.latitude ? responseJson.latitude.toString() : "30.3165";
-      const _long: string = responseJson.longitude ? responseJson.longitude.toString() : "78.0322";
+      const mobile: string = responseJson.mobile.toString();
+      const userName: string = responseJson.name.toString();
+      const authKey: string = responseJson.authKey.toString();
+      const userType: string = responseJson.user_type.toString();
+      const lat: string = responseJson.latitude ? responseJson.latitude.toString() : "30.3165";
+      const long: string = responseJson.longitude ? responseJson.longitude.toString() : "78.0322";
 
-      await SecureStore.setItemAsync('latitude', _lat);
-      await SecureStore.setItemAsync('longitude', _long);
-      await SecureStore.setItemAsync('auth_key', _auth_key);
-      await SecureStore.setItemAsync('user_type', _user_type);
-      await SecureStore.setItemAsync('user_name', _user_name);
-      await SecureStore.setItemAsync('mobile_number', _mobile);
+      await SecureStore.setItemAsync('latitude', lat);
+      await SecureStore.setItemAsync('longitude', long);
+      await SecureStore.setItemAsync('auth_key', authKey);
+      await SecureStore.setItemAsync('user_type', userType);
+      await SecureStore.setItemAsync('user_name', userName);
+      await SecureStore.setItemAsync('mobile_number', mobile);
       await SecureStore.setItemAsync('division_id', divisonId);
-
+``
       login();
       router.replace('/');
 
@@ -207,8 +207,8 @@ const RevenueStaffLogin = () => {
       }
 
       const postions: string[] = responseJson.positions;
-      const sdrfPositionsList: SelectItem[] = postions.map(position => ({ label: position, value: position }));
-      setPositionList(sdrfPositionsList);
+      const revenueStaffPositionsList: SelectItem[] = postions.map(position => ({ label: position, value: position }));
+      setPositionList(revenueStaffPositionsList);
 
     } catch (error) {
 

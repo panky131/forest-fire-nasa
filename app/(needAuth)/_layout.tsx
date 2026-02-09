@@ -59,6 +59,11 @@ export default function RootLayout() {
             headerTitle: 'SDRF Login',
           }}
         />
+        <Stack.Screen name="RevenueStaffLogin"
+          options={{
+            headerTitle: 'Revenue Login',
+          }}
+        />
         <Stack.Screen name="NewFireIncidentPublic"
           options={{
             headerTitle: 'New Fire Incident',

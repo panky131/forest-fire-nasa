@@ -189,7 +189,7 @@ const SDRFLogin = () => {
     try {
 
       setPageLoading(true);
-      const apiUrl: string = URLs.api_base_url + "login/fetchSRDFLoginPosts.php";
+      const apiUrl: string = URLs.api_base_url + "login/fetchSRDFLoginPositions.php";
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -201,7 +201,7 @@ const SDRFLogin = () => {
       }
 
       const responseJson = await response.json();
-      if (responseJson.status !== "success") {
+      if (responseJson.status !== "success") {  
         navigateToErrorScreen();
         return;
       }

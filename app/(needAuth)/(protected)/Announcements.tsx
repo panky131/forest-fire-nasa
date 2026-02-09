@@ -1,9 +1,10 @@
-import CreateAnnouncementModal from '@/components/designs/announcements/CreateAnnouncementModal';
-import { ThemedText } from '@/components/ThemedText';
-import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
-import URLs from '@/utils/URLs';
 import { format } from 'timeago.js';
 import React, { useEffect, useState } from 'react';
+
+import URLs from '@/utils/URLs';
+import { ThemedText } from '@/components/ThemedText';
+import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
+import CreateAnnouncementModal from '@/components/designs/announcements/CreateAnnouncementModal';
 import {
   View,
   Text,

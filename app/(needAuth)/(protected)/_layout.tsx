@@ -1,5 +1,6 @@
 import { Drawer } from 'expo-router/drawer';
 import { Href, router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Image, Pressable, TouchableOpacity, View } from 'react-native';
 
@@ -7,7 +8,6 @@ import Color from '@/utils/Color';
 import { ThemedText } from '@/components/ThemedText';
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ScreenType {
   title: string,

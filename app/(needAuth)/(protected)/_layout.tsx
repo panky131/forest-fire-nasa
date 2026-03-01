@@ -69,6 +69,10 @@ export default function Layout() {
       title: 'Announcements',
       name: 'Announcements'
     },
+    {
+      title: "Weather",
+      name: "Weather"
+    }
   ];
 
   return (

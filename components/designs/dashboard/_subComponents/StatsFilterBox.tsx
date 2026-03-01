@@ -53,7 +53,7 @@ const WeatherBulletinButton = () => {
 
   return (
     <TouchableOpacity
-      onPress={() => router.push('https://mausam.imd.gov.in/dehradun/mcdata/FOREST_FIRE_BULLETIN.pdf' as Href)}
+    onPress={() => router.push('/(needAuth)/(protected)/Weather' as Href)}
       style={[styles.filterBtnTextOuter]}
     >
       <Text style={[styles.filterBtnText]}>

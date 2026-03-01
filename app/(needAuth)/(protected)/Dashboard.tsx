@@ -5,7 +5,7 @@ import { Alert, BackHandler, StyleSheet } from 'react-native';
 
 import BottomButtonHolder from '@/components/designs/dashboard/BottomButtonHolder';
 import DashboardUserInformation from '@/components/designs/dashboard/DashboardUserInformation';
-import MapComponent from '@/components/designs/dashboard/optmisedMap/MapComponent';
+import MapAndStatsHolder from '@/components/designs/dashboard/MapAndStatsHolder';
 
 const Dashboard = () => {
 
@@ -33,8 +33,7 @@ const Dashboard = () => {
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.outerContainer}>
       <DashboardUserInformation />
-      <MapComponent />
-      {/* <MapAndStatsHolder /> */}
+      <MapAndStatsHolder />
       <BottomButtonHolder />
     </SafeAreaView>
   );

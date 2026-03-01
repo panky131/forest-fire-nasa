@@ -3,9 +3,9 @@ import { useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Alert, BackHandler, StyleSheet } from 'react-native';
 
-import MapAndStatsHolder from '@/components/designs/dashboard/MapAndStatsHolder';
 import BottomButtonHolder from '@/components/designs/dashboard/BottomButtonHolder';
 import DashboardUserInformation from '@/components/designs/dashboard/DashboardUserInformation';
+import MapComponent from '@/components/designs/dashboard/optmisedMap/MapComponent';
 
 const Dashboard = () => {
 
@@ -33,7 +33,8 @@ const Dashboard = () => {
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.outerContainer}>
       <DashboardUserInformation />
-      <MapAndStatsHolder />
+      <MapComponent />
+      {/* <MapAndStatsHolder /> */}
       <BottomButtonHolder />
     </SafeAreaView>
   );

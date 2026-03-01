@@ -2,10 +2,8 @@ import { Href, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { AlertsFilter } from './MapComponent';
+import { AlertsDuration, AlertsFilter } from './MapComponent';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
-
-export type AlertsDuration = '3 Days' | '24 hrs';
 
 interface FilterButtonProps {
   duration: AlertsDuration;
@@ -64,7 +62,7 @@ export interface AlertsDurationAndOptionsProps {
 
 const AlertsDurationAndOptions = ({ alertsFilter, setAlertsFilter }: AlertsDurationAndOptionsProps) => {
 
-  const handleFilterButtonClick = (duration: '3 Days' | '24 hrs') => {
+  const handleFilterButtonClick = (duration: AlertsDuration) => {
     setAlertsFilter(alertsFilter => {
       return ({ ...alertsFilter, alertsDuration: duration });
     });

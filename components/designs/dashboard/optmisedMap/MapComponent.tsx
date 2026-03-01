@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import AlertsDurationAndOptions from './AlertsDurationAndOptions';
+import AlertsStats from './AlertsStats';
 import { horizontalScale } from '@/utils/Metrics';
+import AlertsDurationAndOptions from './AlertsDurationAndOptions';
+
+export type AlertsDuration = '3 Days' | '24 hrs';
+export type AlertStatus = 'ALL' | 'ACTIVE ALERT' | 'BEING_HELD' | 'NOT A FIRE' | 'CLOSED ALERT';
 
 export interface AlertsFilter {
-  alertsDuration: '3 Days' | '24 hrs';
+  alertsDuration: AlertsDuration;
   visibleAlerts: {
-    alertStatus: 'ALL' | 'ACTIVE ALERT' | 'BEING_HELD' | 'NOT A FIRE' | 'CLOSED ALERT';
+    alertStatus: AlertStatus;
     withinDistance: 'ALL' | 1 | 5 | 10;
   };
 };
@@ -28,6 +32,9 @@ const MapComponent = () => {
   return (
     <View style={styles.mapComponentContainer}>
       <AlertsDurationAndOptions
+        setAlertsFilter={setAlertsFilter}
+        alertsFilter={alertsFilter} />
+      <AlertsStats
         setAlertsFilter={setAlertsFilter}
         alertsFilter={alertsFilter} />
     </View>

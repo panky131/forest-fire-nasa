@@ -1,3 +1,9 @@
+# Large source KMZ (use scripts/build-beats-polygons.mjs → beats_polygons_v1.json)
+assets/beats/beats_uk.kmz
+
+.env
+.env.*
+
 node_modules/
 .expo/
 dist/

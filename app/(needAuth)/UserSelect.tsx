@@ -1,7 +1,6 @@
 import { themeColor } from 'react-native-rapi-ui';
-import { Link, useNavigation } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import * as Notifications from "expo-notifications";
 // @ts-ignore
 import RadioButtonRN from 'radio-buttons-react-native-expo';
 import { Image, StyleSheet, View, TouchableOpacity } from 'react-native';
@@ -12,55 +11,62 @@ import Color from '@/utils/Color';
 import { ThemedText } from '@/components/ThemedText';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { verticalScale, horizontalScale, moderateScale } from '@/utils/Metrics';
+import { shouldDeferExpoNotifications } from '@/utils/expoNotificationsGate';
 
 export type LoginUserTypes = "OfficeStaff" | "Volunteer" | "SDRF" | "RevenueStaff";
 
 export default function HomeScreen() {
 
-  const navigation = useNavigation();
-
-  const notificationListener = useRef<any>(null);
-  const responseListener = useRef<any>(null);
-
-  const [notification, setNotification] = useState();
+  const notificationListener = useRef<{ remove: () => void } | null>(null);
+  const responseListener = useRef<{ remove: () => void } | null>(null);
 
   const [selectedButton, setSelectedButton] = useState<LoginUserTypes | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const setup = async () => {
+      if (shouldDeferExpoNotifications()) {
+        return;
+      }
+      try {
+        const Notifications = await import("expo-notifications");
+        if (cancelled) return;
+        notificationListener.current = Notifications.addNotificationReceivedListener(
+          (notification) => {
+            console.log("[push] notification received", notification.request.identifier);
+          }
+        );
+        responseListener.current =
+          Notifications.addNotificationResponseReceivedListener((response) => {
+            console.log("[push] notification response", response);
+          });
+      } catch (e) {
+        console.warn("[UserSelect] expo-notifications unavailable", e);
+      }
+    };
+
+    void setup();
+
+    return () => {
+      cancelled = true;
+      notificationListener.current?.remove();
+      responseListener.current?.remove();
+    };
+  }, []);
 
   const handleNext = (): void => {
     if (!selectedButton) return;
 
-    const navigationMap: Record<LoginUserTypes, string> = {
-      'OfficeStaff': 'OfficeStaffLogin',
-      'Volunteer': 'VolunteerLogin',
-      'SDRF': 'SDRFLogin',
-      'RevenueStaff': 'RevenueStaffLogin',
+    const pathMap: Record<LoginUserTypes, string> = {
+      OfficeStaff: '/(needAuth)/OfficeStaffLogin',
+      Volunteer: '/(needAuth)/VolunteerLogin',
+      SDRF: '/(needAuth)/SDRFLogin',
+      RevenueStaff: '/(needAuth)/RevenueStaffLogin',
     };
 
-    const route = navigationMap[selectedButton];
-    if (route) {
-      navigation.navigate(route as never);
-    }
+    router.push(pathMap[selectedButton] as never);
   };
-
-  useEffect(() => {
-    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-      setNotification(notification as never);
-    });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log(response);
-    });
-
-    return () => {
-      if (notificationListener.current && typeof notificationListener.current.remove === 'function') {
-        notificationListener.current.remove();
-      }
-      if (responseListener.current && typeof responseListener.current.remove === 'function') {
-        responseListener.current.remove();
-      }
-    };
-  }, []);
-
 
   return (
     <ParallaxScrollView

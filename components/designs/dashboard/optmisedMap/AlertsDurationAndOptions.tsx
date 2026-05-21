@@ -1,6 +1,6 @@
 import { Href, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { AlertsDuration, AlertsFilter } from './MapComponent';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
@@ -32,7 +32,7 @@ const FreeFireLinkButton = () => {
       style={[styles.filterBtnTextOuter]}
     >
       <Text style={[styles.filterBtnText]}>
-        Pre Fire
+        Near Forest Alerts
       </Text>
     </TouchableOpacity>
 
@@ -74,7 +74,13 @@ const AlertsDurationAndOptions = ({ alertsFilter, setAlertsFilter }: AlertsDurat
   ];
 
   return (
-    <View style={styles.statsFilterBtnsHolder}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.statsFilterScroll}
+      contentContainerStyle={styles.statsFilterBtnsHolder}
+      keyboardShouldPersistTaps="handled"
+    >
       {filterButtons.map(({ duration, label }) => (
         <FilterButton
           key={duration}
@@ -86,23 +92,27 @@ const AlertsDurationAndOptions = ({ alertsFilter, setAlertsFilter }: AlertsDurat
       ))}
       <FreeFireLinkButton />
       <WeatherBulletinButton />
-    </View>
+    </ScrollView>
   );
 };
 export default AlertsDurationAndOptions;
 
 const styles = StyleSheet.create({
-  statsFilterBtnsHolder: {
+  statsFilterScroll: {
     width: "100%",
-    paddingVertical: verticalScale(10),
-    display: "flex",
-    gap: horizontalScale(4),
+    flexGrow: 0,
+  },
+  statsFilterBtnsHolder: {
     flexDirection: "row",
-    justifyContent: 'space-around'
+    alignItems: "center",
+    flexWrap: "nowrap",
+    paddingVertical: verticalScale(10),
+    paddingRight: horizontalScale(4),
+    gap: horizontalScale(4),
   },
   filterBtnTextOuter: {
     paddingVertical: verticalScale(5),
-    paddingHorizontal: horizontalScale(20),
+    paddingHorizontal: horizontalScale(12),
     borderRadius: moderateScale(200),
     borderWidth: 2,
     borderColor: 'rgba(0,0,0,.4)',

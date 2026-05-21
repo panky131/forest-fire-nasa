@@ -31,7 +31,10 @@ let isUploading = false;
 const prepareAndUploadIncidentData = async ({ incident_id }: { incident_id: number }): Promise<boolean | FireIncidentsType> => {
   try {
     const selectIncidentDataQuery = `SELECT * FROM ${tbl_fire_incidents.tbl_name} WHERE id = ${incident_id}`;
-    const incidentDataSet: FireIncidentsType[] = await executeSQLiteOperation({ query: selectIncidentDataQuery });
+    const incidentDataSet = await executeSQLiteOperation({ query: selectIncidentDataQuery });
+    if (!Array.isArray(incidentDataSet) || incidentDataSet.length === 0) {
+      return false;
+    }
 
     const targetedIncidentData: FireIncidentsType = incidentDataSet[0];
 
@@ -87,7 +90,10 @@ const prepareAndUploadExisitingFire = async ({ existingReportID }: {
 }): Promise<boolean | ExistingFireReportType> => {
   try {
     const selectExisitingReportQuery = `SELECT * FROM ${tbl_existing_fire_report.tbl_name} WHERE id = ${existingReportID}`;
-    const existingReportDataSet: ExistingFireReportType[] = await executeSQLiteOperation({ query: selectExisitingReportQuery });
+    const existingReportDataSet = await executeSQLiteOperation({ query: selectExisitingReportQuery });
+    if (!Array.isArray(existingReportDataSet) || existingReportDataSet.length === 0) {
+      return false;
+    }
 
     const targetedExistingReport: ExistingFireReportType = existingReportDataSet[0];
     const storedImageURI: string = targetedExistingReport.image;
@@ -196,8 +202,13 @@ const deleteUploadedExisitingReportData = async ({ existingReportID, imageUriToD
 const processOfflineData = async (): Promise<void> => {
   try {
 
-    const incidentsSqliteData: FireIncidentsType[] = await executeSQLiteOperation({ table_name: tbl_fire_incidents.tbl_name });
-    const existingFireReports: ExistingFireReportType[] = await executeSQLiteOperation({ table_name: tbl_existing_fire_report.tbl_name });
+    const incidentsSqliteData = await executeSQLiteOperation({ table_name: tbl_fire_incidents.tbl_name });
+    const existingFireReports = await executeSQLiteOperation({ table_name: tbl_existing_fire_report.tbl_name });
+
+    if (!Array.isArray(incidentsSqliteData) || !Array.isArray(existingFireReports)) {
+      console.log("processOfflineData: SQLite reads failed, skipping upload");
+      return;
+    }
 
     if (incidentsSqliteData.length > 0) {
       for (let incidentDataCounter = 0; incidentDataCounter < incidentsSqliteData.length; incidentDataCounter++) {
@@ -244,18 +255,22 @@ const processOfflineData = async (): Promise<void> => {
 
 const BACKGROUND_FETCH_TASK = 'background-fetch-task';
 
-TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
-  try {
-    const netInfo = await NetInfo.fetch();
-    if (netInfo.isConnected) {
-      await processOfflineData();
+try {
+  TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
+    try {
+      const netInfo = await NetInfo.fetch();
+      if (netInfo.isConnected) {
+        await processOfflineData();
+      }
+      return BackgroundFetch.BackgroundFetchResult.NewData;
+    } catch (error) {
+      console.log('Error in background task:', error);
+      return BackgroundFetch.BackgroundFetchResult.Failed;
     }
-    return BackgroundFetch.BackgroundFetchResult.NewData;
-  } catch (error) {
-    console.log('Error in background task:', error);
-    return BackgroundFetch.BackgroundFetchResult.Failed;
-  }
-});
+  });
+} catch (e) {
+  console.warn('Background fetch task could not be defined:', e);
+}
 
 const registerBackgroundFetchAsync = async (): Promise<void> => {
   try {

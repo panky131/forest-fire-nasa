@@ -32,13 +32,13 @@ export const useAlertsController = () => {
       setIsLoading(true);
       setIsError(false);
 
-      const data = await getAlertsData({
-        setPageError: setIsError,
+      const result = await getAlertsData({
         setIsLoading,
         alertsDuration: filters.duration,
       });
 
-      setAlertsData(data);
+      setIsError(!result.ok);
+      setAlertsData(result.alerts);
     } finally {
       isFetchingRef.current = false;
       setIsLoading(false);

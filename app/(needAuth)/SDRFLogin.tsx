@@ -1,13 +1,10 @@
 import { router } from 'expo-router';
-import * as Device from "expo-device";
-import Constants from "expo-constants";
 import Toast from 'react-native-toast-message';
 import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
-import * as Notifications from "expo-notifications";
 import { TextInput, Picker } from 'react-native-rapi-ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import URLs from '@/utils/URLs';
@@ -17,6 +14,9 @@ import { ThemedText } from '@/components/ThemedText';
 import { useIsFocused } from '@react-navigation/native';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
+import { appendNotificationTokenFields } from '@/utils/appendNotificationTokenFormData';
+import { apiErrorMessageFromBody, parseApiJsonObject } from '@/utils/parseApiJsonBody';
+import { resolveExpoPushTokenForLoginAsync } from '@/utils/registerForExpoPushToken';
 
 interface SelectItem {
   label: string,
@@ -35,80 +35,11 @@ const SDRFLogin = () => {
   const [districtName, setDistrictName] = useState("");
   const [otp, setOTPCode] = useState("");
 
-  const [notificationToken, setNotificationToken] = useState<string>('');
   const [positionList, setPositionList] = useState<SelectItem[]>([]);
   const [districts, setDistricts] = useState<SelectItem[]>([]);
 
   const navigateToErrorScreen = () => {
     router.replace("/(needAuth)/ErrorScreen");
-  };
-
-  const registerForPushNotificationsAsync = async (): Promise<string> => {
-    try {
-      setPageLoading(true);
-      setLoadingText('Getting notification token');
-      let token: string = '';
-
-      if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-          name: 'default',
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#FF231F7C',
-        });
-      }
-
-      if (Device.isDevice) {
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-
-        if (existingStatus !== 'granted') {
-          const { status } = await Notifications.requestPermissionsAsync();
-          finalStatus = status;
-        }
-
-        if (finalStatus !== 'granted') {
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: 'Failed to get push token for push notification!',
-          });
-          return '';
-        }
-        const projectId =
-          Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-        if (!projectId) {
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: 'Project ID not found',
-          });
-          console.log('Project ID not found');
-          return "";
-        }
-
-        token = (await Notifications.getExpoPushTokenAsync({
-          projectId
-        })).data;
-        console.log(token);
-      } else {
-        alert('Must use physical device for Push Notifications');
-      }
-
-      return token;
-    } catch (error) {
-      console.log(error);
-      Toast.show({
-        type: 'error',
-        text1: 'Oops!',
-        text2: 'Problems while getting notification token'
-      });
-      console.log(`Problems while getting notification token`);
-      return "";
-    } finally {
-      setPageLoading(false);
-      setLoadingText('Loading');
-    }
   };
 
   const handleLogin = async () => {
@@ -125,6 +56,8 @@ const SDRFLogin = () => {
     try {
       setPageLoading(true);
 
+      const pushToken = await resolveExpoPushTokenForLoginAsync();
+
       const formData = new FormData();
       formData.append('name', name);
       formData.append('number', number);
@@ -132,7 +65,7 @@ const SDRFLogin = () => {
       formData.append('district', districtName);
       formData.append('user_type', "SDRF");
       formData.append('OTPCode', otp);
-      formData.append('notificationToken', notificationToken);
+      appendNotificationTokenFields(formData, pushToken);
 
       const response = await fetch(URLs.api_base_url + "user_login.php", {
         method: "POST",
@@ -140,23 +73,35 @@ const SDRFLogin = () => {
         cache: 'no-cache'
       });
 
-      const responseJson = await response.json();
-      if (responseJson.status != "success") {
+      const rawBody = await response.text();
+      const responseJson = parseApiJsonObject(rawBody);
+      if (!responseJson) {
+        console.warn("[SDRFLogin] Non-JSON login response", rawBody.slice(0, 500));
         Toast.show({
           type: 'error',
           text1: 'Oops!',
-          text2: responseJson.message
+          text2: response.ok
+            ? 'Invalid response from server.'
+            : `Server error (HTTP ${response.status}).`,
+        });
+        return;
+      }
+      if (String(responseJson.status) !== "success") {
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: apiErrorMessageFromBody(responseJson),
         });
         return;
       }
 
       const divisonId: string = districtName.toString();
-      const _mobile: string = responseJson.mobile.toString();
-      const _user_name: string = responseJson.name.toString();
-      const _auth_key: string = responseJson.authKey.toString();
-      const _user_type: string = responseJson.user_type.toString();
-      const _lat: string = responseJson.latitude ? responseJson.latitude.toString() : "30.3165";
-      const _long: string = responseJson.longitude ? responseJson.longitude.toString() : "78.0322";
+      const _mobile: string = String(responseJson.mobile ?? '');
+      const _user_name: string = String(responseJson.name ?? '');
+      const _auth_key: string = String(responseJson.authKey ?? '');
+      const _user_type: string = String(responseJson.user_type ?? '');
+      const _lat: string = responseJson.latitude != null ? String(responseJson.latitude) : "30.3165";
+      const _long: string = responseJson.longitude != null ? String(responseJson.longitude) : "78.0322";
 
       await SecureStore.setItemAsync('latitude', _lat);
       await SecureStore.setItemAsync('longitude', _long);
@@ -177,12 +122,6 @@ const SDRFLogin = () => {
     } finally {
       setPageLoading(false);
     }
-  };
-
-  const getNotificationToken = async () => {
-    const notificationToken = await registerForPushNotificationsAsync();
-    setNotificationToken(notificationToken);
-    console.log('This is new notification token-', notificationToken);
   };
 
   const getAllPositions = async () => {
@@ -206,8 +145,8 @@ const SDRFLogin = () => {
         return;
       }
 
-      const postions: string[] = responseJson.positions;
-      const sdrfPositionsList: SelectItem[] = postions.map(position => ({ label: position, value: position }));
+      const postions: string[] = Array.isArray(responseJson.positions) ? responseJson.positions : [];
+      const sdrfPositionsList: SelectItem[] = postions.map((position) => ({ label: position, value: position }));
       setPositionList(sdrfPositionsList);
 
     } catch (error) {
@@ -217,7 +156,6 @@ const SDRFLogin = () => {
 
     } finally {
       setPageLoading(false);
-      getNotificationToken();
     }
   };
 
@@ -236,9 +174,9 @@ const SDRFLogin = () => {
         return;
       }
 
-      const responseJson: string[] = await response.json();
-
-      const mappedDistrict: SelectItem[] = responseJson.map(district => ({ label: district, value: district }));
+      const responseJson: unknown = await response.json();
+      const rawList = Array.isArray(responseJson) ? responseJson : [];
+      const mappedDistrict: SelectItem[] = rawList.map((district: string) => ({ label: district, value: district }));
       setDistricts(mappedDistrict);
 
     } catch (error) {
@@ -248,7 +186,6 @@ const SDRFLogin = () => {
 
     } finally {
       setPageLoading(false);
-      getNotificationToken();
     }
   };
 

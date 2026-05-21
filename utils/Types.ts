@@ -16,11 +16,16 @@ interface AlertsResponseDataType {
   handler: string,
   remarks: string,
   datetime: string,
+  /** Satellite / capture time from API (`alertCaptured`). */
+  alertCaptured?: string | null,
+  /** Legacy column name; used if `alertCaptured` is absent. */
+  acq_date?: string | null,
   submitted_by: string,
   beat: string,
   range_name: string,
   division: string,
-  ft_type: string;
+  /** Forest category from API (`tbl_forest_type` / beat lookup). */
+  ft_type?: string | null;
 }
 
 type AlertsDurationType = '24hrs' | '3days' | 'all';

@@ -5,21 +5,27 @@ import { themeColor } from 'react-native-rapi-ui'
 import { ThemedText } from '@/components/ThemedText'
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics'
 
-const StatsBoxLabelValue = ({ label, value }: {
-  label: string,
-  value: string | number
+const StatsBoxLabelValue = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number | null | undefined;
 }) => {
+  const text =
+    value === null || value === undefined ? "—" : String(value);
+
   return (
     <View style={styles.flex}>
       <ThemedText type='default' style={styles.boxLabel}>
         {label}
       </ThemedText>
       <ThemedText type='default' style={styles.boxValue}>
-        {value}
+        {text}
       </ThemedText>
     </View>
-  )
-}
+  );
+};
 
 export default StatsBoxLabelValue
 

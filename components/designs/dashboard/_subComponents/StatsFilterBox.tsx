@@ -1,9 +1,10 @@
 import React, { Dispatch, SetStateAction } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { AlertsDurationType, AlertsResponseDataType } from '@/utils/Types';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
 import { filterByDuration } from '@/utils/functions/filterAlertsByDuration';
+import { excludeNearForestAlerts } from '@/utils/functions/nearForestBeat';
 import { Href, useRouter } from 'expo-router';
 
 interface ComponentPropType {
@@ -12,6 +13,8 @@ interface ComponentPropType {
   setAlertsDuration: Dispatch<SetStateAction<AlertsDurationType>>;
   setDurationFilterAlerts: Dispatch<SetStateAction<AlertsResponseDataType[]>>;
   setFilteredAlertsData: Dispatch<SetStateAction<AlertsResponseDataType[]>>,
+  /** Main dashboard strips NF alerts; Near Forest screen keeps NF-only lists from parent. */
+  variant?: 'dashboard' | 'nearForest';
 }
 
 interface FilterButtonProps {
@@ -32,19 +35,33 @@ const FilterButton = ({ duration, label, onPress, isActive }: FilterButtonProps)
   </TouchableOpacity>
 );
 
-const FreeFireLinkButton = () => {
+const NearForestAlertsNavButton = () => {
   const router = useRouter();
 
   return (
     <TouchableOpacity
       onPress={() => router.push('/(needAuth)/(protected)/FreeFire' as Href)}
-      style={[styles.filterBtnTextOuter]}
+      style={[styles.filterBtnTextOuter, styles.navSwapButton]}
     >
-      <Text style={[styles.filterBtnText]}>
-        Pre Fire
+      <Text style={[styles.filterBtnText, styles.navSwapButtonText]}>
+        Near Forest Alerts
       </Text>
     </TouchableOpacity>
-    
+  );
+};
+
+const ActiveAlertsNavButton = () => {
+  const router = useRouter();
+
+  return (
+    <TouchableOpacity
+      onPress={() => router.push('/(needAuth)/(protected)/Dashboard' as Href)}
+      style={[styles.filterBtnTextOuter, styles.navSwapButton]}
+    >
+      <Text style={[styles.filterBtnText, styles.navSwapButtonText]}>
+        Active Alerts
+      </Text>
+    </TouchableOpacity>
   );
 };
 
@@ -64,18 +81,29 @@ const WeatherBulletinButton = () => {
   );
 };
 
-const StatsFilterBox = ({ setAlertsDuration, alertsDuration,
-  alertsData, setFilteredAlertsData, setDurationFilterAlerts }: ComponentPropType) => {
+const StatsFilterBox = ({
+  setAlertsDuration,
+  alertsDuration,
+  alertsData,
+  setFilteredAlertsData,
+  setDurationFilterAlerts,
+  variant = 'dashboard',
+}: ComponentPropType) => {
+  const applyVariantSlice = (list: AlertsResponseDataType[]) =>
+    variant === 'dashboard' ? excludeNearForestAlerts(list) : list;
+
   const handleFilterButtonClick = (duration: AlertsDurationType) => {
     setAlertsDuration(duration);
 
     if (duration === 'all') {
-      setDurationFilterAlerts(alertsData);
-      return setFilteredAlertsData(alertsData);
+      const next = applyVariantSlice(alertsData);
+      setDurationFilterAlerts(next);
+      return setFilteredAlertsData(next);
     }
 
-    setDurationFilterAlerts(filterByDuration(alertsData, duration));
-    setFilteredAlertsData(filterByDuration(alertsData, duration));
+    const next = applyVariantSlice(filterByDuration(alertsData, duration));
+    setDurationFilterAlerts(next);
+    setFilteredAlertsData(next);
   };
 
   const filterButtons = [
@@ -84,7 +112,13 @@ const StatsFilterBox = ({ setAlertsDuration, alertsDuration,
   ];
 
   return (
-    <View style={styles.statsFilterBtnsHolder}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.statsFilterScroll}
+      contentContainerStyle={styles.statsFilterBtnsHolder}
+      keyboardShouldPersistTaps="handled"
+    >
       {filterButtons.map(({ duration, label }) => (
         <FilterButton
           key={duration}
@@ -94,24 +128,33 @@ const StatsFilterBox = ({ setAlertsDuration, alertsDuration,
           onPress={handleFilterButtonClick}
         />
       ))}
-      <FreeFireLinkButton />
-      <WeatherBulletinButton/>
-    </View>
+      {variant === 'dashboard' ? (
+        <NearForestAlertsNavButton />
+      ) : (
+        <ActiveAlertsNavButton />
+      )}
+      <WeatherBulletinButton />
+    </ScrollView>
   );
 };
 export default StatsFilterBox;
 
 const styles = StyleSheet.create({
-  statsFilterBtnsHolder: {
+  statsFilterScroll: {
     width: "100%",
-    paddingVertical: verticalScale(10),
-    display: "flex",
-    gap: horizontalScale(4),
+    flexGrow: 0,
+  },
+  statsFilterBtnsHolder: {
     flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "nowrap",
+    paddingVertical: verticalScale(2),
+    paddingRight: horizontalScale(4),
+    gap: horizontalScale(4),
   },
   filterBtnTextOuter: {
-    paddingVertical: verticalScale(5),
-    paddingHorizontal: horizontalScale(20),
+    paddingVertical: verticalScale(4),
+    paddingHorizontal: horizontalScale(12),
     borderRadius: moderateScale(200),
     borderWidth: 2,
     borderColor: 'rgba(0,0,0,.4)',
@@ -128,5 +171,13 @@ const styles = StyleSheet.create({
   },
   activeButtonText: {
     color: '#fff'
-  }
+  },
+  navSwapButton: {
+    borderColor: '#0a9396',
+    backgroundColor: 'rgba(10, 147, 150, 0.08)',
+  },
+  navSwapButtonText: {
+    color: '#0a9396',
+    fontFamily: 'NotoSans_Bold',
+  },
 });

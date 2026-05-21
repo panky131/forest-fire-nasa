@@ -62,7 +62,7 @@ export default function Layout() {
       name: 'Warning'
     },
     {
-      title: 'Pre Fire Alert',
+      title: 'Near Forest Alerts',
       name: 'FreeFire'
     },
     {
@@ -180,7 +180,7 @@ export default function Layout() {
                       gap: horizontalScale(10),
                       alignItems: 'center'
                     }}>
-                      <MaterialCommunityIcons name="fire" size={moderateScale(24)} color="#fff" />
+                      <MaterialCommunityIcons name="alert-outline" size={moderateScale(24)} color="#fff" />
                       <ThemedText type='default' style={{
                         color: '#fff',
                         fontSize: moderateScale(14)
@@ -201,7 +201,7 @@ export default function Layout() {
                       gap: horizontalScale(10),
                       alignItems: 'center'
                     }}>
-                      <MaterialCommunityIcons name="cannabis" size={moderateScale(24)} color="#fff" />
+                      <MaterialCommunityIcons name="bullhorn" size={moderateScale(24)} color="#fff" />
                       <ThemedText type='default' style={{
                         color: '#fff',
                         fontSize: moderateScale(14)

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Alert, BackHandler, StyleSheet } from 'react-native';
+import { Alert, BackHandler, StyleSheet, View } from 'react-native';
 
 import BottomButtonHolder from '@/components/designs/dashboard/BottomButtonHolder';
 import DashboardUserInformation from '@/components/designs/dashboard/DashboardUserInformation';
@@ -33,7 +33,9 @@ const Dashboard = () => {
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.outerContainer}>
       <DashboardUserInformation />
-      <MapAndStatsHolder />
+      <View style={styles.mapAndStats}>
+        <MapAndStatsHolder />
+      </View>
       <BottomButtonHolder />
     </SafeAreaView>
   );
@@ -44,5 +46,10 @@ export default Dashboard;
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1
-  }
+  },
+  /** Lets stats + map use all vertical space between header and bottom actions. */
+  mapAndStats: {
+    flex: 1,
+    minHeight: 0,
+  },
 });

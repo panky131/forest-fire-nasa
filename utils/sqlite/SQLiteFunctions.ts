@@ -52,7 +52,12 @@ const executeSQLiteOperation = async ({ table_name, query = "" }:
 
   try {
     const db = await useDatabase();
-    const data = await db.getAllAsync(query ? query : `SELECT * FROM ${table_name}`);
+    if (!db) return false;
+
+    const sql = query || (table_name ? `SELECT * FROM ${table_name}` : "");
+    if (!sql) return false;
+
+    const data = await db.getAllAsync(sql);
 
     return data;
   } catch (error) {
@@ -68,6 +73,7 @@ const deleteRow = async ({ table_name, column_name, column_value }:
   try {
 
     const db = await useDatabase();
+    if (!db) return false;
 
     const deleteInspectionQuery = `DELETE FROM ${table_name} WHERE ${column_name} = '${column_value}'`;
     await db.runAsync(deleteInspectionQuery);
@@ -86,6 +92,8 @@ const insertRow = async ({ query, values }:
   try {
 
     const db = await useDatabase();
+    if (!db) return false;
+
     await db.runAsync(query, values);
 
     return true;
@@ -101,6 +109,11 @@ const isDBModified = async (): Promise<boolean> => {
 
     const query = `SELECT name FROM sqlite_master WHERE type='table' AND name IN (${requiredDBTables.map(name => `'${name}'`).join(',')});`;
     const foundTables = await executeSQLiteOperation({ query });
+
+    if (!Array.isArray(foundTables)) {
+      console.error("isDBModified: could not read sqlite_master");
+      return true;
+    }
 
     const foundTableNames = foundTables.map((row: { name: string }) => row.name);
     const missingTables = requiredDBTables.filter(table => !foundTableNames.includes(table));

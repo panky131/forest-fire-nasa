@@ -15,6 +15,9 @@ import Toast from 'react-native-toast-message';
 import { ThemedText } from '@/components/ThemedText';
 import LoadingIndicator from '@/components/designs/LoadingIndicator';
 import { horizontalScale, moderateScale, verticalScale } from '@/utils/Metrics';
+import { appendNotificationTokenFields } from '@/utils/appendNotificationTokenFormData';
+import { apiErrorMessageFromBody, parseApiJsonObject } from '@/utils/parseApiJsonBody';
+import { resolveExpoPushTokenForLoginAsync } from '@/utils/registerForExpoPushToken';
 
 interface PickerDataType {
   value: string,
@@ -45,6 +48,8 @@ const VolunteerLogin = () => {
       setIsLoading(true);
       setPageError(false);
 
+      const pushToken = await resolveExpoPushTokenForLoginAsync();
+
       const formData = new FormData();
 
       formData.append('name', name);
@@ -54,33 +59,45 @@ const VolunteerLogin = () => {
       formData.append('user_type', "volunteer");
       formData.append('officeName', divisonName);
       formData.append('organizationId', selectedOrganization);
+      appendNotificationTokenFields(formData, pushToken);
 
       const response = await fetch(URLs.api_base_url + "_user_login.php", {
         method: "POST",
         body: formData,
       });
 
-      const responseJson = await response.json();
-
-      if (responseJson.status !== "success") {
-
+      const rawBody = await response.text();
+      const responseJson = parseApiJsonObject(rawBody);
+      if (!responseJson) {
+        console.warn("[VolunteerLogin] Non-JSON login response", rawBody.slice(0, 500));
         Toast.show({
           type: 'error',
           text1: 'Oops!',
-          text2: responseJson.message,
+          text2: response.ok
+            ? 'Invalid response from server.'
+            : `Server error (HTTP ${response.status}).`,
         });
+        return;
+      }
 
-        console.log(responseJson.message);
+      if (String(responseJson.status) !== "success") {
+        const errMsg = apiErrorMessageFromBody(responseJson);
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: errMsg,
+        });
+        console.log(errMsg);
         return;
       }
 
       const _divisonId: string = divisonName.toString();
-      const _lat: string = responseJson.latitude.toString();
-      const _mobile: string = responseJson.mobile.toString();
-      const _user_name: string = responseJson.name.toString();
-      const _long: string = responseJson.longitude.toString();
-      const _auth_key: string = responseJson.authKey.toString();
-      const _user_type: string = responseJson.user_type.toString();
+      const _lat: string = String(responseJson.latitude ?? '');
+      const _mobile: string = String(responseJson.mobile ?? '');
+      const _user_name: string = String(responseJson.name ?? '');
+      const _long: string = String(responseJson.longitude ?? '');
+      const _auth_key: string = String(responseJson.authKey ?? '');
+      const _user_type: string = String(responseJson.user_type ?? '');
 
       console.log(selectedOrganization);
 

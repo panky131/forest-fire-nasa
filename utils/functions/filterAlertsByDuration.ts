@@ -1,34 +1,45 @@
 import { AlertsDurationType, AlertsResponseDataType } from "../Types";
 
-const getTimeDifference = (datetime: string, now: Date): number => {
-  return now.getTime() - new Date(datetime).getTime();
+const DURATION_MS: Record<Exclude<AlertsDurationType, "all">, number> = {
+  "24hrs": 24 * 60 * 60 * 1000,
+  /** Three calendar days (72h), not seven. */
+  "3days": 3 * 24 * 60 * 60 * 1000,
 };
 
-const getTimeLimit = (duration: AlertsDurationType): number => {
-  const durationMap: Record<AlertsDurationType, number> = {
-    '24hrs': 24 * 60 * 60 * 1000,
-    '3days': 7 * 24 * 60 * 60 * 1000,
-    'all': 0
-  };
+const rowTimestamp = (datetime: string | undefined | null): number => {
+  if (datetime == null || String(datetime).trim() === "") {
+    return NaN;
+  }
+  return new Date(datetime).getTime();
+};
 
-  const timeLimit = durationMap[duration];
-
-  if (!timeLimit) {
-    throw new Error('Invalid duration specified');
+const filterByDuration = (
+  data: AlertsResponseDataType[],
+  duration: AlertsDurationType
+): AlertsResponseDataType[] => {
+  if (!Array.isArray(data)) {
+    return [];
   }
 
-  return timeLimit;
-};
-
-const filterByDuration = (data: AlertsResponseDataType[], duration: AlertsDurationType): AlertsResponseDataType[] => {
-  if (duration === 'all') {
+  if (duration === "all") {
     return data;
   }
 
-  const now = new Date();
-  const timeLimit = getTimeLimit(duration);
+  const windowMs = DURATION_MS[duration as keyof typeof DURATION_MS];
+  if (typeof windowMs !== "number" || Number.isNaN(windowMs) || windowMs <= 0) {
+    console.warn("[filterByDuration] Unknown duration, returning copy:", duration);
+    return [...data];
+  }
 
-  return data.filter(({ datetime }) => getTimeDifference(datetime, now) <= timeLimit);
+  const now = Date.now();
+
+  return data.filter(({ datetime }) => {
+    const t = rowTimestamp(datetime);
+    if (Number.isNaN(t)) {
+      return false;
+    }
+    return now - t <= windowMs;
+  });
 };
 
 export { filterByDuration };
